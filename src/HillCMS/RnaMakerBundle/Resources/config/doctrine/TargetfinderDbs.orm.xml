@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping http://doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+  <entity name="HillCMS\RnaMakerBundle\Entity\TargetfinderDbs" table="targetfinder_dbs">
+    <id name="dbId" type="integer" column="db_id">
+      <generator strategy="IDENTITY"/>
+    </id>
+    <field name="dbLabel" type="string" column="db_label" length="100" nullable="false"/>
+    <field name="dbPath" type="string" column="db_path" length="50" nullable="false"/>
+    <field name="species" type="string" column="species" length="25" nullable="false"/>
+  </entity>
+</doctrine-mapping>

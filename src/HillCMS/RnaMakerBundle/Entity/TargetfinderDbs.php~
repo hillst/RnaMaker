@@ -1,0 +1,46 @@
+<?php
+
+namespace HillCMS\RnaMakerBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * TargetfinderDbs
+ *
+ * @ORM\Table(name="targetfinder_dbs")
+ * @ORM\Entity
+ */
+class TargetfinderDbs
+{
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="db_label", type="string", length=100, nullable=false)
+     */
+    private $dbLabel;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="db_path", type="string", length=50, nullable=false)
+     */
+    private $dbPath;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="species", type="string", length=25, nullable=false)
+     */
+    private $species;
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="db_id", type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="IDENTITY")
+     */
+    private $dbId;
+
+
+}

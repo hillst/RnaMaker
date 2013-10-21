@@ -1,0 +1,48 @@
+{%  extends "HillCMSCCBLBundle:Default:bootstrap-template.html.twig" %}
+
+{% block body %}
+<div id="myCarousel1" class="carousel slide">
+	<div class="carousel-inner">
+		{% set active = 1 %}
+		{% for group in slides %}
+		<div class="item {% if  active == 1 %} active {% endif %}">
+			{% set active = 0 %}
+			<img src={{ asset(group['Image']) }} alt="">
+			<div class="container-fluid">
+				<div class="carousel-caption">
+					<h1>{{group['Caption']}}</h1>
+				</div>
+			</div>
+		</div>
+		{% endfor %}
+	</div>
+	<a class="left carousel-control" href="#myCarousel1" data-slide="prev">&lsaquo;</a>
+	<a class="right carousel-control" href="#myCarousel1" data-slide="next">&rsaquo;</a>
+</div>
+<!-- /.carousel -->
+<!-- Marketing messaging and featurettes -->
+<!-- Wrap the rest of the page in another container-fluid to center all
+the content. -->
+
+<div 
+class="container-fluid marketing">
+	<div class="featurette"
+	style="padding-left: 40px; padding-right: 40px;">
+		<h2 class="featurette-heading">{{ main['Header'] }}</h2>
+			{{ main['Subheader'] }}
+		<br/>
+		<p>
+			{{ main['Block'] }}
+		</p>
+	</div>
+</div>
+{% endblock %}
+{% block javascript %}
+<script>
+	! function($) {
+		$(function() {
+			$('#myCarousel1').carousel()
+		})
+	}(window.jQuery)
+</script>
+{% endblock %}

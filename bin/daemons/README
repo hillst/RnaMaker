@@ -1,0 +1,22 @@
+#SandboxedDaemon.py#
+This directory contains all the files used to run the SandboxedDaemon. SandboxedDaemon is a persistant python application that listens for connections, once connections, it expects a json input. This json file should contain various information about the program you are trying to run remotely.
+
+SandboxedDaemon also contains a queue, this queue only allows some number of jobs, determined at startup, to be run silmutaniously. SandboxedDaemon uses the Pipeline Module (pipeline_mod/pipeline.py) to decode the json and run the jobs asyncrhoniously.
+
+For the Daemon to run, there must be a folder in THIS DIRECTORY called results. The most practical thing to do is add a symbolic link to a results folder in your webapp.
+
+#Security#
+To be sure nothing malicious is happening with the Daemon, give the daemon it's own user, and allow that user to only execute a specific set of proccesses.
+
+#JSON#
+The .json passed to the server from the client expects the following format:
+{
+    "<process name> (could be anything)>": {
+        "path": "path/to/executable",
+        "output": "file/to/write/stdout",
+        "arguments": [
+            "arg1", "arg2"
+            "-orflag", "flagarg"
+        ]
+    }
+}

@@ -1,0 +1,115 @@
+{%  extends "HillCMSRnaMakerBundle:Default:modal-template.html.twig" %}
+{% set modal_id = "start" %}
+{% set modal_title = "Target Finder Options" %}
+{% block body %}
+<div class="container">
+	<div class="jumbotron" style="float:none">
+		{% for main in groups %}
+		{# The foreach is not necessary, however accessing the groups in an iterative manner is how it should be done in all-non singular cases, and it is 
+			good practice to do it with singular groups as well. #}
+			<h1>{{ main["Header"] }}</h1>
+			<p>
+			{{ main["Content"] }}</p>
+		{% endfor %}
+				
+			<a data-toggle="modal" href="#start" class="btn btn-default btn-block btn-tile btn-quartenary">
+				Get Started.
+			</a>
+	</div>	
+</div>
+{{ parent() }}
+{% endblock %}
+	{% block modal %}
+      
+	<form role="form" class="targetfinder">
+	  <div class="form-group">
+	    <label for="database">Database:</label>
+	    <!-- change to non-integer values -->
+	      <select class="form-control" name="database" id="database">
+	      	{% for db in dbs %}
+        		<option value="{{ db.dbId }}">{{ db.dbLabel }}</option>
+        	{% endfor %}	      
+		  </select>
+	  </div>
+	  
+	  <div class="form-group">
+	    <label for="fb">Vector:</label>
+	  	<select class="form-control" name="fb" id="fb">
+            <option value="eudicot">eudicot</option>
+            <option value="monocot">monocot</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="results">Result limit:</label>
+      	<select class="form-control" name="results" id="results">
+            <option value="1" selected="selected">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+        </select>
+      </div>
+	  <div class="form-group">
+	    <label for="off-targets">Off-target limit:</label>
+        <input class="form-control" id="off-targets" name="off-targets" type="text" placeholder="0" value="0">
+	  </div>
+	  <span style="font-style:italic">Choose Input Sequence or Gene</span>
+	  <div class="form-group">
+	  	<label for="sequence">Target sequence:</label>
+      	<textarea class="form-control" id="sequence" name="sequence" rows="1" placeholder="ATGATGATGATGC" >none</textarea>
+	  </div>
+	  <div class="form-group">
+	    <label for="gene">Gene:</label>
+		<input type="text" class="form-control" id="gene" placeholder="AT1G01040.1" name="gene">
+	  </div>
+	  <div class="result hidden" style="text-align: center;"></div>
+	  <a href= "#" id="result" type="submit" class="btn btn-default btn-block btn-large btn-tertiary">Submit</a>
+	</form>
+	{% endblock %}
+{% block javascript %}
+<script type="text/javascript">
+$().ready(function(){
+	var ignore = false;
+	$('.targetfinder').submit(function(){
+		var form = $(this);
+		$.ajax({
+			type: "POST",
+			url: '{{ path("rnamaker_amirnarequest") }}',
+			data: $(this).serialize(),	
+			//should return a token that will access the results, as stored in memory
+			success: function(data){
+				form.find('.result').removeClass('hidden alert alert-danger alert-warning');
+				form.find('.result').addClass("alert alert-success");
+				form.find('.result').text("Success!");
+				$( "#result" ).animate({
+			          backgroundColor: "#7CB02C", //btn secondary 
+			          color: "#fff"
+				}, 1000 );
+				$("#result").attr("href", "{{ path("result_token_plain") }}/" + data );
+				$("#result").text("Click to see Results");
+				$("#result").unbind("click");			    
+			},
+			error: function(xhr, status, error) {
+				form.find('.result').removeClass('hidden alert alert-success alert-warning');
+				form.parent().find('.result').addClass("alert alert-danger");
+				if (xhr.responseText != ""){
+					form.parent().find('.result').html(xhr.responseText);
+				} else{
+					if(!ignore){
+						form.parent().find('.result').html("Error");
+					}
+				}
+			},
+			beforeSend: function(){
+				form.find('.result').removeClass('hidden alert alert-danger alert-success');
+				form.find('.result').addClass('alert alert-warning');
+				form.find('.result').html('<img src="{{ asset("includes/images/ajax-loader.gif") }}"/>' );
+			}
+		});
+		return false;
+	});
+	//bind to targetfinder form
+	$('#result').click(function(){
+		$('.targetfinder').submit()
+	});
+});
+</script>
+{% endblock %}

@@ -1,0 +1,48 @@
+{%  extends "HillCMSRnaMakerBundle:Default:bootstrap-template.html.twig" %}
+{% block body %}
+<div class="container">
+	<div class="jumbotron" style="float:none">
+		{% for main in groups %}
+		{# The foreach is not necessary, however accessing the groups in an iterative manner is how it should be done in all-non singular cases, and it is 
+			good practice to do it with singular groups as well. #}
+			<h1>{{ main["Header"] }}</h1>
+			<p> {{ main["Content"] }}</p>
+		{% endfor %}
+		<div class="col-lg-4 btn-nopad">
+			<a href="{{ path("rnamaker_amirnadesigner") }}" class="col-lg-6 btn btn-default btn-block btn-tile btn-secondary">
+				<div class="col-lg-4">
+					<img class = "tile-image pull-left image-responsive" src="{{ asset("includes/images/oligo.png") }}"/> 
+				</div>
+				<div class="col-lg-8 tile-text pull-right">
+					amiRNA Designer
+				</div>
+				
+			</a>
+		</div>
+		<div class="col-lg-4 btn-nopad">
+			<a href="{{ path("rnamaker_oligodesigner") }}" class=" btn btn-default btn-block btn-tile btn-tertiary">
+				<div class="col-lg-4">
+					<img class = "tile-image pull-left image-responsive" src="{{ asset("includes/images/RNAhairpin.png") }}"/> 
+				</div>
+				<div class="col-lg-8 tile-text pull-right">
+					amiRNA oligo Designer
+				</div>
+			</a>
+		</div>
+		<div class="col-lg-4 btn-nopad">
+			<a href="{{ path("rnamaker_targetfinder") }}" class=" btn btn-default btn-block btn-tile btn-quartenary">
+				<div class="col-lg-4">
+					<img class = "tile-image pull-left image-responsive" src="{{ asset("includes/images/dna.png") }}"/>
+				</div>
+				<div class="col-lg-8 tile-text pull-right">
+					Target Finder
+				</div>
+			</a>
+		</div>
+		
+	</div>	
+	
+</div>
+
+
+{% endblock %}

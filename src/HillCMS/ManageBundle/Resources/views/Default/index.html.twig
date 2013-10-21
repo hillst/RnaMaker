@@ -1,0 +1,195 @@
+{%  extends "HillCMSManageBundle:Default:manage-template.html.twig" %}
+	{% block pagemenu %}
+		{% set first = 0 %}
+		{% for pages in allowed_pages %}
+			<li {% if first == 0 %}class="active"{% endif %}><a href="#{{ pages["page"].Name }}" data-toggle="tab">{{ pages["page"].Name  }}</a></li>
+			{% set first = first + 1 %}
+		{% endfor %}
+		<li><a href="#users" data-toggle="tab">User Management</a></li>
+	{% endblock %}
+	{% block pagethings %}
+		{% set first = 0 %}
+		{% for pages in allowed_pages %}
+			<div class="tab-pane {% if first == 0 %}active{% endif %}" id="{{ pages["page"].Name }}">
+            	{% for groups in pages["page_things"] %}
+            		<h2>{{ (groups[0].Thingname|split('-'))[0] }} - 
+            				<form class="deletething" style="display: inline" action="{{ path("deletething") }}" method ="POST">
+            					<input type="hidden" value="{{ groups[0].groupnum }}" name="groupnum">
+								<input type="submit" value="Delete" class="btn-delete"/>
+							</form>
+					</h2>
+            		{% for things in groups %}
+	            		<h4>{{(things.Thingname|split('-'))[1] }}</h4>
+	            		<p>
+	            			<div class='editable' id= "{{ things.Thingid }}">{{ things.Content }} </div>
+	            		</p>
+	            	{% endfor %}
+            	{% endfor %}
+            	{#At the end you want to add our form, some of these shouldn't be enabled somehow, maybe manually.#}
+            	{% for key, group in pages["supergroups"] %}
+            		<h2>Add new {{ key }}</h2>
+            	    <form id ="form" action='{{ path('addthing') }}' method="POST">
+            		{% for field in group %}
+            			<input type="text" name="{{key}}-{{ field }}" placeholder="{{ field }}"></input><br/>
+            		{% endfor %}
+            		<input type="hidden" value="{{ pages["page"].Pid }}" name="pageid"/>
+            		<input type="submit"></input>
+            		</form>
+            	{% endfor %}
+        	</div>
+        	{% set first = first + 1 %}
+        {% endfor %}
+        {#assert user is admin#}
+        <div class="tab-pane" id="users">
+	        <a id="status"></a>
+	        <div id ="alert-box" class="alert hidden" style="margin-top:2%">
+	          <button type="button" class="close" data-dismiss="alert">&times;</button> 
+	        </div>
+        {% if isAdmin == 1 %}
+        	{% for user in users %}
+        		<h2>{{ user.username }}</h2>
+        		<form class = "form-group form-horizontal editusername" role="form" action="{{ path("editusername") }}" method="POST">
+					Username	    
+				    <div>
+				      <input type="text" class="form-control" name="username" value="{{ user.username }}">
+				      <input type="hidden" value="{{ user.id }}" name="id"></input>
+				      <button type="submit" class="btn btn-default">Change username</button>
+				    </div>
+				</form>
+				   
+				<form class="form-group form-horizontal changepass" role="form" action="{{ path("changepass") }}" method="POST">
+					New Password
+				    <div>
+				      <input type="password" class="form-control" name="password" placeholder="Password"><br/>
+				    Repeat Password <br/>
+				      <input type="password" class="form-control" name="mpassword" placeholder="Repeat Password">
+				      <input type="hidden" value="{{ user.id }}" name="id"></input>
+				      <button type="submit" class="btn btn-default">Change password</button>
+				    </div>
+				</form>
+				   
+				<form class="form-group form-horizontal saverole" role="form" action="{{ path("saverole") }}" method="POST">
+					Role
+					<div>
+				    	<select class="form-control" name="role">
+				      		<option value="ROLE_ADMIN" {% if user.role == "ROLE_ADMIN" %}selected{% endif %}>ROLE_ADMIN</option>
+				      		<option value="ROLE_USER" {% if user.role == "ROLE_USER" %}selected{% endif %}>ROLE_USER</option>
+				      	</select>
+				      	<input type="hidden" value="{{ user.id }}" name="id"></input>
+				      	<button type="submit" class="btn btn-default">Change Role</button>
+				    </div>
+				</form>
+        	{% endfor %}
+        	<h2>New User</h2>
+        	<form class="form-group form-horizontal adduser" role="form" action="{{ path("adduser") }}" method="POST">
+        		Username<br/>
+        		<input type="text" class="form-control" name="username" placeholder="username"></input><br/><br/>
+        		Password<br/>
+        		<input type="password" class="form-control" name="password" placeholder="password"></input><br/><br/>
+        		Role<br/>
+        		<select class="form-control" name="role">
+        			<option value="ROLE_ADMIN" >ROLE_ADMIN</option>
+        			<option value="ROLE_USER" selected>ROLE_USER</option>
+        		</select>
+        		<br/>
+        		<button type="submit" class="btn btn-default">Add User</button>
+        	</form>
+
+        {% endif %}
+        {% if isAdmin == -1 %}
+        {% set user = users[0] %}
+        
+        	<h2>{{ user.username }} - Change Password</h2>
+        		
+				   
+				<form class="form-group form-horizontal changepass" role="form" action="{{ path("changepass") }}" method="POST">
+						Old password<br/>
+				    	<input type="password" class="form-control" name="oldpass" placeholder="Old Password"></input> <br/>
+				    	New password <br/>
+					    <input type="password" class="form-control" name="password" placeholder="Password"></input> <br/>
+					    Repeat new password <br/>
+					    <input type="password" class="form-control" name="mpassword" placeholder="Repeat Password"></input>
+					    <input type="hidden" value="{{ user.id }}" name="id"></input>
+					    <button type="submit" class="btn btn-default">Change password</button>
+				    
+				</form>
+        {% endif %}
+        </div>
+	{% endblock %}
+{% block javascript %}
+<script type="text/javascript">
+var request;
+
+function ajaxWithAlert(event, path, form){
+    if (request) {
+        request.abort();
+    }
+    var $form = form;
+    var closer =  '<button type="button" class="close" data-dismiss="alert">&times;</button>';
+    
+    var $inputs = $form.find("input, select, button, textarea");
+    var serializedData = $form.serialize();
+    $inputs.prop("disabled", true);
+    request = $.ajax({
+        url: path,
+        type: "post",
+        data: serializedData
+    });
+    request.done(function (response, textStatus, jqXHR){
+		//set status, goto anchor
+        location.hash = "#status";
+        $("#alert-box").removeClass("alert-error hidden");
+        $("#alert-box").addClass("alert-success");
+        $("#alert-box").html(closer + response)
+	    
+    });
+	request.fail(function (jqXHR, textStatus, errorThrown){
+		//set status, goto anchor
+        $("#alert-box").removeClass("alert-success hidden");
+        $("#alert-box").addClass("alert-error");
+        $("#alert-box").html(closer + jqXHR.responseText);
+    });
+    request.always(function () {
+    	$(document.body).animate({
+    	    'scrollTop':   $('#status').offset().top
+    	}, 300);
+        $inputs.prop("disabled", false);
+    });
+	event.preventDefault();
+};
+
+
+$(document).ready(function() {
+	$('.editable').editable('{{ path('save')}}', {
+		indicator : 'Saving...',
+		tooltip   : 'Click to edit.',
+		type      : 'textarea',
+		cancel    : 'Cancel',
+		submit    : 'OK'
+    });
+	//bind for each edit option
+	$(".changepass").submit(function(event){
+		ajaxWithAlert(event, '{{ path("changepass") }}', $(this) ) 
+	}); //wat
+
+	{% if isAdmin == 1 %}
+		// admin specific javascript (Add user, edit role, edit username)	
+		$(".adduser").submit(function(event){
+			ajaxWithAlert(event, '{{ path("adduser") }}', $(this) ) 
+		}); 
+		$(".saverole").submit(function(event){
+			ajaxWithAlert(event, '{{ path("saverole") }}', $(this) ) 
+		}); 
+		$(".editusername").submit(function(event){
+			ajaxWithAlert(event, '{{ path("editusername") }}', $(this) ) 
+		}); 
+	{% endif %}
+	//confirmation dialog
+	$(".deletething").submit(function(event){
+		if(!confirm('Are you sure you want to delete this?')){
+			return false;
+		}
+	}); 
+ });
+</script>
+{% endblock %}

@@ -1,0 +1,56 @@
+<?php
+
+namespace HillCMS\ManageBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * CmsPageThings
+ *
+ * @ORM\Table(name="cms_page_things")
+ * @ORM\Entity
+ */
+class CmsPageThings
+{
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="thingid", type="integer", nullable=false)
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="IDENTITY")
+     */
+    private $thingid;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="content", type="text", nullable=false)
+     */
+    private $content;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="thingname", type="string", length=25, nullable=false)
+     */
+    private $thingname;
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="groupnum", type="integer", nullable=false)
+     */
+    private $groupnum;
+
+    /**
+     * @var \CmsPage
+     *
+     * @ORM\ManyToOne(targetEntity="CmsPage")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="pageid", referencedColumnName="pid")
+     * })
+     */
+    private $pageid;
+
+
+}

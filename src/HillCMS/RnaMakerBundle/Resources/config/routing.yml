@@ -1,0 +1,30 @@
+rnamaker_home:
+    pattern:  /
+    defaults: { _controller: HillCMSRnaMakerBundle:Default:index }
+dummy_route:
+    pattern: /dummy
+    defaults: { _controller: HillCMSRnaMakerBundle:Default:dummy}
+result_token_plain:
+    pattern: /results
+    defaults: { _controller: HillCMSRnaMakerBundle:Default:empty}
+result_token:
+    pattern: /results/{token}
+    defaults: { _controller: HillCMSRnaMakerBundle:Default:results}
+rnamaker_oligodesigner:
+    pattern: /oligodesigner
+    defaults: { _controller: HillCMSRnaMakerBundle:Default:oligoDesignerForm }
+rnamaker_oligorequest: 
+    pattern: /oligorequest
+    defaults: { _controller: HillCMSRnaMakerBundle:default:oligoRequest }
+rnamaker_amirnadesigner:
+    pattern: /amirna
+    defaults: { _controller: HillCMSRnaMakerBundle:Default:amirnaDesignerForm }
+rnamaker_amirnarequest:
+    pattern: /amirnarequest
+    defaults: { _controller: HillCMSRnaMakerBundle:Default:amirnaDesignerRequest }
+rnamaker_targetfinder:
+    pattern: /finder
+    defaults: { _controller: HillCMSRnaMakerBundle:Default:targetFinderForm }
+rnamaker_targetfinderrequest:
+    pattern: /finderrequest
+    defaults: { _controller: HillCMSRnaMakerBundle:Default:targetFinderRequest}

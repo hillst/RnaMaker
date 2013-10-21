@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<buildpath>
+	<buildpathentry kind="src" path="app"/>
+	<buildpathentry kind="src" path="src/Acme/DemoBundle"/>
+	<buildpathentry kind="src" path="src/HillCMS/CCBLBundle"/>
+	<buildpathentry kind="src" path="src/HillCMS/ManageBundle"/>
+	<buildpathentry kind="src" path="src/HillCMS/SecurityBundle"/>
+	<buildpathentry kind="src" path="src/HillCMS/SpirodelaBundle"/>
+	<buildpathentry kind="src" path="src/HillCMS/UserBundle"/>
+	<buildpathentry kind="src" path="vendor"/>
+	<buildpathentry kind="src" path="web"/>
+	<buildpathentry kind="con" path="org.eclipse.php.core.LANGUAGE"/>
+</buildpath>
