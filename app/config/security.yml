@@ -24,10 +24,16 @@ security:
             logout: 
               path: ^/logout
               target: /
-
+        entire_app:
+            pattern:    ^/
+            http_basic: ~
+            logout:
+                path: ^/logout
+                target: /
     access_control:
         # if this app is pushed to production be sure the manage area is all https. basic_auth demands this.
         #- { path: ^/manage, roles: ROLE_ADMIN, requires_channel: https}
+        - { path: ^/, roles: [ROLE_ADMIN, ROLE_USER] }
         - { path: ^/manage, roles: [ROLE_ADMIN, ROLE_USER] }
         - { path: ^/manage/save, roles: [ROLE_ADMIN, ROLE_USER]}
         - { path: ^/manage/addthing, roles: [ROLE_ADMIN, ROLE_USER]}

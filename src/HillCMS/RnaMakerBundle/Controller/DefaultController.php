@@ -15,7 +15,7 @@ use HillCMS\RnaMakerBundle\ClientSocket\DaemonHunter;
  */
 class DefaultController extends CMSController
 {
-	
+    private $server_results = "server_results";	
 	
     public function indexAction(){
     	$pid = 1;
@@ -131,7 +131,7 @@ class DefaultController extends CMSController
     		$arguments[10] = "-a";
     		$arguments[11] = $gene;
     	}
-    	$json = $daemonSocket->jsonBuilder("generate_amiRNA_list.pl", "bin/generate_amiRNA_list.pl", "results/amiRNA_list_".uniqid("amiRNA_list"), $arguments);
+    	$json = $daemonSocket->jsonBuilder("generate_amiRNA_list.pl", "generate_amiRNA_list.pl", $this->server_results."/".uniqid("amiRNA_list"), $arguments);
     
     	$result = $daemonSocket->socketSend($json);
     	$tokens = explode(",",$result);
@@ -162,7 +162,7 @@ class DefaultController extends CMSController
     	$result = "m. Donec elementum odio in dui sollicitudin, at feugiat erat blandit. Duis est justo, porttitor nec leo scelerisque, tempus scelerisque est. Integer porttitor bibendum justo vitae molestie. Integer a lacus sit amet nisl pretium varius eu vel sapien. Vestibulum convallis mi nec mauris mattis hendrerit. Nunc leo dui, condimentum quis arcu eu, fringilla luctus arcu. In hac habitasse platea dictumst. Nulla convallis id lorem ut adipiscing. Aenean nec aliquet leo. Nullam convallis tortor fermentum vestibulum bibendum. In interdum lorem eros, sed convallis nunc imperdiet ac. Cras vel erat nec arcu ornare blandit at in ante.";
     	//placeholder, comes from daemon
     	$token = uniqid("result_");
-    	$fd = fopen("results/". $token, "w");
+    	$fd = fopen($this->server_results . "/". $token, "w");
     	fwrite($fd, $result);
     	fclose($fd);
     	return new Response($token, 200);
@@ -222,10 +222,10 @@ class DefaultController extends CMSController
     	$arguments[3] = $name;
     	$arguments[4] = "-t";
     	$arguments[5] = $fb;
-    	$json = $daemonSocket->jsonBuilder("amiR_final.pl", "bin/amiR_final.pl", "results/".uniqid("amiRNA_"), $arguments);
+    	$json = $daemonSocket->jsonBuilder("amiR_final.pl", "amiR_final.pl", $this->server_results."/".uniqid("amiRNA_"), $arguments);
     	/*
     	 *  Example job.
-    	*  $json = $daemonSocket->jsonBuilder("nqueens", "./nqueens.py", "results/".uniqid("nqueens_"), $arguments);
+    	*  $json = $daemonSocket->jsonBuilder("nqueens", "./nqueens.py", $this->server_results."/".uniqid("nqueens_"), $arguments);
     	*  $arguments = array(0=>"12");
     	*/
     	$result = $daemonSocket->socketSend($json);
@@ -241,11 +241,13 @@ class DefaultController extends CMSController
     
     
     /**
-     * Universal results action. If a custom results page is a needed a new action should be written.
+     * Universal results action. If a custom results page is a needed a new action should be written. This function finds the file with the 
+     * class field server_result. It expects the token to be the filename.
+     * 
      * @param $token results token returned by the job daemon
      */
     public function resultsAction($token){
-    	$fd = fopen($token, "r"); //do work son lol
+    	$fd = fopen($this->server_results . "/" . $token, "r"); //do work son lol
     	$result = "";
     	while( ! feof($fd )){
     		$result .= fread($fd, 8092);
@@ -287,7 +289,7 @@ class DefaultController extends CMSController
     	$arguments[5] = $db;
     	$arguments[6] = "-c";
     	$arguments[7] = $score;
-    	$json = $daemonSocket->jsonBuilder("targetfinder.pl", "bin/targetfinder.pl", "results/".uniqid("targetfinder_"), $arguments);
+    	$json = $daemonSocket->jsonBuilder("targetfinder.pl", "targetfinder.pl", $this->server_results."/".uniqid("targetfinder_"), $arguments);
 	
     	$result = $daemonSocket->socketSend($json);
     	$tokens = explode(",",$result);

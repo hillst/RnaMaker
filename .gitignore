@@ -1,6 +1,7 @@
 app/cache
 app/log
 app/logs
+results
 app/config/parameters.yml
 .project
 

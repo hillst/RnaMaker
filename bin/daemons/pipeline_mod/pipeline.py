@@ -84,6 +84,8 @@ class PipelineProcess:
     
     def getProcpath(self):  return self.procpath
     
+    def setProcpath(self, path): self.procpath = path
+ 
     def getOutput(self): return self.output
     
     def getArgs(self): return self.args
@@ -151,6 +153,11 @@ class SingleSettingRunner:
     def getOutputFilename(self):
         return self.process.getOutput()
 
+    def getPath(self):
+        return self.process.getProcpath()
+
+    def setPath(self, path):
+        self.process.setProcpath(path)
 """
 Pipeline is responsible for running associated Pipeline Processes. It should execute jobs 
 in order of priority. If priorities are equal, it will run them asynchroniously.

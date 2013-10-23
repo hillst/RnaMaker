@@ -6,7 +6,10 @@ SandboxedDaemon also contains a queue, this queue only allows some number of job
 For the Daemon to run, there must be a folder in THIS DIRECTORY called results. The most practical thing to do is add a symbolic link to a results folder in your webapp.
 
 #Security#
-To be sure nothing malicious is happening with the Daemon, give the daemon it's own user, and allow that user to only execute a specific set of proccesses.
+To set the port in your own manner, execute SandboxedDaemon.py with the -p argument. In order for the new port to function properly, the DaemonHunter configuration must also be updated. 
+This is in src/HillCMS/RnaMakerBundle/ClientSocket
+Use --help for a full list of arguments.
+Only files in the runnable (points to /home/nfahlgren/www/amirna/bin) folder may be executed by the daemon. The daemon explicitly adds runnable/ to each recieved command.
 
 #JSON#
 The .json passed to the server from the client expects the following format:

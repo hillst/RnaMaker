@@ -4,18 +4,18 @@ rnamaker_home:
 dummy_route:
     pattern: /dummy
     defaults: { _controller: HillCMSRnaMakerBundle:Default:dummy}
-result_token_plain:
-    pattern: /results
-    defaults: { _controller: HillCMSRnaMakerBundle:Default:empty}
 result_token:
     pattern: /results/{token}
     defaults: { _controller: HillCMSRnaMakerBundle:Default:results}
+result_token_plain:
+    pattern: /results
+    defaults: { _controller: HillCMSRnaMakerBundle:Default:results }
 rnamaker_oligodesigner:
     pattern: /oligodesigner
     defaults: { _controller: HillCMSRnaMakerBundle:Default:oligoDesignerForm }
 rnamaker_oligorequest: 
     pattern: /oligorequest
-    defaults: { _controller: HillCMSRnaMakerBundle:default:oligoRequest }
+    defaults: { _controller: HillCMSRnaMakerBundle:Default:oligoRequest }
 rnamaker_amirnadesigner:
     pattern: /amirna
     defaults: { _controller: HillCMSRnaMakerBundle:Default:amirnaDesignerForm }

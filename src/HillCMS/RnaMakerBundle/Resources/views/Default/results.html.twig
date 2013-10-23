@@ -3,12 +3,9 @@
 <div class="container">
 	<div class="jumbotron" style="float:none">
 		<h1> Results </h1>
-		<p>{{ results }}</p>
-		<button id = "save" class="btn btn-default btn-block">Save Results</button>
-		<a id = "download" class = "btn btn-default btn-block btn-tertiary" href="{{ asset("results/" ~ dl_token)}}" download>Download</a>
+		<p>{{ results|raw }}</p>
+		<a id = "download" class = "btn btn-default btn-block btn-tertiary" href="{{ asset("server_results/" ~ dl_token)}}" download>Download</a>
 	</div>	
 	
 </div>
-
-
 {% endblock %}

@@ -1,0 +1,6 @@
+Notice: we recommend a C at amiR position 19, in order to have a 5' G on the miR*<br><br>
+Notice: we recommend a 5' U on the miR<br><br>
+<span id="alignment">amiRNA = AAAAAAAAAAAAAAAAAAAAA</span><br>
+<span id="alignment">miRNA* = TTTTTTTTGTTTTTTTTTTCA</span><br>
+<span id="alignment">Forward oligo = 5' TGTAAAAAAAAAAAAAAAAAAAAAAATGATGATCACATTCGTTATCTATTTTTTTTTTTTTTTTGTTTTTTTTTT 3'</span><br>
+<span id="alignment">Reverse oligo = 5' AATGAAAAAAAAAACAAAAAAAAAAAAAAAATAGATAACGAATGTGATCATCATTTTTTTTTTTTTTTTTTTTTT 3'</span><br>
