@@ -1,0 +1,10 @@
+Scalar value @tokens[$i] better written as $tokens[$i] at runnable/amiR_final.pl line 82.
+Scalar value @tokens[$i] better written as $tokens[$i] at runnable/amiR_final.pl line 87.
+Scalar value @tokens[$i] better written as $tokens[$i] at runnable/amiR_final.pl line 83.
+Scalar value @tokens[$i] better written as $tokens[$i] at runnable/amiR_final.pl line 88.
+Scalar value @tokens[$i] better written as $tokens[$i] at runnable/amiR_final.pl line 85.
+Scalar value @tokens[$i] better written as $tokens[$i] at runnable/amiR_final.pl line 90.
+Scalar value @tokens[$i] better written as $tokens[$i] at runnable/amiR_final.pl line 85.
+Global symbol "$result" requires explicit package name at runnable/amiR_final.pl line 115.
+Execution of runnable/amiR_final.pl aborted due to compilation errors.
+Warning: we recommend a C at amiR position 19, in order to have a 5' G on the miR*

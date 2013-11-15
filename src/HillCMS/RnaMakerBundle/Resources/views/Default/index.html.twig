@@ -6,7 +6,8 @@
 		{# The foreach is not necessary, however accessing the groups in an iterative manner is how it should be done in all-non singular cases, and it is 
 			good practice to do it with singular groups as well. #}
 			<h1>{{ main["Header"] }}</h1>
-			<p> {{ main["Content"] }}</p>
+			    <img class="img-responsive img-rounded" src="{{ asset( main["Image"] ) }}"/>
+            <p> {{ main["Content"] }}</p>
 		{% endfor %}
 		<div class="col-lg-4 btn-nopad">
 			<a href="{{ path("rnamaker_amirnadesigner") }}" class="col-lg-6 btn btn-default btn-block btn-tile btn-secondary">

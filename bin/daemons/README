@@ -3,13 +3,20 @@ This directory contains all the files used to run the SandboxedDaemon. Sandboxed
 
 SandboxedDaemon also contains a queue, this queue only allows some number of jobs, determined at startup, to be run silmutaniously. SandboxedDaemon uses the Pipeline Module (pipeline_mod/pipeline.py) to decode the json and run the jobs asyncrhoniously.
 
-For the Daemon to run, there must be a folder in THIS DIRECTORY called results. The most practical thing to do is add a symbolic link to a results folder in your webapp.
+How communication is handled between the client and the executed program are up to the developer. In the simplest manner, the Daemon will read everything that is sent to stdout by the program, and return it to the client. 
+
+In the case of the RnaMaker's version of the Daemon, it expects JSON containing different fields about the result to be sent to the daemon, it then forwards these results back to the webapp for processing.
+
+It's important to note that jobs are run from the SandboxedDaemon's working directory, that is usually the bin/daemons folder. The generate_amiRNA_list.pl script requires a path to the other programs and to the database,
+they should be listed in that script relative to the Daemon's directory.
 
 #Security#
 To set the port in your own manner, execute SandboxedDaemon.py with the -p argument. In order for the new port to function properly, the DaemonHunter configuration must also be updated. 
 This is in src/HillCMS/RnaMakerBundle/ClientSocket
 Use --help for a full list of arguments.
 Only files in the runnable (points to /home/nfahlgren/www/amirna/bin) folder may be executed by the daemon. The daemon explicitly adds runnable/ to each recieved command.
+
+Additionally, it may be possible to execute other command depending on the shell. The Daemon escapes all non alphanumeric non -_/ characters before execution.
 
 #JSON#
 The .json passed to the server from the client expects the following format:

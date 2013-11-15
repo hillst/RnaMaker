@@ -187,6 +187,64 @@ class DefaultController extends CMSController
     	$homegroups = $this->buildPageGroups($pagethings);
     	return $this->render('HillCMSRnaMakerBundle:Default:oligodesigner.html.twig', array("groups"=> $homegroups["Oligo"]));
     }
+    public function syntasiOligoDesignerFormAction(){
+        $pid = 3;
+        $em = $this->getDoctrine()->getManager();
+        $repo = $em->getRepository("HillCMSManageBundle:CmsPageThings");
+        $pagethings = $repo->findBy(array("pageid" => $pid)); //our people page id^M
+        if (sizeof($pagethings) === 0){
+            //empty page^M
+            return new Response("Error", 404);
+        }
+        $homegroups = $this->buildPageGroups($pagethings);
+        return $this->render('HillCMSRnaMakerBundle:Default:syntasioligodesigner.html.twig', array("groups"=> $homegroups["Oligo"]));
+    }
+
+    public function syntasiOligoRequestAction(){
+        //perl ./sites/amirna/bin/amiR_final.pl -s $seq -n $name -t $fb"^M
+    
+        //it is reasonable to code in the script in this file because this is the specific function's action.^M
+        $request = $this->getRequest();
+        if ($request->getMethod() === 'POST') {
+            $seq = $request->get('seq');
+            $name = $request->get('name');
+            $fb = $request->get('fb');
+            $fd = fopen("/scratch/posterize", "w");
+            fwrite($fd, print_r($this->get('request')->request->all(),TRUE
+));
+            fclose($fd);
+            if($seq == "" || $name == "" || $fb == ""){
+                return new Response("", 403);
+            }
+        } else{
+            return new Response("", 403);
+        }
+         
+        $daemonSocket = new DaemonHunter();
+        $arguments = array();
+        $arguments[0] = "-s";
+        $arguments[1] = $seq;
+        $arguments[2] = "-n";
+        $arguments[3] = $name;
+        $arguments[4] = "-t";
+        $arguments[5] = $fb;
+        $json = $daemonSocket->jsonBuilder("amiR_final.pl", "amiR_final.pl", $this->server_results."/".uniqid("syntasiRNA_"), $arguments);
+        /*^M
+         *  Example job.^M
+        *  $json = $daemonSocket->jsonBuilder("nqueens", "./nqueens.py", $this->server_results."/".uniqid("nqueens_"), $arguments);^M
+        *  $arguments = array(0=>"12");^M
+        */
+        $result = $daemonSocket->socketSend($json);
+        $tokens = explode(",",$result);
+        if(sizeof($tokens) > 1){
+            $token = trim($tokens[1]);
+        } else{
+            return new Response("Error, unexpected response.", 500);
+        }
+        return new Response($token ."", 200);
+    
+    }
+    
     
     /**
      * Request handler for Oligo Designer.  Expects a post and the arguments to be passed to the command line function. Then opens (hunts)
@@ -222,7 +280,7 @@ class DefaultController extends CMSController
     	$arguments[3] = $name;
     	$arguments[4] = "-t";
     	$arguments[5] = $fb;
-    	$json = $daemonSocket->jsonBuilder("amiR_final.pl", "amiR_final.pl", $this->server_results."/".uniqid("amiRNA_"), $arguments);
+    	$json = $daemonSocket->jsonBuilder("amiR_final.pl", "amiR_final.pl", $this->server_results."/".uniqid("oligoDesigner_"), $arguments);
     	/*
     	 *  Example job.
     	*  $json = $daemonSocket->jsonBuilder("nqueens", "./nqueens.py", $this->server_results."/".uniqid("nqueens_"), $arguments);
@@ -257,6 +315,18 @@ class DefaultController extends CMSController
     	return $this->render("HillCMSRnaMakerBundle:Default:results.html.twig", array("results" => $result, "dl_token"=> $token));
     }
     
+    /**
+     * Identical to the other resultsAction, except uses the syntasiRNA header.
+     */
+    public function syntasiResultsAction($token){
+        $fd = fopen($this->server_results ."/" . $token, "r");
+        $results = "";
+        while( ! feof($fd) ){
+            $results .= fread($fd, 8092);
+        }
+        fclose($fd);
+        return $this->render("HillCMSRnaMakerBundle:Default:syntasiResults.html.twig", array("results" => $results, "dl_token" => $token));
+    }
     /**
      * Handles requeusts for the target finder. Validates the POST submission and connects to the daemon. If the submission is missing a field, it will return 403.
      * If the response from the daemon is bad (format is not "statuscode","resultname"), it will return 500.

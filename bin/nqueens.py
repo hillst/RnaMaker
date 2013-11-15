@@ -20,19 +20,24 @@ def clear_all_future_positions(xpos):
        chosen[i]=None
  
 def NQueens(xpos):
- #  print 'NQueens(',xpos,') entering'
     for ypos in range(1, n + 1):
-        clear_all_future_positions(xpos)
+        #clear_all_future_positions(xpos)
         if place(xpos, ypos):
             chosen[xpos] = ypos
    #        print 'chosen=',chosen
             if (xpos==n):
-                for opponent in chosen:
-                    print chosen[opponent]
-                print '------------------'
+                pass
             else:
                 NQueens(xpos+1)
  #  print 'NQueens(',xpos,') returns'
- 
- 
+clear_all_future_positions(1)
 NQueens(1)
+for x in range(1, n+1):
+    for y in range(1, n+1):
+        cur = chosen[x]
+        if cur == y:
+            print " Q",
+        else:
+            print " -",
+    print ""
+    

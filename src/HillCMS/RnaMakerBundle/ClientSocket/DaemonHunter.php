@@ -72,8 +72,8 @@ Class DaemonHunter{
 		return $response;
 	}
 	
-	function jsonBuilder($procname, $procpath, $output, $arguments){
-		$json = '{ "'. $procname .'":{ "path":"'.$procpath.'","output":"'.$output.'","arguments": [';
+	function jsonBuilder($procname, $procpath,  $arguments){
+		$json = '{ "'. $procname .'":{ "path":"'.$procpath.'","arguments": [';
 		foreach ($arguments as $argument){
 			$json .= '"' .$argument. '",';
 		}

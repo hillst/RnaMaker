@@ -4,27 +4,40 @@ rnamaker_home:
 dummy_route:
     pattern: /dummy
     defaults: { _controller: HillCMSRnaMakerBundle:Default:dummy}
-result_token:
-    pattern: /results/{token}
-    defaults: { _controller: HillCMSRnaMakerBundle:Default:results}
-result_token_plain:
-    pattern: /results
-    defaults: { _controller: HillCMSRnaMakerBundle:Default:results }
-rnamaker_oligodesigner:
-    pattern: /oligodesigner
-    defaults: { _controller: HillCMSRnaMakerBundle:Default:oligoDesignerForm }
-rnamaker_oligorequest: 
-    pattern: /oligorequest
-    defaults: { _controller: HillCMSRnaMakerBundle:Default:oligoRequest }
 rnamaker_amirnadesigner:
-    pattern: /amirna
-    defaults: { _controller: HillCMSRnaMakerBundle:Default:amirnaDesignerForm }
+    pattern: /amiRNA_suite/amirna
+    defaults: { _controller: HillCMSRnaMakerBundle:amiRNASuite:amirnaDesignerForm }
 rnamaker_amirnarequest:
-    pattern: /amirnarequest
-    defaults: { _controller: HillCMSRnaMakerBundle:Default:amirnaDesignerRequest }
+    pattern: /amiRNA_suite/amirnarequest
+    defaults: { _controller: HillCMSRnaMakerBundle:amiRNASuite:amirnaDesignerRequest }
 rnamaker_targetfinder:
-    pattern: /finder
-    defaults: { _controller: HillCMSRnaMakerBundle:Default:targetFinderForm }
+    pattern: /amiRNA_suite/finder
+    defaults: { _controller: HillCMSRnaMakerBundle:amiRNASuite:targetFinderForm }
 rnamaker_targetfinderrequest:
-    pattern: /finderrequest
-    defaults: { _controller: HillCMSRnaMakerBundle:Default:targetFinderRequest}
+    pattern: /amiRNA_suite/finderrequest
+    defaults: { _controller: HillCMSRnaMakerBundle:amiRNASuite:targetFinderRequest}
+rnamaker_oligodesigner:
+    pattern: /amiRNA_suite/oligodesigner
+    defaults: { _controller: HillCMSRnaMakerBundle:amiRNASuite:oligoDesignerForm }
+rnamaker_oligorequest: 
+    pattern: /amiRNA_suite/oligorequest
+    defaults: { _controller: HillCMSRnaMakerBundle:amiRNASuite:oligoRequest }
+result_token:
+    pattern: /amiRNA_suite/results/{token}
+    defaults: { _controller: HillCMSRnaMakerBundle:amiRNASuite:results}
+result_token_plain:
+    pattern: /amiRNA_suite/results
+    defaults: { _controller: HillCMSRnaMakerBundle:amiRNASuite:results }
+rnamaker_syntasi_oligodesigner:
+    pattern: /syntasiRNA_suite/oligodesigner
+    defaults: { _controller: HillCMSRnaMakerBundle:syntasiRNASuite:syntasiOligoDesignerForm }
+rnamaker_syntasi_oligorequest:
+    pattern: /syntasiRNA_suite/oligorequest
+    defaults: { _controller: HillCMSRnaMakerBundle:syntasiRNASuite:syntasiOligoRequest }
+rnamaker_syntasi_results:
+    pattern: /syntasiRNA_suite/results/{token}
+    defaults: { _controller: HillCMSRnaMakerBundle:syntasiRNASuite:syntasiResults}
+rnamaker_syntasi_results_plain:
+    pattern: /syntasiRNA_suite/results
+    defaults: { _controller: HillCMSRnaMakerBundle:syntasiRNASuite:syntasiResults}
+

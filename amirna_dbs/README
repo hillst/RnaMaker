@@ -1,0 +1,5 @@
+These are all symbolic links to the databases' in noah's home directory.
+I don't know if we want them to live there still or not.
+This database directory is referenced from inside the DefaultControllers, as getRootDir() . "../amirna_dbs"
+
+They also must be referenced from amiRNA_Designer_list.pl. And they will be referred to there locally with another symbolic link (pointing here preferrably).

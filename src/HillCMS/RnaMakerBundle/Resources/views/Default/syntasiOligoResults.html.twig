@@ -1,0 +1,13 @@
+{%  extends "HillCMSRnaMakerBundle:Default:syntasi-template.html.twig" %}
+{% block body %}
+<div class="container">
+	<div class="jumbotron results" style="float:none">
+		<h1 class="tool-header"> SyntasiRNA Oligo Results </h1>
+        <div class ="col-lg-2">amiRNA: </div><div class="col-lg-10">{{ amiRNA }}</div>
+        <div class ="col-lg-2">Forward Oligo: </div><div class="col-lg-10">{{ oligo1 }}</div>
+        <div class ="col-lg-2">Reverse Oligo: </div><div class="col-lg-10">{{ oligo2 }}</div>
+		<div class = "col-lg-12"><a id = "download" class = "btn btn-default btn-block btn-tertiary" href="{{ asset(dl_token)}}" style="display:inline-block" download>Download</a></div>
+	</div>	
+	
+</div>
+{% endblock %}

@@ -44,4 +44,4 @@ security:
 
         #- { path: ^/cart/checkout, roles: ADMIN, EDITOR, MANAGER, requires_channel: https }
             
-            
+

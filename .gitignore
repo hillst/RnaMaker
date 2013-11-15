@@ -3,5 +3,8 @@ app/log
 app/logs
 results
 app/config/parameters.yml
+web/server_results
+web/server_encoded
+web/results
 .project
 

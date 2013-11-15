@@ -15,8 +15,7 @@
 	
 <link rel="stylesheet" type="text/css"
 	href="{{ asset("includes/css/custom.css")}}"></link>
-<link rel="stylesheet" type="text/css"
-    href="{{ asset("includes/css/amirnatheme.css")}}"></link>
+
 
 <link rel="icon" type="image/png" href= {{asset("includes/images/favicon.ico")}}>
 <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
@@ -40,10 +39,13 @@
 				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
 					<span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span>
 				</button>
-				<a class="navbar-brand" href="{{ path("rnamaker_oligodesigner") }}"><div id="logo">RNA</div><div id="logo-assist">Maker</div></a>
+				<a class="navbar-brand" href="{{ path("rnamaker_home") }}"><div id="logo">RNA</div><div id="logo-assist">Maker</div></a>
 			</div>
 			<div class="collapse navbar-collapse">
 				<ul class="nav navbar-nav">
+					<li><a href="{{ path("rnamaker_targetfinder") }}">Target Finder</a></li>
+					<li><a href="{{ path("rnamaker_oligodesigner") }}">amiRNA Oligo Designer</a></li>
+					<li><a href="{{ path("rnamaker_amirnadesigner") }}">artificial RNA Designer</a></li>
 					
 				</ul>
 			</div>
@@ -53,14 +55,14 @@
 	{% endblock %}
 	<!-- FOOTER -->
 {% block footer %}
+<div style="position:-50px; position: fixed;"></div>
 <footer>
-	<div class="navbar navbar-fixed-bottom">
+	<div class="container-fluid">
 		<p class="pull-right" style="padding-right: 2px">
 			<a href="#">Back to top</a>
 		</p>
 		<p style="padding-left: 2px; ">&copy; 2013 Donald Danforth Plant Science
-			Center
-        </p>
+			Center</p>
 	</div>
 
 </footer>
@@ -74,6 +76,8 @@
 	<script type="text/javascript" src="{{ asset("includes/js/bootstrap.min.js") }}"></script>
 	<script type="text/javascript" src='{{ asset("includes/js/jquery-1.10.2.min.js")}}'></script>
 	<script type="text/javascript" src='{{ asset("includes/js/jquery.color.js")}}'></script>
+	
+	
 	
 {% block javascript %}
 {% endblock %}

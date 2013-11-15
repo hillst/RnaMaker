@@ -1,7 +1,7 @@
-{%  extends "HillCMSRnaMakerBundle:Default:modal-template.html.twig" %}
-{% set modal_id = "start" %}
-{% set modal_title = groups[2]["PopupTitle"] %}
+{% extends "HillCMSRnaMakerBundle:Default:syntasi-modal-template.html.twig" %}
 {% block body %}
+{% set modal_id = "start" %}
+{% set modal_title = groups[4]['PopupTitle'] %}
 <div class="container">
 	<div class="jumbotron" style="float:none">
 		{% for main in groups %}
@@ -15,31 +15,24 @@
 			Get Started.
 		</a>
         <div class="col-lg-12 image">
-    	    <img style="width:100%; padding-left: 0px; padding-right:0px"class="img-responsive img-rounded" src="/includes/images/AtMIR390a_foldback.png"/>	
+    	    <img style="width:100%; padding-left: 0px; padding-right:0px"class="img-responsive img-rounded" src="{{ groups[4]['Image'] }}"/>	
         </div>
 	</div>
 </div>
 {{ parent() }}
 {% endblock %}
 	{% block modal %}
-    
-	<form role="form" class="targetfinder">
-	 
+    <form role="form" class="targetfinder">
 	  <div class="form-group">
-	    <label for="name">amiRNA Name:</label>
+	    <label for="name">syntasiRNA Name:</label>
 		<input type="text" class="form-control" id="name" placeholder="name" name="name">
 	  </div>
 	  <div class="form-group">
-	    <label for="seq">amiRNA Sequence:</label>
-		<input type="text" class="form-control" id="seq" placeholder="seq" name="seq">
+	    <label for="seq">syntasiRNA Sequence(s):</label>
+		<input type="text" class="form-control seq" placeholder="seq" name="seq">
+        <a class="glyphicon glyphicon-plus" id="addseq"></a>
 	  </div>
-	  <div class="form-group">
-	    <label for="fb">Foldback type:</label>
-	  	<select class="form-control" name="fb" id="fb">
-            <option value="eudicot">eudicot</option>
-            <option value="monocot">monocot</option>
-        </select>
-      </div>
+	  <input type="hidden" name="fb" value="syntasi"/>
 	  <div class="result hidden" style="text-align: center;"></div>
 	  <a href= "#" id="result" type="submit" class="btn btn-default btn-block btn-large btn-tertiary">Submit</a>
 	</form>
@@ -48,45 +41,74 @@
 <script type="text/javascript">
 $().ready(function(){
 	var ignore = false;
+    $('#addseq').click(function(){
+        $(".seq").last().after(
+                    "<input type='text' class='form-control seq' placeholder='seq' name='seq'>"
+        );
+    });
 	$('.targetfinder').submit(function(event){
-        //submission validation
 		var form = $(this);
-        $("#seq").removeClass("alert alert-warning alert-danger input-danger input-warning");
+        //vaidation
+        $(".seq").each(function(){
+            $(this).removeClass("alert alert-warning alert-danger input-danger input-warning");
+        });
         var result = form.find('.result');
         var error = false;
         result.addClass("hidden");
         result.removeClass('hidden alert alert-danger alert-warning');
         var seq = $(".targetfinder").find("#seq").val();
-        if (seq.length != 21){
-            $("#seq").addClass("alert alert-danger input-danger");
-            result.addClass("alert alert-danger");
-            result.removeClass("hidden");
-            result.text("Error: Your input sequence is not 21 NT in length");
-            error = true;
-        }
-        else if (seq.substr(0,1).toUpperCase() !== "T" && seq.substr(0,1).toUpperCase() !== "U"){
-            $("#seq").addClass("alert alert-warning input-warning");
-            result.addClass("alert alert-warning");
-            result.removeClass("hidden");    
-            result.text("Warning: We recommend a T or U on the 5' end.");
-            error = true;
-        }
-        else if (seq.substr(1,1).toUpperCase() !== "C"){
-            $("#seq").addClass("alert alert-warning input-warning");
-            result.addClass("alert alert-warning");
-            result.removeClass("hidden");
-            result.text("Warning: We recommend a C at amiR position 19, in order to have a 5' G on the miR*");
-            error = true;
-        }
+        $(".seq").each(function(){
+            var seq = $(this).val();
+            if (error === true){
+                return;
+            }
+            if (seq.length != 21){
+                $(this).addClass("alert alert-danger input-danger");
+                result.addClass("alert alert-danger");
+                result.removeClass("hidden");
+                result.text("Error: Your input sequence is not 21 NT in length");
+                error = true;
+                return;
+            }
+            else if (seq.substr(0,1).toUpperCase() !== "T" && seq.substr(0,1).toUpperCase() !== "U"){
+                $(this).addClass("alert alert-warning input-warning");
+                result.addClass("alert alert-warning");
+                result.removeClass("hidden");
+                result.text("Warning: We recommend a T or U on the 5' end.");
+                error = true;
+                return;
+            }
+        });
         if (error === true){
             event.preventDefault();
             return;
         }
-        //ajax submission
+        //prepare sequence for server
+        var data = form.serialize();
+        var seqs = data.split("&"); //first/last are not seq
+        var finseq = "";
+        var placed = false;
+        for(var i = 0; i < seqs.length; i++){
+            if (seqs[i].split("=")[0] !== "seq"){
+                if(placed === true){
+                    finseq = finseq.substring(0, finseq.length-1);
+                    finseq += "&" + seqs[i];
+                }else{
+                    finseq += seqs[i] + "&";
+                }
+            }
+            else{
+                if (placed === false){
+                    finseq += "seq=";
+                    placed = true;
+                }
+                finseq += seqs[i].split("=")[1] +",";
+            }
+        }
 		$.ajax({
 			type: "POST",
-			url: '{{ path("rnamaker_oligorequest") }}', 
-			data: $(this).serialize(),	
+			url: '{{ path("rnamaker_syntasi_oligorequest") }}', 
+			data: finseq,	
 			//should return a token that will access the results, as stored in memory
 			success: function(data){
 				form.find('.result').removeClass('hidden alert alert-danger alert-warning');
@@ -96,7 +118,7 @@ $().ready(function(){
 			          backgroundColor: "#7CB02C", //btn secondary 
 			          color: "#fff"
 				}, 1000 );
-	    		$("#result").attr("href", "{{ path("result_token_plain") }}/" + data );
+	    		$("#result").attr("href", "{{ path("rnamaker_syntasi_results_plain") }}/" + data );
                 $("#result").text("Click to see Results");
 				$("#result").unbind("click");			    
 			},
@@ -107,12 +129,12 @@ $().ready(function(){
 					form.parent().find('.result').text(xhr.responseText);
 				} else{
 					if(!ignore){
-						console.log("wtf")
 						form.parent().find('.result').text("Error");
 					}
 				}
 			},
 			beforeSend: function(){
+                
 				form.find('.result').removeClass('hidden alert alert-danger alert-success');
 				form.find('.result').addClass('alert alert-warning');
 				form.find('.result').html('<img src="{{ asset("includes/images/ajax-loader.gif") }}"/>' );

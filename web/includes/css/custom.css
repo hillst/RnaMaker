@@ -1,25 +1,16 @@
-.navbar-inverse { background-color: #248F40}
-.navbar-inverse .navbar-nav>.active>a:hover,.navbar-inverse .navbar-nav>li>a:hover, .navbar-inverse .navbar-nav>li>a:focus { background-color: #024723}
-.navbar-inverse .navbar-nav>.active>a,.navbar-inverse .navbar-nav>.open>a,.navbar-inverse .navbar-nav>.open>a, .navbar-inverse .navbar-nav>.open>a:hover,.navbar-inverse .navbar-nav>.open>a, .navbar-inverse .navbar-nav>.open>a:hover, .navbar-inverse .navbar-nav>.open>a:focus { background-color: #024723}
-.dropdown-menu { background-color: #FFFFFF}
-.dropdown-menu>li>a:hover, .dropdown-menu>li>a:focus { background-color: #059649}
-.navbar-inverse { border-color: #080808}
-.navbar-inverse .navbar-brand { color: #FFFFFF}
-.navbar-inverse .navbar-brand:hover { color: #FFFFFF}
-.navbar-inverse .navbar-nav>li>a { color: #FFFFFF}
-.navbar-inverse .navbar-nav>li>a:hover, .navbar-inverse .navbar-nav>li>a:focus { color: #FFFFFF}
-.navbar-inverse .navbar-nav>.active>a,.navbar-inverse .navbar-nav>.open>a, .navbar-inverse .navbar-nav>.open>a:hover, .navbar-inverse .navbar-nav>.open>a:focus { color: #FFFFFF}
-.navbar-inverse .navbar-nav>.active>a:hover, .navbar-inverse .navbar-nav>.active>a:focus { color: #FFFFFF}
-.dropdown-menu>li>a { color: #333333}
-.dropdown-menu>li>a:hover, .dropdown-menu>li>a:focus { color: #FFFFFF}
-.navbar-inverse .navbar-nav>.dropdown>a .caret { border-top-color: #999999}
-.navbar-inverse .navbar-nav>.dropdown>a:hover .caret { border-top-color: #FFFFFF}
-.navbar-inverse .navbar-nav>.dropdown>a .caret { border-bottom-color: #999999}
-.navbar-inverse .navbar-nav>.dropdown>a:hover .caret { border-bottom-color: #FFFFFF}
+#addseq{
+    font-size:21px;
+    padding: 10px 10px 10px 0px;
+    cursor: pointer;
+}
+
 body { 
 	height:100%;
 }
 
+.navbar-fixed-bottom{
+    min-height: 0px
+}
 .btn{
 	background-color:#047A3C;
 	color: #FFF;
@@ -28,6 +19,10 @@ body {
 
 }
 
+.results{
+    font-size: 18px;
+    word-wrap: break-word;
+}
 .btn-tile{
 	display: inline-block;
 	margin-bottom: 15px;
@@ -54,16 +49,34 @@ body {
 	height: 769%;
 }
 
+.input-warning{
+    border-color: #DEB887;
+}
+.input-danger{
+    border-color: #FF0000;
+}
 .large{
 	width:100%;
 }
 
+.image{
+    padding-right: 0px; 
+    padding-left: 0px;
+}
 .jumbotron{
 	min-height: 768px;
 }
 
 .no-float{
 	float:none;
+}
+
+.syntasi{
+    background-color: #64CF80;
+}
+
+.syntasi_one{
+    background-color: brown;
 }
 
 .tile{
@@ -101,6 +114,12 @@ body {
 	font-weight: 100;
 	display: block;
 }
+
+.tool-header{
+    border-bottom: 1px solid black;
+    padding-bottom: 10px;
+}
+
 #logo{
 	font-weight: 700;
 	font-size: 25px;
@@ -114,3 +133,4 @@ body {
 	color: #64DF85;
 	float: left;
 }
+

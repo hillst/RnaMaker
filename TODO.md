@@ -1,12 +1,8 @@
-THE FOLLOWING ARE CHANGES NEEDED FOR BASE CMS
+Documentation:
 
-Functionally needed:
-	Create a publish queue for different thing boxes.
-	Create an interface to upload files.
-	Add way to delete user
-	Update table structure to use pid as a foreign key...
-	Update seed table/structure table
+Describe architecture of Symfony app, including app-specific decisions
+Describe how the daemon acts and interacts with the app.
+Walk through adding a new program controller as an example
+Describe how the template engine works, and how it is built to handle responses
+Describe how CMS expects things to be formatted
 
-Functionality that may be necessary:
-	Design a way to add new pages and new page thing types... might be impossible as it 
-	breaks the underlying purpose of the dev-focused CMS

@@ -65,7 +65,8 @@ class PipelineProcess:
     dirout = ""
     priority = -1
     functionp = None
-    def __init__(self, procname, procpath, args, priority = 1, output = None, marker="done"):
+    error = ""
+    def __init__(self, procname, procpath, args, priority = 1, output = None, marker="done", error = None):
         self.procname = procname
         self.procpath = procpath
         self.args = args
@@ -73,6 +74,7 @@ class PipelineProcess:
         self.marker = marker
         self.priority = priority
         self.process = None
+        self.error = None
     #getters and setters
     def getProcess(self): return self.process
     
@@ -116,7 +118,11 @@ class PipelineProcess:
                 self.process = Popen([self.getProcpath()] + self.getArgs(), stdin=PIPE, stdout=PIPE, stderr=PIPE)
             else:
                 output = open(self.output, 'w')
-                self.process = Popen([self.getProcpath()] + self.getArgs(), stdin=PIPE, stdout=output, stderr=PIPE)
+                if self.error != None:
+                    error = open(self.error, "a")
+                    self.process = Popen([self.getProcpath()] + self.getArgs(), stdin=PIPE, stdout=output, stderr=error)
+                else:
+                    self.process = Popen([self.getProcpath()] + self.getArgs(), stdin=PIPE, stdout=output, stderr=PIPE)
         except OSError:
             bcolors.printFail("Pipeline Error: the program " + self.getProcpath() + " does not exist. Exiting.")
             exit(-1)
@@ -128,6 +134,8 @@ class PipelineProcess:
     it should probably expect some kind of output from the program, and then figure out the progress that way. Again, these
     seem based on the process implementation so it will be hard to guess. 
     """
+    def setError(self, error):
+        self.error = error
     def getProgress(self):
         self.functionp()
 """
@@ -141,9 +149,9 @@ class SingleSettingRunner:
         self.process = None
         dec = JsonSettings().decode(settings)
         for proc, settings in dec.iteritems():
-            if "output" not in settings or "path" not in settings or "arguments" not in settings:
+            if  "path" not in settings or "arguments" not in settings:
                 raise Exception("Invalid json input. Output, path, arguments are all required.")
-            self.process = PipelineProcess(proc, settings['path'], settings['arguments'], 1, settings['output'])
+            self.process = PipelineProcess(proc, settings['path'], settings['arguments'], 1)
     def startProcess(self):
         if self.process is None:
             raise Exception("Process not yet initialized.")
@@ -152,12 +160,16 @@ class SingleSettingRunner:
         return self.process.getProcess().returncode
     def getOutputFilename(self):
         return self.process.getOutput()
-
+    def setDefaultOutput(self):
+        self.process.setOutput(None)
     def getPath(self):
         return self.process.getProcpath()
-
     def setPath(self, path):
         self.process.setProcpath(path)
+    def setError(self, error):
+        self.process.setError(error)
+    def getAllResults(self):
+        return self.process.getProcess().stdout.readlines()
 """
 Pipeline is responsible for running associated Pipeline Processes. It should execute jobs 
 in order of priority. If priorities are equal, it will run them asynchroniously.
