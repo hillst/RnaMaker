@@ -195,8 +195,8 @@ class amiRNASuiteController extends CMSController
      */
     function jsonResultsDecoder($json_result){
         $tokenized_results = json_decode($json_result);
-        
-        $plain_result = "amiRNA: ". $tokenized_results->{"results"}->{"amiRNA"} . "\n";
+        $plain_result = "Name: " . $tokenized_results->{"results"}->{"name"} . "\n";
+        $plain_result .= "amiRNA: ". $tokenized_results->{"results"}->{"amiRNA"} . "\n";
         $plain_result .= "miRNA*: " . $tokenized_results->{"results"}->{"miRNA*"} . "\n";
         $plain_result .= "Forward Oligo: 5' " . $tokenized_results->{"results"}->{"Forward Oligo"} . " 3'\n";
         $plain_result .= "Reverse Oligo: 5' " . $tokenized_results->{"results"}->{"Reverse Oligo"} . " 3'\n";
@@ -233,6 +233,7 @@ class amiRNASuiteController extends CMSController
             "miRNA" => $decoded_result->{"results"}->{"miRNA*"},
             "oligo1" => $decoded_result->{"results"}->{"Forward Oligo"},
             "oligo2" => $decoded_result->{"results"}->{"Reverse Oligo"}, 
+            "name" => $decoded_result->{"results"}->{"name"},
             "dl_token"=> $dlpath));
     }
     

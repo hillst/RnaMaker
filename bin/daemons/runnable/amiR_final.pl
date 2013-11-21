@@ -9,8 +9,8 @@ use Getopt::Std;
 ###############################################
 #  get input
 ###############################################
-my ($seq, $name, %opt, $type);
-getopts('s:n:h:t:', \%opt);
+my ($seq, $name, %opt, $type, $syntasis, $orig);
+getopts('s:n:h:t:a:', \%opt);
 var_check();
 
 my $cwd = cwd();
@@ -88,6 +88,7 @@ sub calculate_oligo{
             }
         }
         #first oligo is bsa1 . seq1 ... seqn
+        $orig = $seq;
         $seq = $string;
         $string = $bsa1 . $seq;
         
@@ -102,16 +103,10 @@ sub calculate_oligo{
     }
     my $result = "";
     if ($type eq 'syntasi'){
-        $result = "{ \"results\": { \"syntasiRNA\": \"$seq\", \"Forward Oligo\": \"$oligo1\", \"Reverse Oligo\": \"$oligo2\" }}";
-        #print "<span>syntasiRNA = $seq</span><br/>\n";
-        #print "<span>Forward oligo = 5' $oligo1 3' </span><br/>\n";
-        #print "<span>Reverse oligo = 5' $oligo2 3' </span><br/>\n";
+        #syntasi name will be as a csv produced both by the front end and the results.
+        $result = "{ \"results\": { \"syntasiRNA\": \"$seq\", \"Forward Oligo\": \"$oligo1\", \"Reverse Oligo\": \"$oligo2\", \"name\": \"$name\", \"seq\": \"$orig\", \"syntasis\": \"$syntasis\"  }}";
     } else{
-        $result = "{ \"results\": {\"amiRNA\": \"$seq\", \"miRNA*\": \"$realstar\", \"Forward Oligo\" : \"$oligo1\", \"Reverse Oligo\": \"$oligo2\"}}";
-        #print "<span id=\"alignment\">amiRNA = $seq</span><br>\n";
-        #print "<span id=\"alignment\">miRNA* = $realstar</span><br>\n";
-        #print "<span id=\"alignment\">Forward oligo = 5' $bsa1$oligo1 3'</span><br>\n";
-        #print "<span id=\"alignment\">Reverse oligo = 5' $bsa2$oligo2 3'</span><br>\n";
+        $result = "{ \"results\": {\"amiRNA\": \"$seq\", \"miRNA*\": \"$realstar\", \"Forward Oligo\" : \"$oligo1\", \"Reverse Oligo\": \"$oligo2\", \"name\": \"$name\"}}";
     }
     return $result;
 }
@@ -204,6 +199,11 @@ sub var_check {
 	} else {
 		var_error();
 	}
+    if ($opt{'a'}){
+        $syntasis = $opt{'a'};
+    } else {
+        $syntasis = "";
+    }
 	if ($opt{'t'}) {
 		$type = $opt{'t'};
 	} else {
@@ -229,6 +229,7 @@ sub var_error {
 	print STDERR "This script will design oligos to clone the inputed artificial microRNA.\n";
 	print STDERR "Usage: amiR_final.pl -s <amiRNA sequence> <amiRNA name>\n";
 	print STDERR " -s     The amiRNA sequence.\n";
+    print STDERR " -a     A comma separated list of syntasi names. If none is provided there will be no name listed";
 	print STDERR "\n";
 	print STDERR " -n     The amiRNA name.\n";
 	print STDERR "\n";

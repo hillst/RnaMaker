@@ -23,13 +23,11 @@
 {% endblock %}
 	{% block modal %}
     <form role="form" class="targetfinder">
+	  <input type="hidden" name="name" value="syntasiRNA Cassette"/>
 	  <div class="form-group">
-	    <label for="name">syntasiRNA Name:</label>
-		<input type="text" class="form-control" id="name" placeholder="name" name="name">
-	  </div>
-	  <div class="form-group">
-	    <label for="seq">syntasiRNA Sequence(s):</label>
-		<input type="text" class="form-control seq" placeholder="seq" name="seq">
+	    <label for="seq">syntasiRNA Sequence(s):</label><br/>
+        <label class="name" style="border-bottom: 1px dashed #000;text-decoration: none;">syntasiR-1</label>
+        <input type="text" class="form-control seq" placeholder="seq" name="seq">
         <a class="glyphicon glyphicon-plus" id="addseq"></a>
 	  </div>
 	  <input type="hidden" name="fb" value="syntasi"/>
@@ -41,12 +39,9 @@
 <script type="text/javascript">
 $().ready(function(){
 	var ignore = false;
-    $('#addseq').click(function(){
-        $(".seq").last().after(
-                    "<input type='text' class='form-control seq' placeholder='seq' name='seq'>"
-        );
-    });
-	$('.targetfinder').submit(function(event){
+    var n = 2;
+    var firstwarning = true;
+   	$('.targetfinder').submit(function(event){
 		var form = $(this);
         //vaidation
         $(".seq").each(function(){
@@ -57,10 +52,10 @@ $().ready(function(){
         result.addClass("hidden");
         result.removeClass('hidden alert alert-danger alert-warning');
         var seq = $(".targetfinder").find("#seq").val();
+        var warning = false;
         $(".seq").each(function(){
             var seq = $(this).val();
             if (error === true){
-                return;
             }
             if (seq.length != 21){
                 $(this).addClass("alert alert-danger input-danger");
@@ -70,19 +65,43 @@ $().ready(function(){
                 error = true;
                 return;
             }
+            else if(seq.match("^[ATCGUatcgu]+$") != seq){
+                $(this).addClass("alert alert-danger input-danger");
+                result.addClass("alert alert-danger");
+                result.removeClass("hidden");
+                result.text("Error: Your sequence contains characters that are not A,T,C,G, or U");
+                error = true;
+                return;
+            }
             else if (seq.substr(0,1).toUpperCase() !== "T" && seq.substr(0,1).toUpperCase() !== "U"){
                 $(this).addClass("alert alert-warning input-warning");
                 result.addClass("alert alert-warning");
                 result.removeClass("hidden");
                 result.text("Warning: We recommend a T or U on the 5' end.");
-                error = true;
+                warning = true;
+                return;
+            }
+            else if(seq.substr(18,1).toUpperCase() !== "C"){
+                $(this).addClass("alert alert-warning input-warning");
+                result.addClass("alert alert-warning");
+                result.removeClass("hidden");
+                result.text("Warning: We recommend a C at amiR position 19, in order to have a 5' G on the miR*");
+                warning = true;
                 return;
             }
         });
+        /* Quirks of error handling:
+         * If you get multliple warnings, and only fix one of them, it will still submit
+         */
+        if (firstwarning && warning && !error){
+            error = true;
+            firstwarning = false;
+        } 
         if (error === true){
             event.preventDefault();
             return;
         }
+        
         //prepare sequence for server
         var data = form.serialize();
         var seqs = data.split("&"); //first/last are not seq
@@ -105,7 +124,16 @@ $().ready(function(){
                 finseq += seqs[i].split("=")[1] +",";
             }
         }
-		$.ajax({
+		//prepare syntasis
+        var syntasis = "";
+        $(".name").each(function(){
+            syntasis += $(this).text() + ",";
+        });
+        syntasis = syntasis.substring(0, syntasis.length-1);
+        finseq += "&syntasis=" + syntasis;
+        console.log(finseq);
+        //submit ajax
+        $.ajax({
 			type: "POST",
 			url: '{{ path("rnamaker_syntasi_oligorequest") }}', 
 			data: finseq,	
@@ -134,7 +162,6 @@ $().ready(function(){
 				}
 			},
 			beforeSend: function(){
-                
 				form.find('.result').removeClass('hidden alert alert-danger alert-success');
 				form.find('.result').addClass('alert alert-warning');
 				form.find('.result').html('<img src="{{ asset("includes/images/ajax-loader.gif") }}"/>' );
@@ -146,6 +173,32 @@ $().ready(function(){
 	$('#result').click(function(){
 		$('.targetfinder').submit()
 	});
+    $(".name").click(toInputTransform);
+    $('.modal').click(function(){
+        //revert
+        if (!$(event.target).hasClass('name')) {
+            $(".modified").each(function(){
+                var val = $(this).val()
+                $(this).replaceWith("<label class='name' style='border-bottom: 1px dashed #000;text-decoration: none;'>" + val + "</label>");
+                $(".name").click(toInputTransform);
+            });
+        }
+    });
+    $('#addseq').click(function(){
+        $(".seq").last().after(
+            "<label class='name' style='border-bottom: 1px dashed #000;text-decoration: none;'>syntasiR-"+n+"</label>" +
+            "<input type='text' class='form-control seq' placeholder='seq' name='seq'>"
+        );
+        n++;
+        $(".name").click(toInputTransform); //rebind
+    });
+    function toInputTransform(){
+        var cur = $(this).text();
+        if (cur == ""){
+            var cur = $(this).val();
+        }
+        $(this).replaceWith("<input type='text' class='form-control name modified' value='" + cur + "' placeholder='" + cur +"'/>") ;
+    }
 });
 </script>
 {% endblock %}

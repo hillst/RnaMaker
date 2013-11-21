@@ -51,9 +51,11 @@ body {
 
 .input-warning{
     border-color: #DEB887;
+    margin-bottom: 0px;
 }
 .input-danger{
     border-color: #FF0000;
+    margin-bottom: 0px;
 }
 .large{
 	width:100%;
@@ -66,7 +68,10 @@ body {
 .jumbotron{
 	min-height: 768px;
 }
-
+.name{
+    cursor: pointer;
+    font-weight: normal; 
+}
 .no-float{
 	float:none;
 }

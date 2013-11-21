@@ -24,22 +24,21 @@
 	{% block modal %}
     
 	<form role="form" class="targetfinder">
-	 
 	  <div class="form-group">
-	    <label for="name">amiRNA Name:</label>
-		<input type="text" class="form-control" id="name" placeholder="name" name="name">
-	  </div>
-	  <div class="form-group">
-	    <label for="seq">amiRNA Sequence:</label>
+	    <label for="seq">amiRNA Sequence:</label> <br/>
+	    <label class="name" style="border-bottom: 1px dashed #000;">amiRNA</label> 
 		<input type="text" class="form-control" id="seq" placeholder="seq" name="seq">
 	  </div>
+	  <input type="hidden" name="fb" value="eudicot"/>
+        <!--
 	  <div class="form-group">
-	    <label for="fb">Foldback type:</label>
+        <label for="fb">Foldback type:</label>
 	  	<select class="form-control" name="fb" id="fb">
             <option value="eudicot">eudicot</option>
             <option value="monocot">monocot</option>
         </select>
       </div>
+        -->
 	  <div class="result hidden" style="text-align: center;"></div>
 	  <a href= "#" id="result" type="submit" class="btn btn-default btn-block btn-large btn-tertiary">Submit</a>
 	</form>
@@ -48,6 +47,8 @@
 <script type="text/javascript">
 $().ready(function(){
 	var ignore = false;
+    var firstwarning = true;
+    var warning = false;
 	$('.targetfinder').submit(function(event){
         //submission validation
 		var form = $(this);
@@ -64,25 +65,38 @@ $().ready(function(){
             result.text("Error: Your input sequence is not 21 NT in length");
             error = true;
         }
+        else if(seq.match("^[ATCGUatcgu]+$") != seq){
+            $("#seq").addClass("alert alert-danger input-danger");
+            result.addClass("alert alert-danger");
+            result.removeClass("hidden");
+            result.text("Error: Your sequence contains characters that are not A,T,C,G, or U");
+            error = true;
+        }
         else if (seq.substr(0,1).toUpperCase() !== "T" && seq.substr(0,1).toUpperCase() !== "U"){
             $("#seq").addClass("alert alert-warning input-warning");
             result.addClass("alert alert-warning");
             result.removeClass("hidden");    
             result.text("Warning: We recommend a T or U on the 5' end.");
-            error = true;
+            warning = true;
         }
-        else if (seq.substr(1,1).toUpperCase() !== "C"){
+        else if (seq.substr(18,1).toUpperCase() !== "C"){
             $("#seq").addClass("alert alert-warning input-warning");
             result.addClass("alert alert-warning");
             result.removeClass("hidden");
             result.text("Warning: We recommend a C at amiR position 19, in order to have a 5' G on the miR*");
+            warning = true;
+        }
+        if (firstwarning && warning){
             error = true;
+            firstwarning = false;
         }
         if (error === true){
             event.preventDefault();
             return;
         }
         //ajax submission
+        var cur = $('.name').last().text();
+        $(".name").after("<input type='hidden' name='name'  value='" + cur + "' placeholder='" + cur +"'/>");
 		$.ajax({
 			type: "POST",
 			url: '{{ path("rnamaker_oligorequest") }}', 
@@ -107,13 +121,12 @@ $().ready(function(){
 					form.parent().find('.result').text(xhr.responseText);
 				} else{
 					if(!ignore){
-						console.log("wtf")
 						form.parent().find('.result').text("Error");
 					}
 				}
 			},
 			beforeSend: function(){
-				form.find('.result').removeClass('hidden alert alert-danger alert-success');
+                form.find('.result').removeClass('hidden alert alert-danger alert-success');
 				form.find('.result').addClass('alert alert-warning');
 				form.find('.result').html('<img src="{{ asset("includes/images/ajax-loader.gif") }}"/>' );
 			}
@@ -124,6 +137,24 @@ $().ready(function(){
 	$('#result').click(function(){
 		$('.targetfinder').submit()
 	});
+    $(".name").click(toInputTransform);
+    $('.modal').click(function(){
+        //revert
+        if (!$(event.target).hasClass('name')) {
+            $(".modified").each(function(){
+                var val = $(this).val()
+                $(this).replaceWith("<label class='name' style='border-bottom: 1px dashed #000;text-decoration: none;'>" + val + "</label>");
+                $(".name").click(toInputTransform);
+            });
+        }
+    });
+    function toInputTransform(){
+        var cur = $(this).text();
+        if (cur == ""){
+            var cur = $(this).val();
+        }
+        $(this).replaceWith("<input type='text' class='form-control name modified' value='" + cur + "' placeholder='" + cur +"'/>") ;
+    } 
 });
 </script>
 {% endblock %}

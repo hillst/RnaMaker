@@ -48,11 +48,8 @@ class syntasiRNASuiteController extends CMSController
         if ($request->getMethod() === 'POST') {
             $seq = $request->get('seq');
             $name = $request->get('name');
-            $fb = $request->get('fb');
-            $fd = fopen("/scratch/posterize", "w");
-            fwrite($fd, print_r($this->get('request')->request->all(),TRUE
-));
-            fclose($fd);
+            $fb = $request->get('fb'); 
+            $syntasis = $request->get('syntasis');
             if($seq == "" || $name == "" || $fb == ""){
                 return new Response("", 403);
             }
@@ -68,6 +65,8 @@ class syntasiRNASuiteController extends CMSController
         $arguments[3] = $name;
         $arguments[4] = "-t";
         $arguments[5] = $fb;
+        $arguments[6] = "-a";
+        $arguments[7] = $syntasis;
         $json = $daemonSocket->jsonBuilder("amiR_final.pl", "amiR_final.pl", $arguments);
         /*
          *  Example job.
@@ -97,7 +96,12 @@ class syntasiRNASuiteController extends CMSController
             fwrite($fd, "null or somthin");
             fclose($fd);
         }
-        $plain_result = "syntasiRNA: ". $tokenized_results->{"results"}->{"syntasiRNA"} . "\n";
+        $plain_result = "syntasiRNA Cassette: 5'". $tokenized_results->{"results"}->{"syntasiRNA"} . "3'\n";
+        $syntasis = explode(",", $tokenized_results->{"results"}->{"seq"});
+        $names = explode(",", $tokenized_results->{"results"}->{"syntasis"});
+        for ($i = 0; $i < sizeof($syntasis); $i++){
+            $plain_result .= $names[$i] . ": 5'" . $syntasis[$i] . "3'\n";
+        }
         $plain_result .= "Forward Oligo: 5' " . $tokenized_results->{"results"}->{"Forward Oligo"} . " 3'\n";
         $plain_result .= "Reverse Oligo: 5' " . $tokenized_results->{"results"}->{"Reverse Oligo"} . " 3'\n";
 
@@ -117,11 +121,18 @@ class syntasiRNASuiteController extends CMSController
         }
         fclose($fd);
         $decoded_result =  json_decode($result);
+        $nameandseqs = array();
+        $names = explode(",", $decoded_result->{"results"}->{"syntasis"});
+        $seqs = explode(",", $decoded_result->{"results"}->{"seq"}); 
+        for ($i = 0; $i < sizeof($names); $i++){
+            $namesandseqs[$i] = array($names[$i],$seqs[$i]);
+        }
         $dlpath = $this->server_results . "/". $token;
         return $this->render("HillCMSRnaMakerBundle:Default:syntasiOligoResults.html.twig", array(
             "amiRNA" => $decoded_result->{"results"}->{"syntasiRNA"},
             "oligo1" => $decoded_result->{"results"}->{"Forward Oligo"},
             "oligo2" => $decoded_result->{"results"}->{"Reverse Oligo"},
+            "syntasis" => $namesandseqs,
             "dl_token"=> $dlpath));
     }
 }
