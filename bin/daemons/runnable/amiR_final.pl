@@ -19,7 +19,7 @@ my $cwd = cwd();
 print calculate_oligo();
 
 sub calculate_oligo{
-    my ($rev, @seqs, $star1, $realstar, $oligo1, $oligo2, $c, $g, $n, $string, $bsa1, $bsa2);
+    my ($rev, @seqs, @realstars, $star1, $realstar, $oligo1, $oligo2, $c, $g, $n, $string, $bsa1, $bsa2);
     $rev = reverse $seq;
     $rev =~ tr/ACGTacgt/TGCAtgca/;
     ################################################
@@ -73,8 +73,13 @@ sub calculate_oligo{
         $bsa1 = "ATTA";
         $bsa2 = "GTTC";
         my $string = "";
+       
         foreach(@seqs){
             $string .= $_;
+            $star1 = substr($string,0,10).$c.substr($string,11,10);
+            $realstar = substr($star1,2,20);
+            $realstar = $realstar.'CA';
+            push(@realstars, $realstar);
         }
         if ($string !~ /^[ACTGU]+$/gi){
             print STDERR "Irregular values present, please use A, C, T, G or U\n";
@@ -97,6 +102,7 @@ sub calculate_oligo{
         $oligo2 =~ tr/ACTGUacgtu/TGACAtgcaa/;
         #second oligo is bsa2 . reverse complement of the syntasiRNA
         $oligo2 = $bsa2 . $oligo2;
+        $realstar = join(',', @realstars);
     } else {
 	    print STDERR " Foldback type $type not supported.\n\n";
 	    exit 1;
@@ -104,7 +110,7 @@ sub calculate_oligo{
     my $result = "";
     if ($type eq 'syntasi'){
         #syntasi name will be as a csv produced both by the front end and the results.
-        $result = "{ \"results\": { \"syntasiRNA\": \"$seq\", \"Forward Oligo\": \"$oligo1\", \"Reverse Oligo\": \"$oligo2\", \"name\": \"$name\", \"seq\": \"$orig\", \"syntasis\": \"$syntasis\"  }}";
+        $result = "{ \"results\": { \"syntasiRNA\": \"$seq\", \"Forward Oligo\": \"$oligo1\", \"Reverse Oligo\": \"$oligo2\", \"name\": \"$name\", \"seq\": \"$orig\", \"miRNA*\": \"$realstar\", \"syntasis\": \"$syntasis\"  }}";
     } else{
         $result = "{ \"results\": {\"amiRNA\": \"$seq\", \"miRNA*\": \"$realstar\", \"Forward Oligo\" : \"$oligo1\", \"Reverse Oligo\": \"$oligo2\", \"name\": \"$name\"}}";
     }

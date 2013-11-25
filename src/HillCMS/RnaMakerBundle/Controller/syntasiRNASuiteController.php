@@ -91,16 +91,13 @@ class syntasiRNASuiteController extends CMSController
         fwrite($fd, $json_result);
         fclose($fd);
         $tokenized_results = json_decode($json_result);
-        if ($tokenized_results == NULL){
-            $fd = fopen("/scratch/jsonres", "w");
-            fwrite($fd, "null or somthin");
-            fclose($fd);
-        }
-        $plain_result = "syntasiRNA Cassette: 5'". $tokenized_results->{"results"}->{"syntasiRNA"} . "3'\n";
+        $plain_result = "syntasiRNA Cassette: 5' ". $tokenized_results->{"results"}->{"syntasiRNA"} . " 3'\n";
         $syntasis = explode(",", $tokenized_results->{"results"}->{"seq"});
+        $stars = explode(",", $tokenized_results->{"results"}->{"miRNA*"});
         $names = explode(",", $tokenized_results->{"results"}->{"syntasis"});
         for ($i = 0; $i < sizeof($syntasis); $i++){
-            $plain_result .= $names[$i] . ": 5'" . $syntasis[$i] . "3'\n";
+            $plain_result .= $names[$i] . "*" .": 5' ". $stars[$i] . " 3'\n";
+            $plain_result .= $names[$i] . ": 5' " . $syntasis[$i] . " 3'\n";
         }
         $plain_result .= "Forward Oligo: 5' " . $tokenized_results->{"results"}->{"Forward Oligo"} . " 3'\n";
         $plain_result .= "Reverse Oligo: 5' " . $tokenized_results->{"results"}->{"Reverse Oligo"} . " 3'\n";
@@ -123,9 +120,13 @@ class syntasiRNASuiteController extends CMSController
         $decoded_result =  json_decode($result);
         $nameandseqs = array();
         $names = explode(",", $decoded_result->{"results"}->{"syntasis"});
-        $seqs = explode(",", $decoded_result->{"results"}->{"seq"}); 
+        $seqs = explode(",", $decoded_result->{"results"}->{"seq"});
+        $stars = explode(",", $decoded_result->{"results"}->{"miRNA*"});
+        if ((sizeof($names) != sizeof($seqs)) && (sizeof($seqs) != sizeof($stars))){
+            return new Response("Malformed json", 403);    
+        } 
         for ($i = 0; $i < sizeof($names); $i++){
-            $namesandseqs[$i] = array($names[$i],$seqs[$i]);
+            $namesandseqs[$i] = array($names[$i],$seqs[$i],$stars[$i]);
         }
         $dlpath = $this->server_results . "/". $token;
         return $this->render("HillCMSRnaMakerBundle:Default:syntasiOligoResults.html.twig", array(

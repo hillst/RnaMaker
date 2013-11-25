@@ -127,7 +127,11 @@ $().ready(function(){
 		//prepare syntasis
         var syntasis = "";
         $(".name").each(function(){
-            syntasis += $(this).text() + ",";
+            if($(this).text() == ""){
+                syntasis += $(this).val() + ",";
+            } else{
+                syntasis += $(this).text() + ",";
+            }
         });
         syntasis = syntasis.substring(0, syntasis.length-1);
         finseq += "&syntasis=" + syntasis;

@@ -95,12 +95,16 @@ $().ready(function(){
             return;
         }
         //ajax submission
-        var cur = $('.name').last().text();
-        $(".name").after("<input type='hidden' name='name'  value='" + cur + "' placeholder='" + cur +"'/>");
+        var finseq = $(this).serialize();
+        name = $(".name").last().text();
+        if (name == ""){
+            name = $(".name").val();
+        }
+        finseq += "&name=" + name;
 		$.ajax({
 			type: "POST",
 			url: '{{ path("rnamaker_oligorequest") }}', 
-			data: $(this).serialize(),	
+			data: finseq,	
 			//should return a token that will access the results, as stored in memory
 			success: function(data){
 				form.find('.result').removeClass('hidden alert alert-danger alert-warning');
