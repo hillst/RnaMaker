@@ -19,6 +19,11 @@ body {
 
 }
 
+#close-clear{
+    padding-right:10px;
+    opacity: .5;
+}
+
 .results{
     font-size: 18px;
     word-wrap: break-word;

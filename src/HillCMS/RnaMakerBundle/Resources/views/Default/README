@@ -1,0 +1,3 @@
+This folder contains all views. Views are templates which are filled in by variables passed from the controller. For right now, the important ones are syntasioligodesigner, oligodesigner, and the two result pages.
+
+

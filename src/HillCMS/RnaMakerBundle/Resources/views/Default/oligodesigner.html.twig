@@ -25,9 +25,9 @@
     
 	<form role="form" class="targetfinder">
 	  <div class="form-group">
-	    <label for="seq">amiRNA Sequence:</label> <br/>
+	    <label for="seq">amiRNA Sequence, click to edit name</label> <br/>
 	    <label class="name" style="border-bottom: 1px dashed #000;">amiRNA</label> 
-		<input type="text" class="form-control" id="seq" placeholder="seq" name="seq">
+		<input type="text" class="form-control" class = "orig" id="seq" placeholder="seq" name="seq">
 	  </div>
 	  <input type="hidden" name="fb" value="eudicot"/>
         <!--
@@ -39,62 +39,74 @@
         </select>
       </div>
         -->
-	  <div class="result hidden" style="text-align: center;"></div>
+	  <div class="result hidden" ></div>
 	  <a href= "#" id="result" type="submit" class="btn btn-default btn-block btn-large btn-tertiary">Submit</a>
 	</form>
 	{% endblock %}
 {% block javascript %}
 <script type="text/javascript">
 $().ready(function(){
-	var ignore = false;
-    var firstwarning = true;
-    var warning = false;
+    var changed = true;
+    //global
+    initialFormState = $(".targetfinder").html(); 
+    // returns true if an error or warning is found, otherwise false.
+    function checkErrors(form){
+        form = $(form); 
+        var seq = $("#seq").val();
+        result = $(".result");
+        result.text("");
+        result.addClass("hidden");
+        result.removeClass("alert alert-danger alert-warning");
+        $("#seq").removeClass("alert alert-danger alert-warning input-danger input-warning");
+        var errors = "";
+        var warnings = "";
+        if(seq.length != 21){
+            errors += "Error: Your input sequence is not 21 NT in length<br/>";
+        }
+        if(seq.match("^[ATCGUatcgu]+$") != seq){
+            errors += "Error: Your sequence contains characters that are not A,T,C,G, or U<br/>";
+        }
+        if (seq.substr(0,1).toUpperCase() !== "T" && seq.substr(0,1).toUpperCase() !== "U"){
+            warnings += "Warning: We recommend a T or U on the 5' end.<br/>";
+        }
+        if (seq.substr(18,1).toUpperCase() !== "C"){
+            warnings += "Warning: We recommend a C at amiR position 19, in order to have a 5' G on the miR*<br/>";
+        }
+        if (errors != ""){
+            $("#seq").addClass("alert alert-danger input-danger");
+            result.removeClass("hidden");
+            result.addClass("alert alert-danger");
+            result.append(errors);
+            result.append(warnings);
+            return true;
+        } else if (warnings != ""){
+            $("#seq").addClass("alert alert-warning input-warning");
+            result.removeClass("hidden");
+            result.addClass("alert alert-warning");
+            result.append(warnings);
+            return true;
+        }
+        return false;
+    }
+    $("#close-clear").click(function(){
+        $(".targetfinder").html(initialFormState);
+        changed = true; //just for good measure
+    });
+    $("#seq").change(function(){
+        changed = true;
+    });
 	$('.targetfinder').submit(function(event){
         //submission validation
-		var form = $(this);
-        $("#seq").removeClass("alert alert-warning alert-danger input-danger input-warning");
-        var result = form.find('.result');
-        var error = false;
-        result.addClass("hidden");
-        result.removeClass('hidden alert alert-danger alert-warning');
-        var seq = $(".targetfinder").find("#seq").val();
-        if (seq.length != 21){
-            $("#seq").addClass("alert alert-danger input-danger");
-            result.addClass("alert alert-danger");
-            result.removeClass("hidden");
-            result.text("Error: Your input sequence is not 21 NT in length");
-            error = true;
-        }
-        else if(seq.match("^[ATCGUatcgu]+$") != seq){
-            $("#seq").addClass("alert alert-danger input-danger");
-            result.addClass("alert alert-danger");
-            result.removeClass("hidden");
-            result.text("Error: Your sequence contains characters that are not A,T,C,G, or U");
-            error = true;
-        }
-        else if (seq.substr(0,1).toUpperCase() !== "T" && seq.substr(0,1).toUpperCase() !== "U"){
-            $("#seq").addClass("alert alert-warning input-warning");
-            result.addClass("alert alert-warning");
-            result.removeClass("hidden");    
-            result.text("Warning: We recommend a T or U on the 5' end.");
-            warning = true;
-        }
-        else if (seq.substr(18,1).toUpperCase() !== "C"){
-            $("#seq").addClass("alert alert-warning input-warning");
-            result.addClass("alert alert-warning");
-            result.removeClass("hidden");
-            result.text("Warning: We recommend a C at amiR position 19, in order to have a 5' G on the miR*");
-            warning = true;
-        }
-        if (firstwarning && warning){
-            error = true;
-            firstwarning = false;
-        }
-        if (error === true){
+		if (changed && checkErrors(this)){
             event.preventDefault();
+            //if just warnings reset changed 
+            if ($('.result').hasClass("alert-warning")){
+                changed = false;
+            }
             return;
         }
         //ajax submission
+        form = $(this);
         var finseq = $(this).serialize();
         name = $(".name").last().text();
         if (name == ""){

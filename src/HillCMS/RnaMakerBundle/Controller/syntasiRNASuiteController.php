@@ -96,8 +96,8 @@ class syntasiRNASuiteController extends CMSController
         $stars = explode(",", $tokenized_results->{"results"}->{"miRNA*"});
         $names = explode(",", $tokenized_results->{"results"}->{"syntasis"});
         for ($i = 0; $i < sizeof($syntasis); $i++){
-            $plain_result .= $names[$i] . "*" .": 5' ". $stars[$i] . " 3'\n";
             $plain_result .= $names[$i] . ": 5' " . $syntasis[$i] . " 3'\n";
+            $plain_result .= $names[$i] . "*" .": 5' ". $stars[$i] . " 3'\n";
         }
         $plain_result .= "Forward Oligo: 5' " . $tokenized_results->{"results"}->{"Forward Oligo"} . " 3'\n";
         $plain_result .= "Reverse Oligo: 5' " . $tokenized_results->{"results"}->{"Reverse Oligo"} . " 3'\n";

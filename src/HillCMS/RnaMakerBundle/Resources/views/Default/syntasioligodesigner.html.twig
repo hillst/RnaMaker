@@ -25,13 +25,15 @@
     <form role="form" class="targetfinder">
 	  <input type="hidden" name="name" value="syntasiRNA Cassette"/>
 	  <div class="form-group">
-	    <label for="seq">syntasiRNA Sequence(s):</label><br/>
+	    <label for="seq">syntasiRNA Sequence(s), click to edit name</label><br/>
         <label class="name" style="border-bottom: 1px dashed #000;text-decoration: none;">syntasiR-1</label>
         <input type="text" class="form-control seq" placeholder="seq" name="seq">
         <a class="glyphicon glyphicon-plus" id="addseq"></a>
 	  </div>
 	  <input type="hidden" name="fb" value="syntasi"/>
-	  <div class="result hidden" style="text-align: center;"></div>
+	  <div class="result hidden">
+        <div id="seq-1"></div>
+      </div>
 	  <a href= "#" id="result" type="submit" class="btn btn-default btn-block btn-large btn-tertiary">Submit</a>
 	</form>
 	{% endblock %}
@@ -40,68 +42,88 @@
 $().ready(function(){
 	var ignore = false;
     var n = 2;
-    var firstwarning = true;
-   	$('.targetfinder').submit(function(event){
-		var form = $(this);
-        //vaidation
-        $(".seq").each(function(){
-            $(this).removeClass("alert alert-warning alert-danger input-danger input-warning");
-        });
-        var result = form.find('.result');
-        var error = false;
-        result.addClass("hidden");
-        result.removeClass('hidden alert alert-danger alert-warning');
-        var seq = $(".targetfinder").find("#seq").val();
-        var warning = false;
-        $(".seq").each(function(){
-            var seq = $(this).val();
-            if (error === true){
-            }
-            if (seq.length != 21){
-                $(this).addClass("alert alert-danger input-danger");
-                result.addClass("alert alert-danger");
-                result.removeClass("hidden");
-                result.text("Error: Your input sequence is not 21 NT in length");
-                error = true;
-                return;
-            }
-            else if(seq.match("^[ATCGUatcgu]+$") != seq){
-                $(this).addClass("alert alert-danger input-danger");
-                result.addClass("alert alert-danger");
-                result.removeClass("hidden");
-                result.text("Error: Your sequence contains characters that are not A,T,C,G, or U");
-                error = true;
-                return;
-            }
-            else if (seq.substr(0,1).toUpperCase() !== "T" && seq.substr(0,1).toUpperCase() !== "U"){
-                $(this).addClass("alert alert-warning input-warning");
+   	var changed = true;
+    var initialFormState = $(".targetfinder").html();
+    /**
+     * checkErrors is a modified version of the other form submission pages. Since it has a dynamic
+     * number of inputs, it must handle them different. It will produce divs for each error line and highlight
+     * specific sequences that are broken. 
+     *
+     * @param seqbox - current input we are working on
+     * @param errors - string of errors, functionally doesn't actually do much.
+     * @param warnings - string of warnings, functionally doesnt do much.
+     * @param setup - boolean telling the function if it should clear the result box or not.
+     * @param i - Index of current sequence.
+     */
+    function checkErrors(seqbox, errors, warnings, setup, i){
+        var seq = $(seqbox).val();
+        result = $(".result");
+        var color = "none";
+        $(seqbox).removeClass("alert alert-warning alert-danger input-warning input-danger");
+        if (setup){
+            result.addClass("hidden");
+            result.removeClass("alert alert-danger alert-warning");
+        }
+        $("#seq-"+(i+1)).text("");
+        var current = result.text();
+        //potentially problematic, could look for substrings of each error
+        if(seq.length != 21){
+            errors += "Error: Your input sequence is not 21 NT in length (sequence " + (i + 1) + ")<br/>";
+            color = "red";
+        }
+        if(seq.match("^[ATCGUatcgu]+$") != seq){
+            errors += "Error: Your sequence contains characters that are not A,T,C,G, or U (sequence " + (i + 1) + ")<br/>";
+            color = "red";
+        }
+        if (seq.substr(0,1).toUpperCase() !== "T" && seq.substr(0,1).toUpperCase() !== "U"){
+            warnings += "Warning: We recommend a T or U on the 5' end. (sequence " + (i + 1) + ")<br/>";
+            color == "none" ? color = "yellow" : "";
+        }
+        if (seq.substr(18,1).toUpperCase() !== "C"){
+            warnings += "Warning: We recommend a C at syntasiR position 19, in order to have a 5' G on the miR* (sequence " + (i + 1) + ")<br/>";
+            color == "none" ? color = "yellow" : "";
+        }
+        if (color == "red"){
+            $(seqbox).addClass("alert alert-danger input-danger");
+        } else if (color == "yellow"){
+            $(seqbox).addClass("alert alert-warning input-warning");
+        }
+        if (errors != ""){
+            result.removeClass("hidden alert-warning");
+            result.addClass("alert alert-danger");
+            $("#seq-"+(i+1)).html(errors + warnings);
+            return true;
+        } else if (warnings != ""){
+            result.removeClass("hidden");
+            if (! result.hasClass("alert-danger")){
                 result.addClass("alert alert-warning");
-                result.removeClass("hidden");
-                result.text("Warning: We recommend a T or U on the 5' end.");
-                warning = true;
-                return;
             }
-            else if(seq.substr(18,1).toUpperCase() !== "C"){
-                $(this).addClass("alert alert-warning input-warning");
-                result.addClass("alert alert-warning");
-                result.removeClass("hidden");
-                result.text("Warning: We recommend a C at amiR position 19, in order to have a 5' G on the miR*");
-                warning = true;
-                return;
-            }
+            $("#seq-"+(i+1)).html(warnings);
+            return true;
+        }
+        return false;
+    }
+    $(".seq").change(function(){
+        changed = true;
+    }); 
+    $('.targetfinder').submit(function(event){
+        error = false;
+		warnings = "";
+        errors = "";
+        first = true;
+        $(".seq").each(function(i){
+            error = checkErrors(this, warnings, errors, first, i) || error;
+            first = false;    
         });
-        /* Quirks of error handling:
-         * If you get multliple warnings, and only fix one of them, it will still submit
-         */
-        if (firstwarning && warning && !error){
-            error = true;
-            firstwarning = false;
-        } 
-        if (error === true){
+        if (changed && error){
             event.preventDefault();
+            //if just warnings reset changed
+            if ($('.result').hasClass("alert-warning")){
+                changed = false;
+            }
             return;
         }
-        
+        var form = $(this);
         //prepare sequence for server
         var data = form.serialize();
         var seqs = data.split("&"); //first/last are not seq
@@ -135,7 +157,6 @@ $().ready(function(){
         });
         syntasis = syntasis.substring(0, syntasis.length-1);
         finseq += "&syntasis=" + syntasis;
-        console.log(finseq);
         //submit ajax
         $.ajax({
 			type: "POST",
@@ -177,6 +198,27 @@ $().ready(function(){
 	$('#result').click(function(){
 		$('.targetfinder').submit()
 	});
+    $("#close-clear").click(function(){
+        $(".targetfinder").html(initialFormState);
+        $('#result').click(function(){
+            $('.targetfinder').submit()
+        });
+        changed = true; //just for good measure
+        //re-rebind haha
+        $('#addseq').click(function(){
+            $(".seq").last().after(
+                "<label class='name' style='border-bottom: 1px dashed #000;text-decoration: none;'>syntasiR-"+n+"</label>" +
+                "<input type='text' class='form-control seq' placeholder='seq' name='seq'>"
+            );
+            $(".result").append("<div id='seq-"+n+"'></div>");
+            n++;
+            $(".name").click(toInputTransform); //rebind
+            $(".seq").change(function(){ //rebind
+                changed = true;
+            });
+        });
+        n = 2;
+    });
     $(".name").click(toInputTransform);
     $('.modal').click(function(){
         //revert
@@ -187,14 +229,18 @@ $().ready(function(){
                 $(".name").click(toInputTransform);
             });
         }
-    });
+    })
     $('#addseq').click(function(){
         $(".seq").last().after(
             "<label class='name' style='border-bottom: 1px dashed #000;text-decoration: none;'>syntasiR-"+n+"</label>" +
             "<input type='text' class='form-control seq' placeholder='seq' name='seq'>"
         );
+        $(".result").append("<div id='seq-"+n+"'></div>");
         n++;
         $(".name").click(toInputTransform); //rebind
+        $(".seq").change(function(){ //rebind
+            changed = true;
+        });
     });
     function toInputTransform(){
         var cur = $(this).text();
