@@ -23,19 +23,6 @@ my $sth = $dbh->prepare("SELECT * FROM `$species` WHERE `accession` = ?");
 print STDERR " Your settings: Result limit = $resultLimit, Off-target limit = $offLimit\n" if (DEBUG);
 
 if ($infile) {
-	#open (IN, $infile) or die "Cannot open $infile: $!\n\n";
-	#while (my $line = <IN>) {
-	#	chomp $line;
-	#	if ($line =~ /\>(.+)/) {
-	#		$gene_id = $1;
-	#	} else {
-	#		$gene_seq .= $line;
-	#	}
-	#}
-	#close IN;
-	#if (!$gene_id) {
-	#	$gene_id = 'query';
-	#}
 	$gene_seq = $infile;
 	$gene_id = 'Target';
 } else {
@@ -44,13 +31,6 @@ if ($infile) {
 	while (my $row = $sth->fetchrow_hashref) {
 		$gene_seq = $row->{'sequence'};
 	}
-#	open GET, "/usr/bin/blastdbcmd -db $conf->{$species}->{'mRNA'} -entry '$accession' |";
-#	while (my $line = <GET>) {
-#		chomp $line;
-#		next if ($line =~ /\>/);
-#		$gene_seq .= $line;
-#	}
-#	close GET;
   if ($gene_seq eq '') {
     print "<div class=\"set\">\n";
     print "  <span>Your gene was not found in the selected database</span>";
@@ -66,9 +46,6 @@ $bp{'G'} = 'C';
 $bp{'C'} = 'G';
 
 my $siteCount = 0;
-#while ($gene_seq =~ /(..[ACT].................A)/gi) {
-#while ($gene_seq =~ /[GTCA](..G.................[AG])/gi) {
-#while ($gene_seq =~ /C(..G.......[CU].........A)/gi) {
 while ($gene_seq =~ /[AGC](..G.................[AG])/gi) {
 	my $site = $1;
 	if ($gene_seq =~ /^(.*$site)/) {
@@ -160,7 +137,6 @@ sub print_result {
 	my @tf = @_;
 	my $homology = homology_string($site);
 	my @output;
-	#print "<a href=\"http://bioinformatics.danforthcenter.org/amiRNA/methods/oligo.php?name=amiRNA$site->{'name'}&seq=$site->{'amiRNA'}\" target=\"_blank\"><div class=\"set\">\n";
 	push @output, "<div class=\"set\">\n";
 	push @output, "  <span>amiRNA: 5' $site->{'amiRNA'} 3', start=$site->{'start'}, end=$site->{'end'}</span><br>\n";
 	push @output, "  <span id=\"alignment\">5' ".$site->{'seq'}." 3'</span><br>\n";
@@ -191,7 +167,6 @@ sub print_result {
 		push @output, $line;
 	}
 	close OLIGO;
-	#print "</div></a><br>\n";
 	push @output, "</div><br>\n";
 	return @output;
 }
@@ -200,9 +175,6 @@ sub get_amiRNA {
 	my $site = shift;
 	my @bases = split //, $site->{'seq'};
 	$site->{'amiRNA'} .= shift(@bases);
-#	for (1..2) {
-#		$site->{'amiRNA'} .= shift(@bases);
-#	}
 	$site->{'amiRNA'} .= $bp{shift(@bases)};
 	shift(@bases);
 	$site->{'amiRNA'} .= 'C';
@@ -237,7 +209,9 @@ sub off_target_check {
 	my $gid = $gene_id;
 	$gid =~ s/\.\d+$//;
 	my @results;
-	open TF, "/var/www/asrp/sites/amirna/bin/targetfinder.pl -s $site->{'amiRNA'} -d $offTargetDB -q amiRNA |";
+	print "OFFSITE CHECK HAPPENS HERE";
+    print "/var/www/asrp/sites/amirna/bin/targetfinder.pl -s $site->{'amiRNA'} -d $offTargetDB -q amiRNA |";
+    open TF, "/var/www/asrp/sites/amirna/bin/targetfinder.pl -s $site->{'amiRNA'} -d $offTargetDB -q amiRNA |";
 	while (my $line = <TF>) {
 		if ($line =~ /^HIT=/) {
 			if ($line !~ /$gid/) {

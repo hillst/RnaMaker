@@ -30,3 +30,6 @@ The .json passed to the server from the client expects the following format:
         ]
     }
 }
+
+#CRON JOB#
+There is a cron job scheduled to run at 3am everyday which cleans the server_encoded and server_results folders.

@@ -89,6 +89,8 @@ class Manager(SocketServer.BaseRequestHandler):
         response_code =  runner.startProcess()
         results = runner.getAllResults() #returns list
         self.request.sendall("\n".join(results))
+        self.request.close()
+        #close request
         def finish(self):
             print "Shutting down..\n"
           

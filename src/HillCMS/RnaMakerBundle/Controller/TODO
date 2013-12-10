@@ -1,0 +1,11 @@
+TODO
+
+Finish fixing the targetfinder tool.
+This means,
+Right now it returns json, but there is nothing to parse this json and return a result. Make sure you get this
+done. Finally, it should be placed in the amiRNA_Suite package. It *could* stay in the default controller but that
+is probably bad practice.
+
+the generate list tool is an optional feature I believe, don't worry about it as much. The problem with generate
+list is that it calls all of the tools and packages them into one. This is HARD, an alternative would be to 
+rewrite this tool in a more managable form (currently it's hard to maintain)

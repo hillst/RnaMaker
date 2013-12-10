@@ -1,0 +1,12 @@
+{%  extends "HillCMSRnaMakerBundle:Default:bootstrap-template.html.twig" %}
+{% block body %}
+{# syntasirna designer results custom page. pending on rework of targetfinder/oligodesigbner #}
+<div class="container">
+	<div class="jumbotron" style="float:none">
+		<h1 class="tool-header"> Placeholder Results </h1>
+		<p>{{ results|raw }}</p>
+		<a id = "download" class = "btn btn-default btn-block btn-tertiary" href="{{ asset(dl_token)}}" download>Download</a>
+	</div>	
+	
+</div>
+{% endblock %}

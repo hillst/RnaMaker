@@ -16,10 +16,12 @@ use HillCMS\RnaMakerBundle\ClientSocket\DaemonHunter;
 class DefaultController extends CMSController
 {
     private $server_results = "server_results";	
-	
+    private $server_encoded = "server_encoded";
+    /*
+     * It is worth mentioning that buttons are hard-coded, but the content in the buttons (and following) are not.
+     */	
     public function indexAction(){
     	$pid = 1;
-    	//        return $this->render('HillCMSCCBLBundle:Default:index.html.twig', array("main" => $homegroups['Main'][0], "slides" => $homegroups["Slide"]));
     	$em = $this->getDoctrine()->getManager();
     	$repo = $em->getRepository("HillCMSManageBundle:CmsPageThings");
     	$pagethings = $repo->findBy(array("pageid" => $pid)); //our people page id
@@ -28,7 +30,9 @@ class DefaultController extends CMSController
     		return new Response("Error", 404);
     	}
     	$homegroups = $this->buildPageGroups($pagethings);
-        return $this->render('HillCMSRnaMakerBundle:Default:index.html.twig', array("groups" => $homegroups['Main']));
+        
+        return $this->render('HillCMSRnaMakerBundle:Default:index.html.twig', array("main" => $homegroups['Main'][0], "amirna" => $homegroups['Main'][5], "syntasirna" => $homegroups["Main"][6], "targetfinder" => $homegroups["Main"][7]));
+
     }
     
     
@@ -54,24 +58,17 @@ class DefaultController extends CMSController
      *
      * Executed Commands:
      * perl ./sites/amirna/bin/generate_amiRNA_list.pl -f $sequence -d $database -s $species -l $offTargets -r $num -t $fb
-     *
-     * perl ./sites/amirna/bin/generate_amiRNA_list.pl -a $gene -d $database -s $species -l $offTargets -r $num -t $fb
-     *
      */
     public function amirnaDesignerRequestAction(){
-    	$fd = fopen("/scratch/testing", "a");
-    	
-    	
-    	$request = $this->getRequest();
-    	
+	$request = $this->getRequest();
     	if ($request->getMethod() === 'POST') {
     		$selection = $request->get('database'); //going to be dbId
     		$gene = $request->get('gene');
-    		$sequence = $request->get('sequence');
+    		$sequence = $request->get('seq');
     		$num = $request->get('results');
     		$offTargets = $request->get('off-targets');
     		$fb = $request->get('fb');
-    		if($selection == "" || ($gene == "" || $sequence == "") || $num == "" || $offTargets == "" || $fb == "" ){
+		if($selection == "" || ($gene == "" && $sequence == "") || $num == "" || $offTargets == "" || $fb == "" ){
     			return new Response("Error: Missing one of the required fields.", 400);
     		}
     	} else{
@@ -95,11 +92,10 @@ class DefaultController extends CMSController
     	if (sizeof($dbs) < 1){
     		return new Response("Invalid database id.", 400);
     	}
-    	$root = $this->get('kernel')->getRootDir() ."/../amirna_dbs";
-    	
-    	
-    	$database = $root . $dbs[0]->getDbPath();
-    	$species = $dbs[0]->getSpecies();
+    		
+	$root = $this->get('kernel')->getRootDir() ."/../amirna_dbs";
+    	$database =  $dbs[0]->getDbPath();
+    	$species =  $dbs[0]->getSpecies();
     	
     	if ($gene !== "") {
     		if ($species !== 'S_ITALICA') {
@@ -122,7 +118,7 @@ class DefaultController extends CMSController
     	$arguments[8] = "-t";
     	$arguments[9] = $fb;
     	 
-    	if (!preg_match("/none/",$sequence)) {
+    	if ($sequence !== "") {
     		//$output = shell_exec("perl ./sites/amirna/bin/generate_amiRNA_list.pl -f $sequence -d $database -s $species -l $offTargets -r $num -t $fb");
     		$arguments[10] = "-f";
     		$arguments[11] = $sequence;
@@ -131,18 +127,18 @@ class DefaultController extends CMSController
     		$arguments[10] = "-a";
     		$arguments[11] = $gene;
     	}
-    	$json = $daemonSocket->jsonBuilder("generate_amiRNA_list.pl", "generate_amiRNA_list.pl", $this->server_results."/".uniqid("amiRNA_list"), $arguments);
+    	$json = $daemonSocket->jsonBuilder("generate_amiRNA_list.pl", "generate_amiRNA_list.pl", $arguments);
     
-    	$result = $daemonSocket->socketSend($json);
-    	$tokens = explode(",",$result);
-    	if(sizeof($tokens) > 1){
-    		$token = trim($tokens[1]);
-    	} else{
-    		return new Response("Error, unexpected response.", 400);
-    	}
-   
-    	
-    	return new Response($token ."", 200);
+        $json_result = $daemonSocket->socketSend($json);
+        $fd = fopen("/scratch/help", "w");
+        fwrite($fd, $json_result);
+        fclose($fd);
+        if(strlen($json_result) < 1){
+            return new Response("Error, unexpected response.", 500);
+        }
+        
+        $token = $this->amiRNADesignerJsonDecoder($json_result);
+        return new Response($token, 200);
     }
     
     /**
@@ -228,7 +224,7 @@ class DefaultController extends CMSController
         $arguments[3] = $name;
         $arguments[4] = "-t";
         $arguments[5] = $fb;
-        $json = $daemonSocket->jsonBuilder("amiR_final.pl", "amiR_final.pl", $this->server_results."/".uniqid("syntasiRNA_"), $arguments);
+        $json = $daemonSocket->jsonBuilder("amiR_final.pl", "amiR_final.pl", $arguments);
         /*^M
          *  Example job.^M
         *  $json = $daemonSocket->jsonBuilder("nqueens", "./nqueens.py", $this->server_results."/".uniqid("nqueens_"), $arguments);^M
@@ -280,7 +276,7 @@ class DefaultController extends CMSController
     	$arguments[3] = $name;
     	$arguments[4] = "-t";
     	$arguments[5] = $fb;
-    	$json = $daemonSocket->jsonBuilder("amiR_final.pl", "amiR_final.pl", $this->server_results."/".uniqid("oligoDesigner_"), $arguments);
+    	$json = $daemonSocket->jsonBuilder("amiR_final.pl", "amiR_final.pl", $arguments);
     	/*
     	 *  Example job.
     	*  $json = $daemonSocket->jsonBuilder("nqueens", "./nqueens.py", $this->server_results."/".uniqid("nqueens_"), $arguments);
@@ -300,7 +296,7 @@ class DefaultController extends CMSController
     
     /**
      * Universal results action. If a custom results page is a needed a new action should be written. This function finds the file with the 
-     * class field server_result. It expects the token to be the filename.
+     * class field server_result. private $server_encoded = "server_encoded";It expects the token to be the filename.
      * 
      * @param $token results token returned by the job daemon
      */
@@ -361,14 +357,12 @@ class DefaultController extends CMSController
     	$arguments[7] = $score;
     	$json = $daemonSocket->jsonBuilder("targetfinder.pl", "targetfinder.pl", $this->server_results."/".uniqid("targetfinder_"), $arguments);
 	
-    	$result = $daemonSocket->socketSend($json);
-    	$tokens = explode(",",$result);
-    	if(sizeof($tokens) > 1){
-    		$token = trim($tokens[1]);
-    	} else{
-    		return new Response("Error, unexpected response.", 500);
-    	}
-    	return new Response($token ."", 200);
+    	$json_result = $daemonSocket->socketSend($json);
+        if (strlen($json_result) < 1){
+            return new Response("Error, unexpected empty response.", 500);
+        }	
+        $token = $this->targetFinderJsonDecoder($json_result);
+        return new Response($token , 200);
     }
     
     
@@ -388,7 +382,60 @@ class DefaultController extends CMSController
     	 
     	return $this->render('HillCMSRnaMakerBundle:Default:targetfinder.html.twig', array("groups" => $homegroups['Target'], "dbs" => $dbs, "root"=>$root));
     }
-   
+    /**
+     * Function responsible for parsing the amiRNADesigner results and saving them to disk.
+     */
+    public function amiRNADesignerJsonDecoder($json_result){
+        //decode results to plain text
+        
+        //$tokenized_results = json_decode($json_result);
+        //there is no json to decode yet.
+        $plain_result = $json_result;        
+
+        //write to disk    
+        $token = uniqid("amirnaDesigner_");
+        $plainfile = $this->server_results . "/" . $token;
+        $fd = fopen($plainfile, "w");
+        fwrite($fd, $plain_result);
+        fclose($fd);
+        $fd = fopen($this->server_encoded . "/" . $token, "w");
+        fwrite($fd, $json_result);
+        fclose($fd);
+        return $token;
+    } 
+    /*
+     *
+     */
+    public function amiRNADesignerResultsAction($token){
+        $fd = fopen($this->server_encoded . "/" . $token, "r");
+        $result = "";
+        while( ! feof($fd )){
+            $result .= fread($fd, 8092);
+        }
+        fclose($fd);
+        //again there is no json yet so it's commented out.
+        //$decoded_result =  json_decode($result);
+        
+        $dlpath = $this->server_results . "/". $token;
+        //"amiRNA" => $decoded_result->{"results"}->{"amiRNA"},
+        return $this->render("HillCMSRnaMakerBundle:Default:amiRNADesignerResults.html.twig", array(
+            "dl_token"=> $dlpath,
+             "results" => $result
+        ));
+    }
+
+    public function targetFinderResultsAction(){
+        /*
+        "hit-50": {
+        "hit_accession": "AT5G38610.1 | Symbols:  | Plant invertase/pectin methylesterase inhibitor superfamily protein",
+        "score":"4",
+        "strand":"580-598 (+)",
+        "target_seq":"AUGCUCUCU-UCUUCUGUCA",
+        "homology_string":"&nbsp:::::&nbsp::&nbsp::::::::::",
+        "miR_seq":"CACGAGUGAGAGAAGACAGU"
+        */
+        //parse a list of these out from the response and do the normal server_encoded server_plain process.
+    }
     
  
 }

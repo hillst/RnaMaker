@@ -1,0 +1,3 @@
+TranscriptIds is the name of the table we are adding
+php app/console doctrine:mapping:import --force --filter TranscriptIds HillCMSRnaMakerBundle xml
+php app/console doctrine:mapping:convert annotation --filter TranscriptIds ./src

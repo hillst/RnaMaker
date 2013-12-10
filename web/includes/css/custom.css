@@ -16,7 +16,20 @@ body {
 	color: #FFF;
 	font-size: 24px;
 	font-weight: 100;
+}
 
+.btn-description{
+    background-color: transparent;
+    border: 1px #ccc solid;
+    color: #333;
+    border-radius: 4px
+    box-sizing: border-box;
+    width: 100%;
+    margin-bottom: 15px;
+    display: inline-block;
+    line-height: 1; 
+    padding: 4px;
+    font-size: 18px;
 }
 
 #close-clear{
@@ -50,6 +63,10 @@ body {
 	background-color: #482A83;
 }
 
+.btn-no{
+    background-color: DarkRed;
+}
+
 .container{
 	height: 769%;
 }
@@ -72,6 +89,12 @@ body {
 }
 .jumbotron{
 	min-height: 768px;
+}
+.jumbotron-modal{
+    min-height: 0px;
+}
+.modal{
+    overflow: auto;
 }
 .name{
     cursor: pointer;
@@ -143,4 +166,7 @@ body {
 	color: #64DF85;
 	float: left;
 }
-
+.wizard{
+    visibility: hidden;
+    display: none;
+}

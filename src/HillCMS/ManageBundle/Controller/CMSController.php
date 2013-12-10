@@ -36,7 +36,6 @@ class CMSController extends Controller
 	
 	public function buildPageGroups($pagethings){
 		$things = array();
-	
 		foreach($pagethings as $group){
 			$exploded_group = explode("-", $group->getThingname());
 			if (! key_exists($exploded_group[0], $things)){

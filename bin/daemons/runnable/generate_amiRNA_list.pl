@@ -15,8 +15,7 @@ my $conf_file = '/var/www/asrp/sites/amirna/amiRNA_tool.conf';
 my $conf = Config::Tiny->read($conf_file);
 
 #should be relative to the daemon's execution path, or make it absolute
-my $db = 'amirna_dbs/transcripts.sqlite3';
-
+my $db = '/var/www/RnaMaker/bin/daemons/amirna_dbs/transcripts.sqlite3';
 # Connect to database, initialize database handler
 my $dbh = DBI->connect("dbi:SQLite:dbname=$db","","");
 my $sth = $dbh->prepare("SELECT * FROM `$species` WHERE `accession` = ?");
@@ -187,7 +186,7 @@ sub print_result {
 	}
 	push @output, "<span class=\"section_header\">OligoDesigner results</span><br>";
 	push @output, "<hr class=\"section\" />";
-	open OLIGO, "runnable/amiR_final.pl -s $site->{'amiRNA'} -n $site->{'name'} -t $fb | ";
+	open OLIGO, "./amiR_final.pl -s $site->{'amiRNA'} -n $site->{'name'} -t $fb | ";
 	while (my $line = <OLIGO>) {
 		push @output, $line;
 	}
@@ -238,7 +237,7 @@ sub off_target_check {
 	my $gid = $gene_id;
 	$gid =~ s/\.\d+$//;
 	my @results;
-	open TF, "runnable/targetfinder.pl -s $site->{'amiRNA'} -d $offTargetDB -q amiRNA |";
+    open TF, "/var/www/RnaMaker/bin/daemons/runnable/targetfinder.pl -s $site->{'amiRNA'} -d $offTargetDB -q amiRNA |";
 	while (my $line = <TF>) {
 		if ($line =~ /^HIT=/) {
 			if ($line !~ /$gid/) {

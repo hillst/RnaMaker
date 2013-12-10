@@ -1,6 +1,6 @@
 {%  extends "HillCMSRnaMakerBundle:Default:modal-template.html.twig" %}
 {% set modal_id = "start" %}
-{% set modal_title = "Target Finder Options" %}
+{% set modal_title = "amiRNA Designer Wizard" %}
 {% block body %}
 <div class="container">
 	<div class="jumbotron" style="float:none">
@@ -21,95 +21,121 @@
 {% endblock %}
 	{% block modal %}
       
-	<form role="form" class="targetfinder">
-	  <div class="form-group">
-	    <label for="database">Database:</label>
-	    <!-- change to non-integer values -->
-	      <select class="form-control" name="database" id="database">
-	      	{% for db in dbs %}
-        		<option value="{{ db.dbId }}">{{ db.dbLabel }}</option>
-        	{% endfor %}	      
-		  </select>
-	  </div>
-	  
-	  <div class="form-group">
-	    <label for="fb">Vector:</label>
-	  	<select class="form-control" name="fb" id="fb">
-            <option value="eudicot">eudicot</option>
-            <option value="monocot">monocot</option>
-        </select>
+	<div id="wizard-pane" >
+        <h5 id="wizard-species">Species: None</h5>
+        <div id="wizard-text" class="jumbotron jumbotron-modal">
+            Do you already have an amiRNA sequence?
+        </div>
+        <div class="btn btn-default btn-secondary btn-block" id="yes">Yes</div>
+        <div class="btn btn-default btn-tertiary btn-block" id="no">No</div>
+    </div>
+    <!-- hidden form elements to be used by the wizard -->
+    <div class="form-group wizard" id = "wizard-transcript">
+        <label for="sequence">Target sequence:</label>
+        <textarea class="form-control" id="sequence" name="sequence" rows="1" placeholder="ATGATGATGATGATGATGATG" ></textarea>
+    </div>
+    <div class="form-group wizard" id = "transcript-lookup">
+        <label for="gene">Gene:</label>
+        <input type="text" class="form-control" id="gene" placeholder="AT1G01040.1" name="gene">
+    </div>
+    <div class="form-group wizard" id ="species">
+        <label for="database">Species Database:</label>
+        <!-- change to non-integer values -->
+          <select class="form-control" name="database" id="database">
+            {% for db in dbs %}
+                <option value="{{ db.dbId }}">{{ db.dbLabel }}</option>
+            {% endfor %}	      
+          </select>
+   </div>
+    <!-- initial state -->
+    <div class="wizard wizard-part" id="wizard-no">
+        Do you have a transcript id?
+    </div>
+
+    <div class="wizard wizard-part" id="wizard-submissionform">
+        <form role="form" class="designer">
+         <!--
+            <label for="fb">Vector:</label>
+            <select class="form-control" name="fb" id="fb">
+                <option value="eudicot">eudicot</option>
+                <option value="monocot">monocot</option>
+            </select>
+          </div>
+         -->
+          <label class="label-species">Species:</label>
+                <div class ="label-species" id ="label-species"></div>
+          <label class="label-gene">Transcript ID:</label>
+                <div class = "label-gene" id="label-gene"></div>
+          <label class="label-sequence">Sequence:</label>
+                <div class = "label-sequence" id="label-sequence"></div>
+          <input type="hidden" value="" name="seq" id="sub-sequence"/>
+          <input type="hidden" value="" name="gene" id="sub-gene"/>
+          <input type="hidden" value="" name="database" id="sub-database"/>
+          <input type="hidden" value="eudicot" name="fb" id="fb"/>
+          <input type="hidden" value="3" name="results" id="results"/>
+          <input type="hidden" class="form-control" id="off-targets" name="off-targets" value="1"/>
+          <div class="result hidden" style="text-align: center;"></div>
+          <a href= "#" id="result" type="submit" class="btn btn-default btn-block btn-large btn-secondary">Submit</a>
+          <div class="btn btn-defaulddt btn-tertiary btn-block" id="startover">Reset</div>
+        </form>
+    </div>
+    <!-- Targetfinder Form -->
+    <div class="wizard wizard-part" id="targetfinder-submission">
+      <form role="form" class="targetfinder" name= "targetfinder">
+        
+      <div class="form-group">
+        <label for="name">amiRNA name:</label>
+        <input type="text" class="form-control" id="name" placeholder="name" name="name">
       </div>
       <div class="form-group">
-        <label for="results">Result limit:</label>
-      	<select class="form-control" name="results" id="results">
-            <option value="1" selected="selected">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
+        <label for="miRNA">amiRNA Sequence:</label>
+        <input type="text" class="form-control" id="miRNA" placeholder="miRNA" name="miRNA">
+      </div>
+      <div class="form-group">
+        <label for="score">Score Cutoff:</label>
+        <select class="form-control" name="score" id="score">
+              <option value="0">0</option>
+              <option value="0.5">0.5</option>
+              <option value="1">1</option>
+              <option value="1.5">1.5</option>
+              <option value="2">2</option>
+              <option value="2.5">2.5</option>
+              <option value="3">3</option>
+              <option value="3.5">3.5</option>
+              <option selected="selected" value="4">4</option>
+              <option value="4.5">4.5</option>
+              <option value="5">5</option>
+              <option value="5.5">5.5</option>
+              <option value="6">6</option>
+              <option value="6.5">6.5</option>
+              <option value="7">7</option>
+              <option value="7.5">7.5</option>
+              <option value="8">8</option>
+              <option value="8.5">8.5</option>
+              <option value="9">9</option>
+              <option value="9.5">9.5</option>
+              <option value="10">10</option>
+              <option value="10.5">10.5</option>
+              <option value="11">11</option>
+        </select>
+         <div class="form-group">
+        <label for="score">Database:</label>
+        <select class="form-control" name="database" id="database">
+            {% for db in dbs %}
+                <option value="{{ db.dbPath }}">{{ db.dbLabel }}</option>
+            {% endfor %}
         </select>
       </div>
-	  <div class="form-group">
-	    <label for="off-targets">Off-target limit:</label>
-        <input class="form-control" id="off-targets" name="off-targets" type="text" placeholder="0" value="0">
-	  </div>
-	  <span style="font-style:italic">Choose Input Sequence or Gene</span>
-	  <div class="form-group">
-	  	<label for="sequence">Target sequence:</label>
-      	<textarea class="form-control" id="sequence" name="sequence" rows="1" placeholder="ATGATGATGATGC" >none</textarea>
-	  </div>
-	  <div class="form-group">
-	    <label for="gene">Gene:</label>
-		<input type="text" class="form-control" id="gene" placeholder="AT1G01040.1" name="gene">
-	  </div>
-	  <div class="result hidden" style="text-align: center;"></div>
-	  <a href= "#" id="result" type="submit" class="btn btn-default btn-block btn-large btn-tertiary">Submit</a>
-	</form>
-	{% endblock %}
+      <div class="result hidden" id="targetstatus"  style="text-align: center;"></div>
+      <a href= "#" id="targetresult" type="submit" class="btn btn-default btn-block btn-large btn-secondary">Submit</a>
+      <div class="btn btn-default btn-tertiary btn-block startover">Reset</div>
+    </form>
+    </div>
+    {% endblock %}
 {% block javascript %}
-<script type="text/javascript">
-$().ready(function(){
-	var ignore = false;
-	$('.targetfinder').submit(function(){
-		var form = $(this);
-		$.ajax({
-			type: "POST",
-			url: '{{ path("rnamaker_amirnarequest") }}',
-			data: $(this).serialize(),	
-			//should return a token that will access the results, as stored in memory
-			success: function(data){
-				form.find('.result').removeClass('hidden alert alert-danger alert-warning');
-				form.find('.result').addClass("alert alert-success");
-				form.find('.result').text("Success!");
-				$( "#result" ).animate({
-			          backgroundColor: "#7CB02C", //btn secondary 
-			          color: "#fff"
-				}, 1000 );
-				$("#result").attr("href", "{{ path("result_token_plain") }}/" + data );
-				$("#result").text("Click to see Results");
-				$("#result").unbind("click");			    
-			},
-			error: function(xhr, status, error) {
-				form.find('.result').removeClass('hidden alert alert-success alert-warning');
-				form.parent().find('.result').addClass("alert alert-danger");
-				if (xhr.responseText != ""){
-					form.parent().find('.result').html(xhr.responseText);
-				} else{
-					if(!ignore){
-						form.parent().find('.result').html("Error");
-					}
-				}
-			},
-			beforeSend: function(){
-				form.find('.result').removeClass('hidden alert alert-danger alert-success');
-				form.find('.result').addClass('alert alert-warning');
-				form.find('.result').html('<img src="{{ asset("includes/images/ajax-loader.gif") }}"/>' );
-			}
-		});
-		return false;
-	});
-	//bind to targetfinder form
-	$('#result').click(function(){
-		$('.targetfinder').submit()
-	});
-});
-</script>
+{# passing twig variables #}
+<input type="hidden" id="rnamaker_amirnarequest" value='{{ path("rnamaker_amirnarequest") }}'></input>
+<input type="hidden" id="gifloader" value='{{ asset("includes/images/ajax-loader.gif") }}'></input>
+<input type="hidden" id="tokensplain" value='{{ path("amirnadesigner_results_plain") }}'></input>
+<script src = {{ asset("includes/js/amirna.js") }} type="text/javascript"></script>
 {% endblock %}
