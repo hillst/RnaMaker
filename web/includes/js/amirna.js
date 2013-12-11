@@ -83,6 +83,13 @@ $().ready(function(){
         $("#wizard-text").html( $("#transcript-lookup").html() );
         $("#no").text("Back").unbind("click").click(cb_postSpecies);
         $("#yes").text("Next").unbind("click").click(cb_submissionForm);
+        $("#addgeneid").click(cb_addGeneId);
+    }
+    function cb_addGeneId(){
+        $("#wizard-pane").find(".gene").last().after(
+            "<label for='gene'>Gene:</label>" +
+            "<input type='text' class='form-control gene'  placeholder='AT1G01040.1' name='gene'>"
+        );
     }
     //seqid plus button
     function cb_addSequence(){
@@ -94,7 +101,6 @@ $().ready(function(){
     }
     //show searchable list
     function cb_idNo(){
-    
         //cleanup from other inputs
         $("#sequence").val("");
         $("#gene").val("");
@@ -129,7 +135,13 @@ $().ready(function(){
             }
         });
         transcript = transcript.substr(0,transcript.length-1);
-        transcriptId = $("#gene").val();
+        transcriptId = "";
+        $(".gene").each(function(){
+            if ($(this).val() != ""){
+                transcriptId += $(this).val() + ","
+            }
+        });
+        transcriptId = transcriptId.substr(0, transcriptId.length-1);
         //add correct hit as hidden element
         $("#sub-database").val(speciesId);
         $("#sub-sequence").val(transcript);
