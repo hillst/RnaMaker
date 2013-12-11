@@ -3,6 +3,7 @@
  */
 $().ready(function(){
     var startState = $("#wizard-pane").html();
+    n = 1;
     species = "None";
     speciesId = null;
     transcript = false;
@@ -10,7 +11,7 @@ $().ready(function(){
     var ignore = false;
     $("#close-clear").click(cb_resetState);
     $("#no").click(cb_amiNo);
-    $("#yes").click(cb_targetfinderForm);
+    $("#yes").click(cb_oligodesignerForm);
     function submitAmirnaDesigner(event){
          var form = $(this);
          event.preventDefault();
@@ -22,13 +23,13 @@ $().ready(function(){
                 $('.result').removeClass('hidden alert alert-danger alert-warning');
                 $('.result').addClass("alert alert-success");
                 $('.result').text("Success!");
-                $( "#result" ).animate({
+                $( "#designerresult" ).animate({
                       backgroundColor: "#7CB02C",
                       color: "#fff"
                 }, 1000 );
-                $("#result").attr("href", $("#tokensplain").val() + "/" + data );
-                $("#result").text("Click to see Results");
-                $("#result").unbind("click");
+                $("#designerresult").attr("href", $("#tokensplain").val() + "/" + data );
+                $("#designerresult").text("Click to see Results");
+                $("#designerresult").unbind("click");
             },
             error: function(xhr, status, error) {
                 $('.result').removeClass('hidden alert alert-success alert-warning');
@@ -57,6 +58,7 @@ $().ready(function(){
     //                               Select Transcript by id    input transcript (target?)
     //                                                  Final Form
     //select species
+    //addseq addgeneid
     function cb_amiNo(){
         $("#wizard-text").html( $("#species").html() );
         $("#no").text("Back").unbind("click").click(cb_resetState);
@@ -82,6 +84,14 @@ $().ready(function(){
         $("#no").text("Back").unbind("click").click(cb_postSpecies);
         $("#yes").text("Next").unbind("click").click(cb_submissionForm);
     }
+    //seqid plus button
+    function cb_addSequence(){
+        //first i guess
+        $("#wizard-pane").find(".sequence").last().after(
+            "<label for='sequence'>Target sequence:</label>" +
+            "<input type='text' class='form-control sequence inside' placeholder='sequence' name='seq'>"
+        );
+    }
     //show searchable list
     function cb_idNo(){
     
@@ -91,23 +101,34 @@ $().ready(function(){
         $("#wizard-text").html( $("#wizard-transcript").html() );
         $("#no").text("Back").unbind("click").click(cb_postSpecies);
         $("#yes").text("Next").unbind("click").click(cb_submissionForm);
+        $(".addseq").click(cb_addSequence);
     }
+
     //go to original state
     function cb_resetState(){
         species = "none";
         $("#wizard-species").text("Species: None");
         $("#wizard-pane").html(startState);
         $("#no").text("No").unbind("click").click(cb_amiNo);
-        $("#yes").text("Yes").unbind("click").click(cb_targetfinderForm);
+        $("#yes").text("Yes").unbind("click").click(cb_oligodesignerForm);
         $("#reset").unbind("click");
-        $(".targetfinder").unbind("submit");
+        $(".oligodesigner").unbind("submit");
+        $(".designer").unbind("submit");
         $(".result").removeClass("alert alert-danger alert-warning");
         $(".result").addClass("hidden");
+        $(".name").unbind("click");
+        $(".modal").unbind("click");
     }
     //builds summary
     function cb_submissionForm(){
         //one will hit
-        transcript = $("#sequence").val();
+        transcript = "";
+        $(".sequence").each(function(){
+            if ($(this).val() != ""){
+                transcript += $(this).val() + ",";
+            }
+        });
+        transcript = transcript.substr(0,transcript.length-1);
         transcriptId = $("#gene").val();
         //add correct hit as hidden element
         $("#sub-database").val(speciesId);
@@ -126,18 +147,21 @@ $().ready(function(){
         $("#label-species").text(species);
         $("#wizard-pane").html( $("#wizard-submissionform").html() );
         $("#startover").click(cb_resetState);
-        $(".targetfinder").last().submit(submitAmirnaDesigner);
-        $("#result").click(function(){
-            $(".designer").last().submit();
+        $("#wizard-pane").find(".designer").submit(submitAmirnaDesigner);
+        $("#designerresult").click(function(){
+            $("#wizard-pane").find(".designer").submit();
         });
     }
-    function cb_targetfinderForm(){
-        $("#wizard-pane").html( $("#targetfinder-submission").html() );
+    function cb_oligodesignerForm(){
+        $("#wizard-pane").html( $("#oligodesigner-submission").html() );
+        $(".name").click(cb_toInputTransform);
+        $(".modal").click(cb_revertInput);
         $(".startover").click(cb_resetState);
-        $(".targetfinder").last().submit(function(event){ event.preventDefault();console.log("submitted");});
+        $("#seq").change(cb_onFormChange);
+        $("#wizard-pane").find(".oligodesigner").submit(cb_submitOligo);
         console.log("bound submit bound click to submit");
-        $("#targetresult").click(function(){
-            $(".targetfinder").last().submit();
+        $("#oligoresult").click(function(){
+            $("#wizard-pane").find(".oligodesigner").submit();
         });
     }
 });

@@ -55,10 +55,10 @@ class amiRNASuiteController extends CMSController
     		$name = $request->get('name');
     		$fb = $request->get('fb');
     		if($seq == "" || $name == "" || $fb == ""){
-    			return new Response("", 403);
+    			return new Response("$seq $name $fb", 403);
     		}
     	} else{
-    		return new Response("", 403);
+    		return new Response("Must be POST.", 403);
     	}
     	 
     	$daemonSocket = new DaemonHunter();
