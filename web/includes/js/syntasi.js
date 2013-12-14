@@ -1,44 +1,17 @@
+/**
+ * This script handles the entire wizard, resetting anytime back or clear is clicked.
+ */
 $().ready(function(){
+    var startState = $("#wizard-pane").html();
     n = 1;
+    species = "None";
+    speciesId = null;
+    transcript = false;
+    transcriptId = false;
     var ignore = false;
-    
-    function baseState(){
-        wiz = new Wizard();
-        wiz.addAllYN();
-       
-        wiz.notePane.text("Click ‘Design an amiRNA’ if you want to identify optimal amiRNA guide sequences that target your gene(s) of interest. Click ‘Generate oligos’ if you already have an amiRNA guide sequence and you just want to generate oligos compatible with cloning in a BsaI-ccdB vector containing the Arabidopsis MIR390a foldback.");
-        //if it has children you probably want to append.
-        wiz.textPane.append("Do you need to design an amiRNA or do you already have a guide sequence and need to generate oligos for cloning?");
-        wiz.yesButton.text("Design an amiRNA");
-        wiz.noButton.text("Generate Oligos");
-        wiz.setYes(cb_designAmiRNA1);
-        wiz.setNo(cb_generateOligos1);
-    }
-    function cb_designAmiRNA1(){
-        console.log("designAmiRNA1");
-        wiz1 = wiz;
-        console.log(wiz1);
-        wiz = new Wizard(wiz);
-        wiz.addAllYN();
-        wiz.notePane.text("Will you use your amiRNA in one of the following species?");
-        wiz.textPane.text($("#species").html());
-        wiz.setYes(cb_designAmiRNA2);
-        wiz.setNo(cb_generateOligos1()); 
-        wiz.setBack(function(){
-            cb_revertState(wiz);
-        });
-        
-    }
-    function cb_designAmiRNA2(){
-        console.log("designAmiRNA2");
-    }
-    function cb_generateOligos1(){
-        console.log("generate oligos");
-    }
-    //initialize
-    baseState();
-    console.log('BASE STATE');
-
+    $("#close-clear").click(cb_resetState);
+    $("#no").click(cb_amiNo);
+    $("#yes").click(cb_oligodesignerForm);
     function submitAmirnaDesigner(event){
          var form = $(this);
          event.preventDefault();
@@ -76,12 +49,22 @@ $().ready(function(){
             }
         });
     }
+    //wizard question callbacks
+    //  amiRNA sequence? 
+    //  yes                                 no
+    //  Oligo                            select database
+    //                                      Do you have transcript id
+    //                                      yes                     no
+    //                               Select Transcript by id    input transcript (target?)
+    //                                                  Final Form
+    //select species
+    //addseq addgeneid
     function cb_amiNo(){
         $("#wizard-text").html( $("#species").html() );
         $("#no").text("Back").unbind("click").click(cb_resetState);
         $("#yes").text("Next").unbind("click").click(cb_postSpecies);
     }
-    //ask if they have transcript id
+    //ask if they have transcript id/
     function cb_postSpecies(){
         speciesId = $("#database option:selected").val();
         species = $("#database option:selected").text();
@@ -89,10 +72,11 @@ $().ready(function(){
         $("#wizard-text").html( $("#wizard-no").html() );
         $("#yes").text("Yes").unbind("click").click(cb_idYes);
         $("#no").text("No").unbind("click").click(cb_idNo);
-        
     }
     //display id entry form
     function cb_idYes(){
+    //    $(".filterinput").fastLiveFilter("#transids li"); 
+        
         //cleanup from other inputs
         $("#sequence").val("");
         $("#gene").val("");
@@ -129,7 +113,7 @@ $().ready(function(){
     //go to original state
     function cb_resetState(){
         species = "none";
-        $("#wizard-species").text("");
+        $("#wizard-species").text("Species: None");
         $("#wizard-pane").html(startState);
         $("#no").text("No").unbind("click").click(cb_amiNo);
         $("#yes").text("Yes").unbind("click").click(cb_oligodesignerForm);
@@ -172,7 +156,7 @@ $().ready(function(){
             $(".label-sequence").removeClass("hidden");
             $("#label-sequence").text(transcript); 
         }
-        $("#label-species").text("Species: " + species);
+        $("#label-species").text(species);
         $("#wizard-pane").html( $("#wizard-submissionform").html() );
         $("#startover").click(cb_resetState);
         $("#wizard-pane").find(".designer").submit(submitAmirnaDesigner);
@@ -185,6 +169,7 @@ $().ready(function(){
         $(".name").click(cb_toInputTransform);
         $(".modal").click(cb_revertInput);
         $(".startover").click(cb_resetState);
+        $("#addseq").click(cb_addSeq);
         $("#seq").change(cb_onFormChange);
         $("#wizard-pane").find(".oligodesigner").submit(cb_submitOligo);
         console.log("bound submit bound click to submit");
