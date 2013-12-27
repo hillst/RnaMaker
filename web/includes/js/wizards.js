@@ -39,6 +39,7 @@ function Wizard(previousState){
     this.speciesId = null;
     this.transcript = false;
     this.transcriptId = false;
+    this.filtered = undefined;
     //update function
     this.updateFields = function(){
         this.yesButton = $("#yes").outerHTML();
@@ -73,6 +74,7 @@ function Wizard(previousState){
         this.speciesId = previousState.speciesId;
         this.transcript = previousState.transcript;
         this.transcriptId = previousState.transcriptId;
+        this.filtered = previousState.filtered;
         return this;
     }
     //reverts a passed wizard to it's former state. This is a callback that should be used on these statements,
@@ -151,6 +153,20 @@ function Wizard(previousState){
         this.addTextPane().addNotePane().addBackButton().addNextButton();
         return this;
     }
+    // setNText set of functions are wrappers for calling the selectors.
+    this.setYesText = function(text){
+        $("#yes").text($(this.yesButton).text(text).text());
+    }
+    this.setNoText = function(text){
+        $("#no").text($(this.noButton).text(text).text());
+    }
+    this.setNextText = function(text){
+        $("#next").text($(this.nextButton).text(text).text());
+    }
+    this.setBackText = function(text){
+        $("#back").text($(this.backButton).text(text).text());
+    }
+
     this.setYes = function(cb_yes){
         if (cb_yes != undefined){
             this.yesClick = cb_yes;
@@ -181,12 +197,13 @@ function Wizard(previousState){
         $("#back").click(cb_back);
         return this;
     }
-    //selector clonalField
+    //expects a class unique to the clonal field.
     this.addPlusButton = function( clonalField ){
-        clonalField.after( $(".add").outerHTML() );
+        if ( this.textPane.find(".add").length <= 0){
+            $(clonalField).last().after( $(".add").outerHTML() );
+        }
         this.textPane.find(".add").click(function(){
-            clonalField.after( clonalField.outerHTML() );
-            console.log("added");
+            $(clonalField).last().after( $(clonalField).outerHTML() );
         });
     }
     this.resetState = function(){

@@ -9,8 +9,8 @@ $().ready(function(){
         wiz.notePane.text("Click ‘Design an amiRNA’ if you want to identify optimal amiRNA guide sequences that target your gene(s) of interest. Click ‘Generate oligos’ if you already have an amiRNA guide sequence and you just want to generate oligos compatible with cloning in a BsaI-ccdB vector containing the Arabidopsis MIR390a foldback.");
         //if it has children you probably want to append.
         wiz.textPane.append("Do you need to design an amiRNA or do you already have a guide sequence and need to generate oligos for cloning?");
-        $(wiz.yesButton).text("Design an amiRNA");
-        $(wiz.noButton).text("Generate Oligos");
+        wiz.setYesText("Design an amiRNA");
+        wiz.setNoText("Generate Oligos");
         wiz.setYes(cb_designAmiRNA1);
         wiz.setNo(cb_generateOligos1);
     }
@@ -30,15 +30,15 @@ $().ready(function(){
     }
     function cb_designAmiRNA2(){
         wiz.species = $("#database option:selected").text();
-        wiz.speciesID = $("#database option:selected").val();
+        wiz.speciesId = $("#database option:selected").val();
         wiz = new Wizard(wiz);
         wiz.restoreFormFields(); //gets species/speciesid
         wiz.addAllYN();
         //wiz.helpPane.text("Click ‘Annotated transcript(s)’ if you have gene ID(s). Click ‘Unannotated/exogenous transcript(s)’ if you want to target transcripts that do not have an assigned gene ID or are not found in the selected reference transcriptome.");
         
         wiz.textPane.text("Do you want to target annotated transcript(s) or unannotated/exogenous transcript(s)?");
-        $(wiz.yesButton).text("Target annotated transcript(s)");
-        $(wiz.noButton).text("Target unannotated/exogenous transcript(s)");
+        wiz.setYesText("Target annotated transcript(s)");
+        wiz.setNoText("Target unannotated/exogenous transcript(s)");
         //work in progress
         //wiz.noButton.css("font-size", "16px").css("height", height);
         wiz.setYes(cb_designAmiRNA3_annotated);
@@ -52,46 +52,122 @@ $().ready(function(){
         $("#sequence").val(""); //clear form?
         $("#gene").val("");
         wiz.textPane.html( $("#transcript-lookup").outerHTML() );
-        wiz.addPlusButton( $("#transcript-lookup") );
-        wiz.setNext(cb_designAmiRNA4);
+        wiz.textPane.find( $("#transcript-lookup").addClass("transcript-lookup") );
+        wiz.addPlusButton( ".transcript-lookup" );
+        wiz.setNext(cb_designAmiRNA4_a);
         wiz.setBack(function(){ cb_revertState(wiz); });
     }
     function cb_designAmiRNA3_unannotated(){
-        console.log("unannotated");
+        wiz = new Wizard(wiz);
+        wiz.restoreFormFields();
+        wiz.addAllNB();
+        $("#sequence").val("");
+        $("#gene").val("");
+        wiz.textPane.html( $("#wizard-transcript").outerHTML() );
+        wiz.textPane.find( $("#wizard-transcript").addClass("wizard-transcript") );
+        wiz.addPlusButton( ".wizard-transcript" );
+        wiz.setNext(cb_designAmiRNA4_u); 
     }
-    function cb_designAmiRNA4(){
-        //save transcriptIDs or sequences first. :)
-        console.log("ask about filtering for speeddd");
+    //annotated
+    function cb_designAmiRNA4_a(){
         var transid = "";
-        var trans = "";
         wiz.textPane.find(".gene").each(function(){
             transid += $(this).val() + ",";
         }); 
-        transid.substring(0, transid.length-1);
-        wiz.textPane.find(".seq").each(function(){
-            trans += $(this).val() + ",";
-        });
-        trans.substring(0, trans.length -1);
-        if (trans != "") {    
-            wiz.transcript = trans;
-        }
+        transid = transid.substring(0, transid.length-1);
         if (transid != "") {
-            wiz.transid = transid;
+            wiz.transcriptId = transid;
         }
         wiz = new Wizard(wiz);
         wiz.restoreFormFields();
         wiz.addAllYN();
         wiz.textPane.text("Do you want the results to be automatically filtered based on target specificity?");
-        wiz.setYes(cb_designAmiRNAFinal_Filtered);
-        wiz.setNo(cb_designAmiRNAFinal_Unfiltered);
-        wiz.setBack(function(){ cb_revertState(wiz); });
+        wiz.setYes(function(){
+            wiz.filtered = true;
+            cb_designAmiRNAFinal();
+        });
+        wiz.setNo(function(){
+            wiz.filtered = false;
+            cb_designAmiRNAFinal();
+        });
+        wiz.setBack(function(){ 
+            //rebind the plus button as well
+            cb_revertState(wiz); 
+            wiz.filtered = undefined;
+            wiz.textPane = $("#wizard-text"); //kind of a hack
+            wiz.addPlusButton( ".transcript-lookup" );
+            wiz.transcriptId = "";
+        });
     }
-    function cb_designAmiRNAFinal_Filtered(){
-        console.log("filtered");
+    //unannotated
+    function cb_designAmiRNA4_u(){
+        var trans = "";
+        wiz.textPane.find(".sequence").each(function(){
+            trans += $(this).val() + ",";
+        });
+        trans = trans.substring(0, trans.length-1);
+        if ( trans != "") {
+            wiz.transcript = trans;
+        }
+        wiz = new Wizard(wiz);
+        wiz.restoreFormFields();
+        wiz.addAllYN();
+        wiz.textPane.text("Do you want the results to be automatically filtered based on target specificity?");
+        wiz.setYes(function(){ 
+            wiz.filtered = true;
+            cb_designAmiRNAFinal(); 
+        });
+        wiz.setNo(function(){
+            wiz.filtered = false;
+            cb_designAmiRNAFinal();
+        });
+        wiz.setBack(function(){
+            cb_revertState(wiz);
+            wiz.textPane = $("#wizard-text"); //still a hack
+            wiz.addPlusButton( ".wizard-transcript" );
+            wiz.transcript = "";
+            wiz.filtered = undefined;
+        });
+        
     }
-    function cb_designAmiRNAFinal_Unfiltered(){
-        console.log("unfiltered");
+    
+    function cb_designAmiRNAFinal(){
+        wiz = new Wizard(wiz);
+        wiz.restoreFormFields();
+        wiz.addAllNB();
+        wiz.textPane.append("<h5>Species: " +wiz.species+ "</h5>");
+        //foreach
+        if(wiz.transcriptId !== false){
+            var csv = wiz.transcriptId.split(",");
+            for(var i = 0; i < csv.length; i++){
+                wiz.textPane.append("<h5>Transcript ID: " +csv[i]+ "</h5>");
+            }
+        } else{
+            var csv = wiz.transcript.split(",");
+            for(var i = 0; i < csv.length; i++){
+                wiz.textPane.append("<h5>Transcript: " +csv[i]+ "</h5>");
+            }
+        }
+        wiz.setNextText("Submit");
+        wiz.setNext(cb_submit);
+        wiz.setBack( function(){ cb_revertState(wiz) } );
     }
+    function cb_submit(){
+        example = "name=syntasiRNA+Cassette&seq=TCAAAAATCAAAAATCAATAA&seq=TCAAAAATCAAAAATCAATAA&fb=syntasi&name=syntasiRNA+Cassette&seq=&fb=syntasi";
+        console.log("submit!!!");
+        $.post( $("#rnamaker_amirnarequest").val(), { transcript: wiz.transcript, transcriptId: wiz.transcriptId, species: wiz.speciesId, filtered: wiz.filtered } )
+                .success(function(data){
+                    console.log(data);
+                })
+                .error(function( xhr, statusText, err){
+                    console.log(statusText);
+                    console.log(xhr.responseText);
+                })
+                .always(function(data){
+                    console.log("done!");
+                }) 
+    }
+    
     function cb_generateOligos1(){
         console.log("generate oligos");
     }
@@ -247,7 +323,6 @@ $().ready(function(){
         $(".startover").click(cb_resetState);
         $("#seq").change(cb_onFormChange);
         $("#wizard-pane").find(".oligodesigner").submit(cb_submitOligo);
-        console.log("bound submit bound click to submit");
         $("#oligoresult").click(function(){
             $("#wizard-pane").find(".oligodesigner").submit();
         });

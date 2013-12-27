@@ -9,7 +9,7 @@ use HillCMS\ManageBundle\Controller\CMSController;
 use HillCMS\RnaMakerBundle\ClientSocket\DaemonHunter;
 
 /**
- * TODO: Break up controllers into FormActions and ResultActions
+ * Controller which handles everthing, probably should move into seperate controllers.
  * @author shill
  *
  */
@@ -24,7 +24,7 @@ class DefaultController extends CMSController
     	$pid = 1;
     	$em = $this->getDoctrine()->getManager();
     	$repo = $em->getRepository("HillCMSManageBundle:CmsPageThings");
-    	$pagethings = $repo->findBy(array("pageid" => $pid)); //our people page id
+    	$pagethings = $repo->findBy(array("pageid" => $pid)); 
     	if (sizeof($pagethings) === 0){
     		//empty page
     		return new Response("Error", 404);
@@ -34,13 +34,29 @@ class DefaultController extends CMSController
         return $this->render('HillCMSRnaMakerBundle:Default:index.html.twig', array("main" => $homegroups['Main'][0], "amirna" => $homegroups['Main'][5], "syntasirna" => $homegroups["Main"][6], "targetfinder" => $homegroups["Main"][7]));
 
     }
-    
+    /*
+     * Page which only contains amiRNA Designer and syntasiRNA Designer. Just a clone of index
+     */
+    public function rnaDesignerAction(){
+        //doesnt actually have a pid, just a clone of index.
+        $pid = 1;
+        $em = $this->getDoctrine()->getManager();
+        $repo = $em->getRepository("HillCMSManageBundle:CmsPageThings");
+        $pagethings = $repo->findBy(array("pageid" => $pid));
+        if (sizeof($pagethings) === 0){
+            //empty page
+            return new Response("Error", 404);
+        }
+        $homegroups = $this->buildPageGroups($pagethings);
+        return $this->render('HillCMSRnaMakerBundle:Default:rnadesigner.html.twig', array("amirna" => $homegroups['Main'][5], "syntasirna" => $homegroups["Main"][6]));
+
+    }
     
     public function amirnaDesignerFormAction(){
     	$pid = 4;
     	$em = $this->getDoctrine()->getManager();
     	$repo = $em->getRepository("HillCMSManageBundle:CmsPageThings");
-    	$pagethings = $repo->findBy(array("pageid" => $pid)); //our people page id
+    	$pagethings = $repo->findBy(array("pageid" => $pid)); 
     	if (sizeof($pagethings) === 0){
     		//empty page
     		return new Response("Error", 404);
@@ -60,64 +76,48 @@ class DefaultController extends CMSController
      * perl ./sites/amirna/bin/generate_amiRNA_list.pl -f $sequence -d $database -s $species -l $offTargets -r $num -t $fb
      */
     public function amirnaDesignerRequestAction(){
-	$request = $this->getRequest();
+	    $request = $this->getRequest();
     	if ($request->getMethod() === 'POST') {
-    		$selection = $request->get('database'); //going to be dbId
-    		$gene = $request->get('gene');
-    		$sequence = $request->get('seq');
-    		$num = $request->get('results');
-    		$offTargets = $request->get('off-targets');
-    		$fb = $request->get('fb');
-		if($selection == "" || ($gene == "" && $sequence == "") || $num == "" || $offTargets == "" || $fb == "" ){
+    		$speciesId = $request->get('species'); //going to be dbId
+    		$transcriptId = $request->get('transcriptId');
+    		$filtered = $request->get("filtered");
+            $transcript = $request->get('transcript');
+		    if($speciesId == "" || ($transcript == "" && $transcriptId == "") || $filtered == ""){
     			return new Response("Error: Missing one of the required fields.", 400);
-    		}
+            }
     	} else{
     		return new Response("Error: Invalid request type.", 400);
     	} 
-    	
-    	if ($selection === 'none') {
-    		return new Response("No off-target database selected!", 400);
-    	}
-    	 
-    	if (!preg_match("/^\d+$/",$num)) {
-    		return new Response("Result limit must be an integer!", 400);
-    	}
-    	if (!preg_match("/^\d+$/",$offTargets)) {
-    		return new Response("Off-target limit must be an integer!", 400);
-    	}
     	$em = $this->getDoctrine()->getManager();
     	$repo = $em->getRepository("HillCMSRnaMakerBundle:TargetfinderDbs");
     	
-    	$dbs = $repo->findBy(array("dbId" => $selection));
+    	$dbs = $repo->findBy(array("dbId" => $speciesId));
     	if (sizeof($dbs) < 1){
-    		return new Response("Invalid database id.", 400);
+    		return new Response("Invalid species.", 400);
     	}
     		
-	$root = $this->get('kernel')->getRootDir() ."/../amirna_dbs";
+	    $root = $this->get('kernel')->getRootDir() ."/../amirna_dbs";
     	$database =  $dbs[0]->getDbPath();
     	$species =  $dbs[0]->getSpecies();
     	
-    	if ($gene !== "") {
+    	if ($transcriptId !== "") {
     		if ($species !== 'S_ITALICA') {
-    			if (!preg_match("/\.\d+$/",$gene)) {
-    				$gene = $gene.".1";
+    			if (!preg_match("/\.\d+$/",$transcriptId)) {
+    				$transcriptId = $transcriptId.".1";
     			}
     		}
     	}
     	 
-    	$daemonSocket = new DaemonHunter();
+        return new Response($speciesId . $transcriptId . $filtered . $transcript, 200);
+    	
+        $daemonSocket = new DaemonHunter();
     	$arguments = array();
     	$arguments[0] = "-d";
     	$arguments[1] = $database;
     	$arguments[2] = "-s";
     	$arguments[3] = $species;
     	$arguments[4] = "-l";
-    	$arguments[5] = $offTargets;
-    	$arguments[6] = "-r";
-    	$arguments[7] = $num;
-    	$arguments[8] = "-t";
-    	$arguments[9] = $fb;
-    	 
+    	//TODO: Finish adding the correct parameters to match noah's script 
     	if ($sequence !== "") {
     		//$output = shell_exec("perl ./sites/amirna/bin/generate_amiRNA_list.pl -f $sequence -d $database -s $species -l $offTargets -r $num -t $fb");
     		$arguments[10] = "-f";
@@ -140,42 +140,28 @@ class DefaultController extends CMSController
         $token = $this->amiRNADesignerJsonDecoder($json_result);
         return new Response($token, 200);
     }
-    
-    /**
-     * right now handles requests from both forms. Only expectation of this type of function is that it returns a token that points to the result.
-     *
-     * Eventually they should each have their own action.
-     */
-    public function dummyAction(){
-    	$request = $this->getRequest();
-    	$data = $request->request->all();
-    	if ($request->getMethod() === 'POST') {
-    		//assert non-null form values
-    	} else{
-    		return new Response("", 403);
-    	}
-    	sleep(1);
-    	$result = "m. Donec elementum odio in dui sollicitudin, at feugiat erat blandit. Duis est justo, porttitor nec leo scelerisque, tempus scelerisque est. Integer porttitor bibendum justo vitae molestie. Integer a lacus sit amet nisl pretium varius eu vel sapien. Vestibulum convallis mi nec mauris mattis hendrerit. Nunc leo dui, condimentum quis arcu eu, fringilla luctus arcu. In hac habitasse platea dictumst. Nulla convallis id lorem ut adipiscing. Aenean nec aliquet leo. Nullam convallis tortor fermentum vestibulum bibendum. In interdum lorem eros, sed convallis nunc imperdiet ac. Cras vel erat nec arcu ornare blandit at in ante.";
-    	//placeholder, comes from daemon
-    	$token = uniqid("result_");
-    	$fd = fopen($this->server_results . "/". $token, "w");
-    	fwrite($fd, $result);
-    	fclose($fd);
-    	return new Response($token, 200);
-    }
-    
-    public function emptyAction(){
-    	return new Response("Bad Request.", 403);
-    }
-    
 
-    
+    public function syntasiDesignerFormAction(){
+        $pid = 6;
+        $em = $this->getDoctrine()->getManager();
+        $repo = $em->getRepository("HillCMSManageBundle:CmsPageThings");
+        $pagethings = $repo->findBy(array("pageid" => $pid)); 
+        if (sizeof($pagethings) === 0){
+            //empty page
+            return new Response("Error", 404);
+        }
+        $homegroups = $this->buildPageGroups($pagethings);
+        $repo = $em->getRepository("HillCMSRnaMakerBundle:TargetfinderDbs");
+        $dbs = $repo->findAll();
+        $root = $this->get('kernel')->getRootDir() ."/../amirna_dbs";
+        return $this->render('HillCMSRnaMakerBundle:Default:syntasi.html.twig', array("groups"=> $homegroups["Syntasi"], "dbs" => $dbs, "root"=>$root));
+    }
     
     public function oligoDesignerFormAction(){
     	$pid = 3;
     	$em = $this->getDoctrine()->getManager();
     	$repo = $em->getRepository("HillCMSManageBundle:CmsPageThings");
-    	$pagethings = $repo->findBy(array("pageid" => $pid)); //our people page id
+    	$pagethings = $repo->findBy(array("pageid" => $pid)); 
     	if (sizeof($pagethings) === 0){
     		//empty page
     		return new Response("Error", 404);
@@ -183,117 +169,7 @@ class DefaultController extends CMSController
     	$homegroups = $this->buildPageGroups($pagethings);
     	return $this->render('HillCMSRnaMakerBundle:Default:oligodesigner.html.twig', array("groups"=> $homegroups["Oligo"]));
     }
-    public function syntasiOligoDesignerFormAction(){
-        $pid = 3;
-        $em = $this->getDoctrine()->getManager();
-        $repo = $em->getRepository("HillCMSManageBundle:CmsPageThings");
-        $pagethings = $repo->findBy(array("pageid" => $pid)); //our people page id^M
-        if (sizeof($pagethings) === 0){
-            //empty page^M
-            return new Response("Error", 404);
-        }
-        $homegroups = $this->buildPageGroups($pagethings);
-        return $this->render('HillCMSRnaMakerBundle:Default:syntasioligodesigner.html.twig', array("groups"=> $homegroups["Oligo"]));
-    }
 
-    public function syntasiOligoRequestAction(){
-        //perl ./sites/amirna/bin/amiR_final.pl -s $seq -n $name -t $fb"^M
-    
-        //it is reasonable to code in the script in this file because this is the specific function's action.^M
-        $request = $this->getRequest();
-        if ($request->getMethod() === 'POST') {
-            $seq = $request->get('seq');
-            $name = $request->get('name');
-            $fb = $request->get('fb');
-            $fd = fopen("/scratch/posterize", "w");
-            fwrite($fd, print_r($this->get('request')->request->all(),TRUE
-));
-            fclose($fd);
-            if($seq == "" || $name == "" || $fb == ""){
-                return new Response("", 403);
-            }
-        } else{
-            return new Response("", 403);
-        }
-         
-        $daemonSocket = new DaemonHunter();
-        $arguments = array();
-        $arguments[0] = "-s";
-        $arguments[1] = $seq;
-        $arguments[2] = "-n";
-        $arguments[3] = $name;
-        $arguments[4] = "-t";
-        $arguments[5] = $fb;
-        $json = $daemonSocket->jsonBuilder("amiR_final.pl", "amiR_final.pl", $arguments);
-        /*^M
-         *  Example job.^M
-        *  $json = $daemonSocket->jsonBuilder("nqueens", "./nqueens.py", $this->server_results."/".uniqid("nqueens_"), $arguments);^M
-        *  $arguments = array(0=>"12");^M
-        */
-        $result = $daemonSocket->socketSend($json);
-        $tokens = explode(",",$result);
-        if(sizeof($tokens) > 1){
-            $token = trim($tokens[1]);
-        } else{
-            return new Response("Error, unexpected response.", 500);
-        }
-        return new Response($token ."", 200);
-    
-    }
-    
-    
-    /**
-     * Request handler for Oligo Designer.  Expects a post and the arguments to be passed to the command line function. Then opens (hunts)
-     * a socket and connects to the Server's Daemon. Upon return, it will pass the results (both specified in the json file and output by the server) to the user.
-     *
-     * The Daemon should be configured in such a way that the files live on the same filesystem. Calls the following function:
-     *
-     * perl bin/amiR_final.pl -s $seq -n $name -t $fb
-     *
-     * @return \Symfony\Component\HttpFoundation\Response
-     */
-    public function oligoRequestAction(){
-    	//perl ./sites/amirna/bin/amiR_final.pl -s $seq -n $name -t $fb"
-    
-    	//it is reasonable to code in the script in this file because this is the specific function's action.
-    	$request = $this->getRequest();
-    	if ($request->getMethod() === 'POST') {
-    		$seq = $request->get('seq');
-    		$name = $request->get('name');
-    		$fb = $request->get('fb');
-    		if($seq == "" || $name == "" || $fb == ""){
-    			return new Response("", 403);
-    		}
-    	} else{
-    		return new Response("", 403);
-    	}
-    	 
-    	$daemonSocket = new DaemonHunter();
-    	$arguments = array();
-    	$arguments[0] = "-s";
-    	$arguments[1] = $seq;
-    	$arguments[2] = "-n";
-    	$arguments[3] = $name;
-    	$arguments[4] = "-t";
-    	$arguments[5] = $fb;
-    	$json = $daemonSocket->jsonBuilder("amiR_final.pl", "amiR_final.pl", $arguments);
-    	/*
-    	 *  Example job.
-    	*  $json = $daemonSocket->jsonBuilder("nqueens", "./nqueens.py", $this->server_results."/".uniqid("nqueens_"), $arguments);
-    	*  $arguments = array(0=>"12");
-    	*/
-    	$result = $daemonSocket->socketSend($json);
-    	$tokens = explode(",",$result);
-    	if(sizeof($tokens) > 1){
-    		$token = trim($tokens[1]);
-    	} else{
-    		return new Response("Error, unexpected response.", 500);
-    	}
-    	return new Response($token ."", 200);
-    
-    }
-    
-    
     /**
      * Universal results action. If a custom results page is a needed a new action should be written. This function finds the file with the 
      * class field server_result. private $server_encoded = "server_encoded";It expects the token to be the filename.
@@ -370,7 +246,7 @@ class DefaultController extends CMSController
     	$pid = 2;
     	$em = $this->getDoctrine()->getManager();
     	$repo = $em->getRepository("HillCMSManageBundle:CmsPageThings");
-    	$pagethings = $repo->findBy(array("pageid" => $pid)); //our people page id
+    	$pagethings = $repo->findBy(array("pageid" => $pid)); 
     	if (sizeof($pagethings) === 0){
     		//empty page
     		return new Response("Error", 404);
