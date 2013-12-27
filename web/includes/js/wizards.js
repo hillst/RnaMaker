@@ -7,7 +7,7 @@
  * revert to the previous state. (revertState)
  *
  * @author Steven Hill
- * @updated 2013-12-13
+ * @updated 2013-12-22
  */
 function Wizard(previousState){
     //also contains transcript, species, and speciesId, should be set by user.
@@ -18,10 +18,14 @@ function Wizard(previousState){
         this.previousState = previousState;
     }
     //dom elements
-    this.yesButton = $("#yes");
-    this.noButton = $("#no");
-    this.nextButton = $("#next");
-    this.backButton = $("#back");
+    this.yesButton = $("#yes-orig").outerHTML();
+    this.yesButton =  $(this.yesButton).attr("id", "yes").outerHTML();
+    this.noButton = $("#no-orig").outerHTML();
+    this.noButton = $(this.noButton).attr("id", "no").outerHTML();
+    this.nextButton = $("#next-orig").outerHTML();
+    this.nextButton = $(this.nextButton).attr("id", "next").outerHTML();
+    this.backButton = $("#back-orig").outerHTML();
+    this.backButton = $(this.backButton).attr("id", "back").outerHTML();
     this.notePane = $("#wizard-note").text("");
     this.textPane = $("#wizard-text").text(""); //clear, no children.
     this.wizardPane = $("#wizard-pane").text(""); //dont clear because it has children
@@ -37,10 +41,10 @@ function Wizard(previousState){
     this.transcriptId = false;
     //update function
     this.updateFields = function(){
-        this.yesButton = $("#yes");
-        this.noButton = $("#no");
-        this.nextButton = $("#next");
-        this.backButton = $("#back");
+        this.yesButton = $("#yes").outerHTML();
+        this.noButton = $("#no").outerHTML();
+        this.nextButton = $("#next").outerHTML();
+        this.backButton = $("#back").outerHTML();
         this.notePane = $("#wizard-note");
         this.textPane = $("#wizard-text"); //clear, no children.
         this.wizardPane = $("#wizard-pane"); //dont clear because it has children
@@ -48,13 +52,27 @@ function Wizard(previousState){
     }
     //same as previous except it saves html instead of selectors (useless)
     this.saveFields = function(){
-        this.yesButton = $("#yes").clone();
-        this.noButton = $("#no").clone();
-        this.nextButton = $("#next").clone();
-        this.backButton = $("#back").clone();
+        this.yesButton = $("#yes").outerHTML();
+        this.noButton = $("#no").outerHTML();
+        this.nextButton = $("#next").outerHTML();
+        this.backButton = $("#back").outerHTML();
         this.notePane = $("#wizard-note").clone();
         this.textPane = $("#wizard-text").clone(); //clear, no children.
         this.wizardPane = $("#wizard-pane").clone(); //dont clear because it has children
+        return this;
+    }
+    this.restoreButtons = function(){
+        console.log(previousState.nextButton);
+        this.nextButton = previousState.nextButton;
+        this.backButton = previousState.backButton;
+        this.yesButton = previousState.yesButton;
+        this.noButton = previousState.noButton;
+    }
+    this.restoreFormFields = function(){
+        this.species = previousState.species;
+        this.speciesId = previousState.speciesId;
+        this.transcript = previousState.transcript;
+        this.transcriptId = previousState.transcriptId;
         return this;
     }
     //reverts a passed wizard to it's former state. This is a callback that should be used on these statements,
@@ -63,7 +81,6 @@ function Wizard(previousState){
     cb_revertState = function(wizard){
         previousState = wizard.previousState;
         $("#wizard-pane").html(previousState.wizardPane)
-        //wizard.notePane = $(previousState.notePane);
         wizard.textPane = previousState.textPane;
         wizard.wizardPane = previousState.wizardPane;
         wizard.species = previousState.species;
@@ -72,24 +89,22 @@ function Wizard(previousState){
         wizard.transcriptId = previousState.transcriptId;
         wizard.previousState = previousState.previousState; //yolo
         //updating buttons is a 2 step process, you need to copy the new html and apply it to a new selector
-        if (wizard.yesClick != undefined){
-            wizard.yesButton = $("#yes");
-            wizard.yesButton.text(previousState.yesButton.text());
+        if (previousState.yesClick != undefined){
+            $("#yes").text($(previousState.yesButton).text());
             wizard.yesClick = previousState.yesClick;
-            wizard.noButton = $("#no");
-            wizard.noButton.text(previousState.noButton.text());
+            $("#no").text($(previousState.noButton).text());
             wizard.noClick = previousState.noClick;
             //assign handlers
             wizard.setYes(wizard.yesClick);
             wizard.setNo(wizard.noClick);
         }
-        if(wizard.nextClick != undefined){
-            wizard.nextButton = $("#next");
-            wizard.nextButton.text(previousState.nextButton.text());
+        if(previousState.nextClick != undefined){
+            $(wizard.nextButton).text($(previousState.nextButton).text());
+            wizard.nextClick = previousState.nextClick;
             wizard.setNext(wizard.nextClick);
         }
-        wizard.backButton = $("#back");
-        wizard.backButton.text(previousState.backButton.text());
+        //always saved    
+        $(wizard.backButton).text($(previousState.backButton).text());
         wizard.setBack(previousState.backClick);
         return wizard;
     }
@@ -100,7 +115,7 @@ function Wizard(previousState){
     }
     //place second
     this.addNoButton = function(){
-        this.yesButton.after(this.noButton);
+        $("#yes").after(this.noButton);
         return this;
     }
     //place after top button
@@ -120,7 +135,6 @@ function Wizard(previousState){
     }
     //does nothing
     this.addWizardPane = function(){
-        //should already be there...
         return this;
     }
     //first thing in wizard pane
@@ -140,42 +154,47 @@ function Wizard(previousState){
     this.setYes = function(cb_yes){
         if (cb_yes != undefined){
             this.yesClick = cb_yes;
-            this.yesButton.unbind("click");
-            this.yesButton.click(cb_yes);
+            $("#yes").unbind("click");
+            $("#yes").click(cb_yes);
         } else if(this.yesClick != undefined){
-            this.yesButton.unbind("click");
-            this.yesButton.click(this.yesClick);
+            $("#yes").unbind("click");
+            $("#yes").click(this.yesClick);
         }
         return this;
     }
     this.setNo = function(cb_no){
         this.noClick = cb_no;
-        this.noButton.unbind("click");
-        this.noButton.click(cb_no);
+        $("#no").unbind("click");
+        $("#no").click(cb_no);
         return this;
     }
     this.setNext = function(cb_next){
         this.nextClick = cb_next;
-        this.nextButton.unbind("click");
-        this.nextButton.click(cb_next);
+        $("#next").unbind("click");
+        $("#next").click(cb_next);
         return this;
     }
     //argument should almost always be revertState
     this.setBack = function(cb_back){
         this.backClick = cb_back
-        this.backButton.unbind("click");
-        this.backButton.click(cb_back);
+        $("#back").unbind("click");
+        $("#back").click(cb_back);
         return this;
     }
     //selector clonalField
     this.addPlusButton = function( clonalField ){
-        clonalField.after( $(".add").html() );
-        clonalField.find(".add").click(function(){
-            clonalField.after( clonalField );
-        })
+        clonalField.after( $(".add").outerHTML() );
+        this.textPane.find(".add").click(function(){
+            clonalField.after( clonalField.outerHTML() );
+            console.log("added");
+        });
     }
     this.resetState = function(){
         this.saveFields();
         return new Wizard(this);    
     }
 }
+//outer html function
+jQuery.fn.outerHTML = function() {
+  return jQuery('<div />').append(this.eq(0).clone()).html();
+};

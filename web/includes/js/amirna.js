@@ -5,32 +5,92 @@ $().ready(function(){
     function baseState(){
         wiz = new Wizard();
         wiz.addAllYN();
-       
+        //add a help pane and place it there
         wiz.notePane.text("Click ‘Design an amiRNA’ if you want to identify optimal amiRNA guide sequences that target your gene(s) of interest. Click ‘Generate oligos’ if you already have an amiRNA guide sequence and you just want to generate oligos compatible with cloning in a BsaI-ccdB vector containing the Arabidopsis MIR390a foldback.");
         //if it has children you probably want to append.
         wiz.textPane.append("Do you need to design an amiRNA or do you already have a guide sequence and need to generate oligos for cloning?");
-        wiz.yesButton.text("Design an amiRNA");
-        wiz.noButton.text("Generate Oligos");
+        $(wiz.yesButton).text("Design an amiRNA");
+        $(wiz.noButton).text("Generate Oligos");
         wiz.setYes(cb_designAmiRNA1);
         wiz.setNo(cb_generateOligos1);
     }
     function cb_designAmiRNA1(){
-        console.log("designAmiRNA1");
-        wiz1 = wiz;
-        console.log(wiz1);
         wiz = new Wizard(wiz);
         wiz.addAllYN();
         wiz.notePane.text("Will you use your amiRNA in one of the following species?");
-        wiz.textPane.text($("#species").html());
-        wiz.setYes(cb_designAmiRNA2);
+        wiz.textPane.append($("#species").html());
+        wiz.setYes(cb_designAmiRNA2); //make sure it saves the species
         wiz.setNo(cb_generateOligos1()); 
+        $(wiz.yesButton).text("Yes");
+        $(wiz.noButton).text("No");
         wiz.setBack(function(){
             cb_revertState(wiz);
         });
         
     }
     function cb_designAmiRNA2(){
-        console.log("designAmiRNA2");
+        wiz.species = $("#database option:selected").text();
+        wiz.speciesID = $("#database option:selected").val();
+        wiz = new Wizard(wiz);
+        wiz.restoreFormFields(); //gets species/speciesid
+        wiz.addAllYN();
+        //wiz.helpPane.text("Click ‘Annotated transcript(s)’ if you have gene ID(s). Click ‘Unannotated/exogenous transcript(s)’ if you want to target transcripts that do not have an assigned gene ID or are not found in the selected reference transcriptome.");
+        
+        wiz.textPane.text("Do you want to target annotated transcript(s) or unannotated/exogenous transcript(s)?");
+        $(wiz.yesButton).text("Target annotated transcript(s)");
+        $(wiz.noButton).text("Target unannotated/exogenous transcript(s)");
+        //work in progress
+        //wiz.noButton.css("font-size", "16px").css("height", height);
+        wiz.setYes(cb_designAmiRNA3_annotated);
+        wiz.setNo(cb_designAmiRNA3_unannotated);
+        wiz.setBack(function(){ cb_revertState(wiz); });
+    }
+    function cb_designAmiRNA3_annotated(){
+        wiz = new Wizard(wiz);
+        wiz.restoreFormFields(); 
+        wiz.addAllNB();
+        $("#sequence").val(""); //clear form?
+        $("#gene").val("");
+        wiz.textPane.html( $("#transcript-lookup").outerHTML() );
+        wiz.addPlusButton( $("#transcript-lookup") );
+        wiz.setNext(cb_designAmiRNA4);
+        wiz.setBack(function(){ cb_revertState(wiz); });
+    }
+    function cb_designAmiRNA3_unannotated(){
+        console.log("unannotated");
+    }
+    function cb_designAmiRNA4(){
+        //save transcriptIDs or sequences first. :)
+        console.log("ask about filtering for speeddd");
+        var transid = "";
+        var trans = "";
+        wiz.textPane.find(".gene").each(function(){
+            transid += $(this).val() + ",";
+        }); 
+        transid.substring(0, transid.length-1);
+        wiz.textPane.find(".seq").each(function(){
+            trans += $(this).val() + ",";
+        });
+        trans.substring(0, trans.length -1);
+        if (trans != "") {    
+            wiz.transcript = trans;
+        }
+        if (transid != "") {
+            wiz.transid = transid;
+        }
+        wiz = new Wizard(wiz);
+        wiz.restoreFormFields();
+        wiz.addAllYN();
+        wiz.textPane.text("Do you want the results to be automatically filtered based on target specificity?");
+        wiz.setYes(cb_designAmiRNAFinal_Filtered);
+        wiz.setNo(cb_designAmiRNAFinal_Unfiltered);
+        wiz.setBack(function(){ cb_revertState(wiz); });
+    }
+    function cb_designAmiRNAFinal_Filtered(){
+        console.log("filtered");
+    }
+    function cb_designAmiRNAFinal_Unfiltered(){
+        console.log("unfiltered");
     }
     function cb_generateOligos1(){
         console.log("generate oligos");

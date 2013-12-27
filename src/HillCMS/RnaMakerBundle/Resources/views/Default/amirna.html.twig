@@ -15,28 +15,38 @@
 			<a data-toggle="modal" href="#start" class="btn btn-default btn-block btn-tile btn-quartenary">
 				Get Started.
 			</a>
+            <div class="col-lg-12 image">
+            <img style="width:100%; padding-left: 0px; padding-right:0px"class="img-responsive img-rounded" src="{{ groups[3]["Image"] }}"/>
 	</div>	
+{# button html #}
+    <div class= "wizard wizard-buttons">
+        <div class="btn btn-default btn-secondary col-lg-6" id="yes-orig">Yes</div>
+        <div class="btn btn-default btn-tertiary col-lg-6" id="no-orig">No</div>
+        <div class="btn btn-default btn-secondary col-lg-12" id="next-orig">Next</div>
+        <div class="btn btn-default btn-tertiary col-lg-12" id="back-orig">Back</div>
+    </div>
 </div>
 {{ parent() }}
 {% endblock %}
 	{% block modal %}
       
 	<div id="wizard-pane" >
-        <h5 id="wizard-species">Species: None</h5>
+        <h5 id="wizard-species"></h5>
         <div id="wizard-text" class="jumbotron jumbotron-modal">
-            Do you already have an amiRNA sequence?
+            <div id="wizard-note"></div>
         </div>
-        <div class="btn btn-default btn-secondary btn-block" id="yes">Yes</div>
-        <div class="btn btn-default btn-tertiary btn-block" id="no">No</div>
-    </div>
+        </div>
     <!-- hidden form elements to be used by the wizard -->
     <div class="form-group wizard" id = "wizard-transcript">
         <label for="sequence">Target sequence:</label>
-        <textarea class="form-control" id="sequence" name="sequence" rows="1" placeholder="ATGATGATGATGATGATGATG" ></textarea>
+        <textarea class="form-control sequence" id="sequence" name="sequence" rows="1" placeholder="ATGATGATGATGATGATGATG" ></textarea>
+        <a class="glyphicon glyphicon-plus addseq" id="addseq"></a>
     </div>
-    <div class="form-group wizard" id = "transcript-lookup">
-        <label for="gene">Gene:</label>
-        <input type="text" class="form-control" id="gene" placeholder="AT1G01040.1" name="gene">
+    <div class="hidden">
+    <div class="form-group" id = "transcript-lookup">
+        <label for="gene">Gene ID:</label>
+        <input type="text" class="form-control gene" id="gene" placeholder="AT1G01040.1" name="gene">
+    </div>
     </div>
     <div class="form-group wizard" id ="species">
         <label for="database">Species Database:</label>
@@ -47,6 +57,9 @@
             {% endfor %}	      
           </select>
    </div>
+    <div class="hidden">
+        <a class="glyphicon glyphicon-plus add"></a>
+    </div>
     <!-- initial state -->
     <div class="wizard wizard-part" id="wizard-no">
         Do you have a transcript id?
@@ -64,9 +77,9 @@
          -->
           <label class="label-species">Species:</label>
                 <div class ="label-species" id ="label-species"></div>
-          <label class="label-gene">Transcript ID:</label>
+          <label class="label-gene">Transcript ID(s):</label>
                 <div class = "label-gene" id="label-gene"></div>
-          <label class="label-sequence">Sequence:</label>
+          <label class="label-sequence">Sequence(s):</label>
                 <div class = "label-sequence" id="label-sequence"></div>
           <input type="hidden" value="" name="seq" id="sub-sequence"/>
           <input type="hidden" value="" name="gene" id="sub-gene"/>
@@ -75,60 +88,32 @@
           <input type="hidden" value="3" name="results" id="results"/>
           <input type="hidden" class="form-control" id="off-targets" name="off-targets" value="1"/>
           <div class="result hidden" style="text-align: center;"></div>
-          <a href= "#" id="result" type="submit" class="btn btn-default btn-block btn-large btn-secondary">Submit</a>
-          <div class="btn btn-defaulddt btn-tertiary btn-block" id="startover">Reset</div>
+          <a href= "#" id="designerresult" type="submit" class="btn btn-default btn-block btn-large btn-secondary">Submit</a>
+          <div class="btn btn-defaulddt btn-tertiary btn-block" id="startover">Back</div>
         </form>
     </div>
-    <!-- Targetfinder Form -->
-    <div class="wizard wizard-part" id="targetfinder-submission">
-      <form role="form" class="targetfinder" name= "targetfinder">
-        
+    <!-- OligoDesigner Form -->
+    <div class="wizard wizard-part" id="oligodesigner-submission">
+      <form role="form" class="oligodesigner" name= "oligodesigner">
+        <div class="form-group">
+            <label for="seq">Click to edit amiRNA name</label> <br/>
+            <label class="name" style="border-bottom: 1px dashed #000;">amiRNA</label>
+            <label for="seq">Enter sequence:</label> <br/>
+            <input type="text" class="form-control" class = "orig" id="oligo-seq" placeholder="seq" name="seq">
+        </div>
+        <input type="hidden" name="fb" value="eudicot"/>
+        <!--
       <div class="form-group">
-        <label for="name">amiRNA name:</label>
-        <input type="text" class="form-control" id="name" placeholder="name" name="name">
-      </div>
-      <div class="form-group">
-        <label for="miRNA">amiRNA Sequence:</label>
-        <input type="text" class="form-control" id="miRNA" placeholder="miRNA" name="miRNA">
-      </div>
-      <div class="form-group">
-        <label for="score">Score Cutoff:</label>
-        <select class="form-control" name="score" id="score">
-              <option value="0">0</option>
-              <option value="0.5">0.5</option>
-              <option value="1">1</option>
-              <option value="1.5">1.5</option>
-              <option value="2">2</option>
-              <option value="2.5">2.5</option>
-              <option value="3">3</option>
-              <option value="3.5">3.5</option>
-              <option selected="selected" value="4">4</option>
-              <option value="4.5">4.5</option>
-              <option value="5">5</option>
-              <option value="5.5">5.5</option>
-              <option value="6">6</option>
-              <option value="6.5">6.5</option>
-              <option value="7">7</option>
-              <option value="7.5">7.5</option>
-              <option value="8">8</option>
-              <option value="8.5">8.5</option>
-              <option value="9">9</option>
-              <option value="9.5">9.5</option>
-              <option value="10">10</option>
-              <option value="10.5">10.5</option>
-              <option value="11">11</option>
-        </select>
-         <div class="form-group">
-        <label for="score">Database:</label>
-        <select class="form-control" name="database" id="database">
-            {% for db in dbs %}
-                <option value="{{ db.dbPath }}">{{ db.dbLabel }}</option>
-            {% endfor %}
+        <label for="fb">Foldback type:</label>
+        <select class="form-control" name="fb" id="fb">
+            <option value="eudicot">eudicot</option>
+            <option value="monocot">monocot</option>
         </select>
       </div>
-      <div class="result hidden" id="targetstatus"  style="text-align: center;"></div>
-      <a href= "#" id="targetresult" type="submit" class="btn btn-default btn-block btn-large btn-secondary">Submit</a>
-      <div class="btn btn-default btn-tertiary btn-block startover">Reset</div>
+        -->
+      <div class="result hidden" id="oligostatus"  style="text-align: center;"></div>
+      <a href= "#" id="oligoresult" type="submit" class="btn btn-default btn-block btn-large btn-secondary">Submit</a>
+      <div class="btn btn-default btn-tertiary btn-block startover">Back</div>
     </form>
     </div>
     {% endblock %}
@@ -137,5 +122,9 @@
 <input type="hidden" id="rnamaker_amirnarequest" value='{{ path("rnamaker_amirnarequest") }}'></input>
 <input type="hidden" id="gifloader" value='{{ asset("includes/images/ajax-loader.gif") }}'></input>
 <input type="hidden" id="tokensplain" value='{{ path("amirnadesigner_results_plain") }}'></input>
+<input type="hidden" id="oligourl" value='{{ path("rnamaker_oligorequest") }}'></input>
+<input type="hidden" id="oligotoken" value='{{ path("oligo_result_token_plain") }}'></input>
+<script src = {{ asset("includes/js/wizards.js") }} type="text/javascript"></script>
 <script src = {{ asset("includes/js/amirna.js") }} type="text/javascript"></script>
+<script src = {{ asset("includes/js/oligodesigner.js") }} type="text/javascript"></script>
 {% endblock %}
