@@ -37,8 +37,8 @@ function Wizard(previousState){
     //useful variables
     this.species = "None";
     this.speciesId = null;
-    this.transcript = false;
-    this.transcriptId = false;
+    this.transcript = "";
+    this.transcriptId = "";
     this.filtered = undefined;
     //update function
     this.updateFields = function(){
@@ -204,6 +204,8 @@ function Wizard(previousState){
         }
         this.textPane.find(".add").click(function(){
             $(clonalField).last().after( $(clonalField).outerHTML() );
+            //will not affect anything other than the specific form it's targetting
+            $(clonalField).last().find(".oligo-seq").removeClass("alert alert-warning alert-danger input-warning input-danger");
         });
     }
     this.resetState = function(){

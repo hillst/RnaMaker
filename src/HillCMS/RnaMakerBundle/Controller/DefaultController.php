@@ -99,40 +99,49 @@ class DefaultController extends CMSController
 	    $root = $this->get('kernel')->getRootDir() ."/../amirna_dbs";
     	$database =  $dbs[0]->getDbPath();
     	$species =  $dbs[0]->getSpecies();
-    	
-    	if ($transcriptId !== "") {
+        $escaped_transcript = "";
+    	if ($transcriptId != "") {
     		if ($species !== 'S_ITALICA') {
     			if (!preg_match("/\.\d+$/",$transcriptId)) {
     				$transcriptId = $transcriptId.".1";
     			}
     		}
-    	}
-    	 
-        return new Response($speciesId . $transcriptId . $filtered . $transcript, 200);
-    	
+    	} else {
+            //must reconstruct with espaced newline characters
+            $fasta = explode("\n", $transcript);
+            if (sizeof($fasta) % 2 != 0){
+                return new Response("Error 1, malformed fasta.", 400);
+            }
+            for($i = 0; $i < sizeof($fasta); $i++){
+                if($i % 2 == 0 && substr($fasta[$i],0,1) != ">"){
+                    return new Response("Error 2, malformed fasta.", 400);
+                }
+                $escaped_transcript .= $fasta[$i] . "\\n";
+            }
+        }
+        //uncomment to test success message
+        //return new Response("plain response", 200);
+        //already updated arguments
+
         $daemonSocket = new DaemonHunter();
     	$arguments = array();
     	$arguments[0] = "-d";
     	$arguments[1] = $database;
     	$arguments[2] = "-s";
     	$arguments[3] = $species;
-    	$arguments[4] = "-l";
-    	//TODO: Finish adding the correct parameters to match noah's script 
-    	if ($sequence !== "") {
-    		//$output = shell_exec("perl ./sites/amirna/bin/generate_amiRNA_list.pl -f $sequence -d $database -s $species -l $offTargets -r $num -t $fb");
+    	if ($transcript !== "") {
     		$arguments[10] = "-f";
-    		$arguments[11] = $sequence;
+       		$arguments[11] = $escaped_transcript;
     	} elseif ($gene !== "") {
-    		//$output = shell_exec("perl ./sites/amirna/bin/generate_amiRNA_list.pl -a $gene -d $database -s $species -l $offTargets -r $num -t $fb");
     		$arguments[10] = "-a";
-    		$arguments[11] = $gene;
+    		$arguments[11] = $transcriptId;
     	}
+        if ($filtered){
+            $arguments[12] = "-o";
+        }
     	$json = $daemonSocket->jsonBuilder("generate_amiRNA_list.pl", "generate_amiRNA_list.pl", $arguments);
     
         $json_result = $daemonSocket->socketSend($json);
-        $fd = fopen("/scratch/help", "w");
-        fwrite($fd, $json_result);
-        fclose($fd);
         if(strlen($json_result) < 1){
             return new Response("Error, unexpected response.", 500);
         }

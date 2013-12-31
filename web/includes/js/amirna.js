@@ -1,7 +1,4 @@
 $().ready(function(){
-    n = 1;
-    var ignore = false;
-    
     function baseState(){
         wiz = new Wizard();
         wiz.addAllYN();
@@ -20,7 +17,7 @@ $().ready(function(){
         wiz.notePane.text("Will you use your amiRNA in one of the following species?");
         wiz.textPane.append($("#species").html());
         wiz.setYes(cb_designAmiRNA2); //make sure it saves the species
-        wiz.setNo(cb_generateOligos1()); 
+        wiz.setNo(cb_generateOligos1); 
         $(wiz.yesButton).text("Yes");
         $(wiz.noButton).text("No");
         wiz.setBack(function(){
@@ -65,8 +62,28 @@ $().ready(function(){
         $("#gene").val("");
         wiz.textPane.html( $("#wizard-transcript").outerHTML() );
         wiz.textPane.find( $("#wizard-transcript").addClass("wizard-transcript") );
-        wiz.addPlusButton( ".wizard-transcript" );
-        wiz.setNext(cb_designAmiRNA4_u); 
+        wiz.textPane.after($(".result").outerHTML());
+        $("#wizard-pane").find(".result").removeClass("result").addClass("my-result");
+        wiz.setNext(function(){
+            var fasta = wiz.textPane.find("#sequence").val().split("\n");
+            wiz.wizardPane.find(".my-result").removeClass("alert alert-danger").addClass("hidden").text("");
+            if (fasta.length < 2 || fasta.length % 2 != 0){
+                wiz.wizardPane.find(".my-result").removeClass("hidden").addClass("alert alert-danger").text("Please insert a fasta sequence");
+                return;
+            }
+            for (var i = 0; i < fasta.length; i++){
+                if ( i % 2 === 0){
+                    if (fasta[i].substr(0,1) != ">"){
+                        wiz.wizardPane.find(".my-result").removeClass("hidden").addClass("alert alert-danger").text("Please insert a valid fasta sequence");
+                        return;
+                    } 
+                } else{
+                    //reserved for potential alphabet test
+                }
+            }
+            cb_designAmiRNA4_u();
+        }); 
+        wiz.setBack(function() { cb_revertState(wiz); });
     }
     //annotated
     function cb_designAmiRNA4_a(){
@@ -137,194 +154,142 @@ $().ready(function(){
         wiz.addAllNB();
         wiz.textPane.append("<h5>Species: " +wiz.species+ "</h5>");
         //foreach
-        if(wiz.transcriptId !== false){
+        if(wiz.transcriptId !== ""){
             var csv = wiz.transcriptId.split(",");
             for(var i = 0; i < csv.length; i++){
                 wiz.textPane.append("<h5>Transcript ID: " +csv[i]+ "</h5>");
             }
         } else{
-            var csv = wiz.transcript.split(",");
-            for(var i = 0; i < csv.length; i++){
-                wiz.textPane.append("<h5>Transcript: " +csv[i]+ "</h5>");
-            }
+            wiz.textPane.append("<h5>Transcript: " + wiz.transcript);
         }
+        wiz.textPane.after($(".result").outerHTML());
+        $("#wizard-pane").find(".result").removeClass("result").addClass("my-result");
         wiz.setNextText("Submit");
         wiz.setNext(cb_submit);
         wiz.setBack( function(){ cb_revertState(wiz) } );
     }
     function cb_submit(){
-        example = "name=syntasiRNA+Cassette&seq=TCAAAAATCAAAAATCAATAA&seq=TCAAAAATCAAAAATCAATAA&fb=syntasi&name=syntasiRNA+Cassette&seq=&fb=syntasi";
-        console.log("submit!!!");
-        $.post( $("#rnamaker_amirnarequest").val(), { transcript: wiz.transcript, transcriptId: wiz.transcriptId, species: wiz.speciesId, filtered: wiz.filtered } )
-                .success(function(data){
-                    console.log(data);
-                })
-                .error(function( xhr, statusText, err){
-                    console.log(statusText);
-                    console.log(xhr.responseText);
-                })
-                .always(function(data){
-                    console.log("done!");
-                }) 
-    }
-    
-    function cb_generateOligos1(){
-        console.log("generate oligos");
-    }
-    //initialize
-    baseState();
-    console.log('BASE STATE');
+        $('.my-result').removeClass('hidden alert alert-danger alert-success');
+        $('.my-result').addClass('alert alert-warning');
+        $('.my-result').html('<img src="'+ $("#gifloader").val() + '"/>' );
 
-    function submitAmirnaDesigner(event){
-         var form = $(this);
-         event.preventDefault();
-         $.ajax({
-            type: "POST",
-            url: $("#rnamaker_amirnarequest").val(),
-            data: $(this).serialize(),
-            success: function(data){
-                $('.result').removeClass('hidden alert alert-danger alert-warning');
-                $('.result').addClass("alert alert-success");
-                $('.result').text("Success!");
-                $( "#designerresult" ).animate({
+        $.post( $("#rnamaker_amirnarequest").val(), { transcript: wiz.transcript, transcriptId: wiz.transcriptId, species: wiz.speciesId, filtered: wiz.filtered } )
+            .success(function(data){
+                $('.my-result').removeClass('hidden alert alert-danger alert-warning');
+                $('.my-result').addClass("alert alert-success");
+                $('.my-result').text("Success!");
+                $("#next").animate({
                       backgroundColor: "#7CB02C",
                       color: "#fff"
                 }, 1000 );
-                $("#designerresult").attr("href", $("#tokensplain").val() + "/" + data );
-                $("#designerresult").text("Click to see Results");
-                $("#designerresult").unbind("click");
-            },
-            error: function(xhr, status, error) {
-                $('.result').removeClass('hidden alert alert-success alert-warning');
-                $('.result').addClass("alert alert-danger");
+                $("#next").attr("href", $("#tokensplain").val() + "/" + data );
+                wiz.setNextText("Click to see Results");
+                $("#next").unbind("click");
+                wiz.setNext(function(){
+                    window.location = $("#tokensplain").val() + "/" + data;
+                }); 
+            })
+            .error(function( xhr, statusText, err){
+                $('.my-result').removeClass('hidden alert alert-success alert-warning');
+                $('.my-result').addClass("alert alert-danger");
                 if (xhr.responseText != ""){
-                    $('.result').html(xhr.responseText);
-                } else{
-                    if(!ignore){
-                        $('.result').html("Error");
-                    }
-                }
-            },
-            beforeSend: function(){
-                $('.result').removeClass('hidden alert alert-danger alert-success');
-                $('.result').addClass('alert alert-warning');
-                $('.result').html('<img src="'+ $("#gifloader").val() + '"/>' );
+                    $('.my-result').html(xhr.responseText);
+                } 
+            })
+    }
+    
+    function cb_generateOligos1(){
+        wiz = new Wizard(wiz);
+        wiz.addAllNB();
+        wiz.textPane.append("<h4>amiRNA sequence, click to edit name</h4>");
+        wiz.textPane.append($("#oligo-form").outerHTML());
+        wiz.textPane.find("#oligo-form").addClass("oligo-form");
+        wiz.addPlusButton(".oligo-form");
+        wiz.wizardPane.find(".add").click(function(){ 
+            $(".name").click(toInputTransform);
+            $('.oligo-form').last().find(".oligo-seq").removeClass("alert alert-warning alert-danger input-warning input-danger"); 
+        });
+        wiz.textPane.after($(".result").outerHTML());
+        $("#wizard-pane").find(".result").removeClass("result").addClass("my-result");
+        $(".name").click(toInputTransform);
+        $('.modal').click(function(){
+            if (!$(event.target).hasClass('name')) {
+                $(".modified").each(function(){
+                    var val = $(this).val()
+                    $(this).replaceWith("<label class='name' style='border-bottom: 1px dashed #000;text-decoration: none;'>" + val + "</label>");
+                    $(".name").click(toInputTransform);
+                });
             }
         });
+        function toInputTransform(){
+            var cur = $(this).text();
+            if (cur == ""){
+                var cur = $(this).val();
+            }
+            $(this).replaceWith("<input type='text' class='form-control name modified' value='" + cur + "' placeholder='" + cur +"'/>") ;
+        } 
+        wiz.setNext( function() {
+            var result = oligoValidityCheck(".oligo-seq");
+            console.log("submit");
+        });
+        wiz.setBack( function() { $(".modal").unbind("click"); cb_revertState(wiz) });
     }
-    function cb_amiNo(){
-        $("#wizard-text").html( $("#species").html() );
-        $("#no").text("Back").unbind("click").click(cb_resetState);
-        $("#yes").text("Next").unbind("click").click(cb_postSpecies);
-    }
-    //ask if they have transcript id
-    function cb_postSpecies(){
-        speciesId = $("#database option:selected").val();
-        species = $("#database option:selected").text();
-        $("#wizard-species").text("Species: "  + species);
-        $("#wizard-text").html( $("#wizard-no").html() );
-        $("#yes").text("Yes").unbind("click").click(cb_idYes);
-        $("#no").text("No").unbind("click").click(cb_idNo);
-        
-    }
-    //display id entry form
-    function cb_idYes(){
-        //cleanup from other inputs
-        $("#sequence").val("");
-        $("#gene").val("");
-        $("#wizard-text").html( $("#transcript-lookup").html() );
-        $("#no").text("Back").unbind("click").click(cb_postSpecies);
-        $("#yes").text("Next").unbind("click").click(cb_submissionForm);
-        $("#addgeneid").click(cb_addGeneId);
-    }
-    function cb_addGeneId(){
-        $("#wizard-pane").find(".gene").last().after(
-            "<label for='gene'>Gene:</label>" +
-            "<input type='text' class='form-control gene'  placeholder='AT1G01040.1' name='gene'>"
-        );
-    }
-    //seqid plus button
-    function cb_addSequence(){
-        //first i guess
-        $("#wizard-pane").find(".sequence").last().after(
-            "<label for='sequence'>Target sequence:</label>" +
-            "<input type='text' class='form-control sequence inside' placeholder='sequence' name='seq'>"
-        );
-    }
-    //show searchable list
-    function cb_idNo(){
-        //cleanup from other inputs
-        $("#sequence").val("");
-        $("#gene").val("");
-        $("#wizard-text").html( $("#wizard-transcript").html() );
-        $("#no").text("Back").unbind("click").click(cb_postSpecies);
-        $("#yes").text("Next").unbind("click").click(cb_submissionForm);
-        $(".addseq").click(cb_addSequence);
-    }
+    function oligoNameEditBinding(){
 
-    //go to original state
-    function cb_resetState(){
-        species = "none";
-        $("#wizard-species").text("");
-        $("#wizard-pane").html(startState);
-        $("#no").text("No").unbind("click").click(cb_amiNo);
-        $("#yes").text("Yes").unbind("click").click(cb_oligodesignerForm);
-        $("#reset").unbind("click");
-        $(".oligodesigner").unbind("submit");
-        $(".designer").unbind("submit");
-        $(".result").removeClass("alert alert-danger alert-warning");
-        $(".result").addClass("hidden");
-        $(".name").unbind("click");
-        $(".modal").unbind("click");
     }
-    //builds summary
-    function cb_submissionForm(){
-        //one will hit
-        transcript = "";
-        $(".sequence").each(function(){
-            if ($(this).val() != ""){
-                transcript += $(this).val() + ",";
+    //each amirna represents one oligo to construct ?
+    function oligoValidityCheck(classname){
+        errors = "";
+        warnings = "";
+        result = true;
+        wiz.textPane.find(classname).each(function(){
+            var seq = $(this).val();
+            result = wiz.wizardPane.find(".my-result");
+            var color = "none";
+            console.log($(this).outerHTML());
+            $(this).removeClass("alert alert-warning alert-danger input-warning input-danger");
+            var current = result.text();
+            if(seq.length != 21){
+                errors += "Error: Your input sequence is not 21 NT in length<br/>";
+                color = "red";
             }
-        });
-        transcript = transcript.substr(0,transcript.length-1);
-        transcriptId = "";
-        $(".gene").each(function(){
-            if ($(this).val() != ""){
-                transcriptId += $(this).val() + ","
+            if(seq.match("^[ATCGUatcgu]+$") != seq){
+                errors += "Error: Your sequence contains characters that are not A,T,C,G, or U<br/>";
+                color = "red";
             }
+            if (seq.substr(0,1).toUpperCase() !== "T" && seq.substr(0,1).toUpperCase() !== "U"){
+                warnings += "Warning: We recommend a T or U on the 5' end. <br/>";
+                color == "none" ? color = "yellow" : "";
+            }
+            if (seq.substr(18,1).toUpperCase() !== "C"){
+                warnings += "Warning: We recommend a C at amiRNA position 19, in order to have a 5' G on the miR*<br/>";
+                color == "none" ? color = "yellow" : "";
+            }
+            if (color == "red"){
+                $(this).addClass("alert alert-danger input-danger");
+            } else if (color == "yellow"){
+               $(this).addClass("alert alert-warning input-warning");
+            }
+            if (errors != ""){
+                result.removeClass("hidden alert-warning");
+                result.addClass("alert alert-danger");
+                result.html(errors + warnings);
+                result = true;
+            } else if (warnings != ""){
+                result.removeClass("hidden");
+                if (! result.hasClass("alert-danger")){
+                    result.addClass("alert alert-warning");
+                }
+                result.html(warnings);
+                result =  true;
+            } else{
+                result.removeClass("alert alert-danger alert-warning").addClass("hidden");
+            }
+            result = false; 
         });
-        transcriptId = transcriptId.substr(0, transcriptId.length-1);
-        //add correct hit as hidden element
-        $("#sub-database").val(speciesId);
-        $("#sub-sequence").val(transcript);
-        $("#sub-gene").val(transcriptId);
-        //build labels
-        if ( transcript == "" ){
-            $(".label-sequence").addClass("hidden");
-            $(".label-gene").removeClass("hidden");
-            $("#label-gene").text(transcriptId);
-        } else{
-            $(".label-gene").addClass("hidden");
-            $(".label-sequence").removeClass("hidden");
-            $("#label-sequence").text(transcript); 
-        }
-        $("#label-species").text("Species: " + species);
-        $("#wizard-pane").html( $("#wizard-submissionform").html() );
-        $("#startover").click(cb_resetState);
-        $("#wizard-pane").find(".designer").submit(submitAmirnaDesigner);
-        $("#designerresult").click(function(){
-            $("#wizard-pane").find(".designer").submit();
-        });
+        return result;
     }
-    function cb_oligodesignerForm(){
-        $("#wizard-pane").html( $("#oligodesigner-submission").html() );
-        $(".name").click(cb_toInputTransform);
-        $(".modal").click(cb_revertInput);
-        $(".startover").click(cb_resetState);
-        $("#seq").change(cb_onFormChange);
-        $("#wizard-pane").find(".oligodesigner").submit(cb_submitOligo);
-        $("#oligoresult").click(function(){
-            $("#wizard-pane").find(".oligodesigner").submit();
-        });
-    }
+    //initialize
+    baseState();
+
 });
