@@ -39,8 +39,9 @@
     <!-- hidden form elements to be used by the wizard -->
     <div class="hidden">
         <div class="form-group" id = "wizard-transcript">
-            <label for="sequence">Target sequence:</label>
-            <textarea class="form-control sequence" id="sequence" name="sequence" rows="1" placeholder="ATGATGATGATGATGATGATG" ></textarea>
+            <label for="sequence">Target fasta sequence:</label>
+            <textarea class="form-control sequence" id="sequence" name="sequence" rows="2" placeholder=">Assession-1                             
+ATGATGATGATGATGATGATG" ></textarea>
         </div>
 
         <div class="form-group" id = "transcript-lookup">
@@ -64,7 +65,16 @@
     <div class="wizard wizard-part" id="wizard-no">
         Do you have a transcript id?
     </div>
-
+    <div class="wizard">
+      <div class="form-group" id = "oligo-form">
+        <label class="name" style="border-bottom: 1px dashed #000;">amiRNA</label>
+        <input type="text" class="form-control oligo-seq" id="oligo-seq" placeholder="seq" name="seq">
+      </div>
+    </div>
+    <div class="wizard">
+        <div class="form-group" id="oligo-fasta-form">
+            <textarea rows="2" class="form-control oligo-fasta" id="oligo-fasta" placeholder=">assession-1" name="fasta"></textarea>
+        </div>
     <div class="wizard wizard-part" id="wizard-submissionform">
         <form role="form" class="designer">
          <!--
@@ -87,7 +97,6 @@
           <input type="hidden" value="eudicot" name="fb" id="fb"/>
           <input type="hidden" value="3" name="results" id="results"/>
           <input type="hidden" class="form-control" id="off-targets" name="off-targets" value="1"/>
-          <div class="result hidden" style="text-align: center;"></div>
           <a href= "#" id="designerresult" type="submit" class="btn btn-default btn-block btn-large btn-secondary">Submit</a>
           <div class="btn btn-defaulddt btn-tertiary btn-block" id="startover">Back</div>
         </form>
@@ -111,7 +120,7 @@
         </select>
       </div>
         -->
-      <div class="result hidden" id="oligostatus"  style="text-align: center;"></div>
+      <div class="result hidden"   style="text-align: center;"></div>
       <a href= "#" id="oligoresult" type="submit" class="btn btn-default btn-block btn-large btn-secondary">Submit</a>
       <div class="btn btn-default btn-tertiary btn-block startover">Back</div>
     </form>

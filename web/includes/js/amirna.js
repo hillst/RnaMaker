@@ -17,7 +17,7 @@ $().ready(function(){
         wiz.notePane.text("Will you use your amiRNA in one of the following species?");
         wiz.textPane.append($("#species").html());
         wiz.setYes(cb_designAmiRNA2); //make sure it saves the species
-        wiz.setNo(cb_generateOligos1); 
+        wiz.setNo(cb_generateOligos2); 
         $(wiz.yesButton).text("Yes");
         $(wiz.noButton).text("No");
         wiz.setBack(function(){
@@ -228,25 +228,59 @@ $().ready(function(){
             }
             $(this).replaceWith("<input type='text' class='form-control name modified' value='" + cur + "' placeholder='" + cur +"'/>") ;
         } 
+        wiz.setNextText("Submit");
         wiz.setNext( function() {
-            var result = oligoValidityCheck(".oligo-seq");
-            console.log("submit");
+            var errors = oligoValidityCheck(".oligo-seq");
+            if (!errors){
+                console.log("submit");
+            }
+            else {
+                console.log(errors);
+            }
         });
         wiz.setBack( function() { $(".modal").unbind("click"); cb_revertState(wiz) });
     }
-    function oligoNameEditBinding(){
-
+    //Same as generateOligos1 except it uses fasta instead of line-by-line name/sequence pairs. 
+    function cb_generateOligos2(){
+        wiz = new Wizard(wiz);
+        wiz.addAllNB();
+        wiz.textPane.append("<h4>amiRNA fasta</h4>");
+        wiz.textPane.append($("#oligo-fasta-form").outerHTML());
+        wiz.textPane.find("#oligo-fasta-form").addClass("oligo-fasta-form");
+        wiz.wizardPane.find(".add").click(function(){
+            $('.oligo-fasta-form').last().find(".oligo-fasta").removeClass("alert alert-warning alert-danger input-warning input-danger");
+        });
+        wiz.textPane.after($(".result").outerHTML());
+        $("#wizard-pane").find(".result").removeClass("result").addClass("my-result");
+        wiz.setNextText("Submit");
+        wiz.setNext( function() {
+            var errors = oligoFastaValidityCheck(".oligo-fasta");
+            //check result and continue if not false.
+            if (!errors) {
+                console.log("submit");
+            } else{
+                console.log(errors);
+            } 
+        });
+        wiz.setBack( function() { cb_revertState(wiz) });
     }
+
     //each amirna represents one oligo to construct ?
     function oligoValidityCheck(classname){
+        try{
+            prevErrors = errors;
+            prevWarnings = warnings;
+        }catch(err){
+            prevErrors = "";
+            prevWarnings = "";
+        }
         errors = "";
         warnings = "";
-        result = true;
+        errorsExist = true;
         wiz.textPane.find(classname).each(function(){
             var seq = $(this).val();
             result = wiz.wizardPane.find(".my-result");
             var color = "none";
-            console.log($(this).outerHTML());
             $(this).removeClass("alert alert-warning alert-danger input-warning input-danger");
             var current = result.text();
             if(seq.length != 21){
@@ -274,20 +308,92 @@ $().ready(function(){
                 result.removeClass("hidden alert-warning");
                 result.addClass("alert alert-danger");
                 result.html(errors + warnings);
-                result = true;
+                errorsExist = true;
             } else if (warnings != ""){
-                result.removeClass("hidden");
-                if (! result.hasClass("alert-danger")){
-                    result.addClass("alert alert-warning");
+                result.removeClass("hidden alert-danger");
+                errorsExist  =  true;
+                result.addClass("alert alert-warning");
+                if ( prevWarnings == warnings && prevErrors == ""){
+                    errorsExist =  false; 
                 }
                 result.html(warnings);
-                result =  true;
             } else{
                 result.removeClass("alert alert-danger alert-warning").addClass("hidden");
+                errorsExist = false; 
             }
-            result = false; 
         });
-        return result;
+        return errorsExist;
+    }
+    function oligoFastaValidityCheck(classname){
+        try{
+            prevErrors = errors;
+            prevWarnings = warnings;
+        }catch(err){
+            prevErrors = "";
+            prevWarnings = "";
+        }
+        errors = "";
+        warnings = "";
+        errorsExist = true;
+        //keep same sequence rules
+        //find text box, iterate over each group of 2, first is name second is sequence.
+        var fasta = wiz.textPane.find(classname).val();
+        var fastaSplits = fasta.split("\n");
+        if (fastaSplits.length % 2 != 0 || fastaSplits.length < 2 ){
+            errors += "<strong>Error: Your input is not fasta format.</strong><br/><br/>";
+        } 
+    
+        for (var i = 0; i < fastaSplits.length; i+=2){
+            var seq = fastaSplits[i+1];
+            var name = fastaSplits[i];
+            wiz.textPane.find(classname).removeClass("alert alert-warning alert-danger input-warning input-danger");
+            result = wiz.wizardPane.find(".my-result");
+            var color = "none";
+            wiz.textPane.find(classname).removeClass("alert alert-warning alert-danger input-warning input-danger");
+            if(name.substr(0,1) != ">"){
+                errors += "Error: One of your fasta headers does not begin with '>': " + name + "<br/>";
+                color = "red";
+            }
+            if(seq.length != 21){
+                errors += "Error: Your input sequence is not 21 NT in length: " + name + "<br/>";
+                color = "red";
+            }
+            if(seq.match("^[ATCGUatcgu]+$") != seq){
+                errors += "Error: Your sequence contains characters that are not A,T,C,G, or U: " + name + "<br/>";
+                color = "red";
+            }
+            if (seq.substr(0,1).toUpperCase() !== "T" && seq.substr(0,1).toUpperCase() !== "U"){
+                warnings += "Warning: We recommend a T or U on the 5' end: "+ name + "<br/>";
+                color == "none" ? color = "yellow" : "";
+            }
+            if (seq.substr(18,1).toUpperCase() !== "C"){
+                warnings += "Warning: We recommend a C at amiRNA position 19, in order to have a 5' G on the miR*: "+ name + "<br/>";
+                color == "none" ? color = "yellow" : "";
+            }
+            if (color == "red"){
+                wiz.textPane.find(classname).addClass("alert alert-danger input-danger");
+            } else if (color == "yellow"){
+               wiz.textPane.find(classname).addClass("alert alert-warning input-warning");
+            }
+            if (errors != ""){
+                result.removeClass("hidden alert-warning");
+                result.addClass("alert alert-danger");
+                result.html(errors + warnings);
+                errorsExist = true;
+            } else if (warnings != ""){
+                result.removeClass("hidden alert-danger");
+                result.addClass("alert alert-warning");
+                errorsExist =  true;
+                if ( prevWarnings == warnings && prevErrors == ""){
+                    errorsExist =  false;
+                }
+                result.html(warnings);
+            } else{
+                result.removeClass("alert alert-danger alert-warning").addClass("hidden");
+                errorsExist = false;
+            }
+        }
+        return errorsExist;
     }
     //initialize
     baseState();
