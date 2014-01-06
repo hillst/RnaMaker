@@ -63,7 +63,6 @@ function Wizard(previousState){
         return this;
     }
     this.restoreButtons = function(){
-        console.log(previousState.nextButton);
         this.nextButton = previousState.nextButton;
         this.backButton = previousState.backButton;
         this.yesButton = previousState.yesButton;

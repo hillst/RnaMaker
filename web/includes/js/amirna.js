@@ -187,7 +187,8 @@ $().ready(function(){
                 $("#next").unbind("click");
                 wiz.setNext(function(){
                     window.location = $("#tokensplain").val() + "/" + data;
-                }); 
+                });
+                console.log(data); 
             })
             .error(function( xhr, statusText, err){
                 $('.my-result').removeClass('hidden alert alert-success alert-warning');
@@ -232,13 +233,59 @@ $().ready(function(){
         wiz.setNext( function() {
             var errors = oligoValidityCheck(".oligo-seq");
             if (!errors){
-                console.log("submit");
+                cb_oligoSubmit(); 
             }
             else {
                 console.log(errors);
             }
         });
         wiz.setBack( function() { $(".modal").unbind("click"); cb_revertState(wiz) });
+    }
+    function cb_oligoSubmit(){
+        var seq = "";
+        var name = "";
+        var fasta = "";
+        if (wiz.textPane.find(".oligo-seq").length > 0){
+            wiz.textPane.find(".name").each(function(){
+                name+= $(this).text() + ",";
+            });
+            wiz.textPane.find(".oligo-seq").each(function(){
+                seq += $(this).val() + ",";
+            });
+            name = name.substr(0, name.length - 1);
+            seq = seq.substr(0, seq.length - 1);
+        } 
+        else{
+            fasta = wiz.textPane.find(".oligo-fasta").val();
+        }
+        $('.my-result').removeClass('hidden alert alert-danger alert-success');
+        $('.my-result').addClass('alert alert-warning');
+        $('.my-result').html('<img src="'+ $("#gifloader").val() + '"/>' );
+
+        $.post( $("#oligodesigner").val(), { seq: seq, name: name, fasta: fasta } )
+            .success(function(data){
+                $('.my-result').removeClass('hidden alert alert-danger alert-warning');
+                $('.my-result').addClass("alert alert-success");
+                $('.my-result').text("Success!");
+                $("#next").animate({
+                      backgroundColor: "#7CB02C",
+                      color: "#fff"
+                }, 1000 );
+                console.log(data);
+                $("#next").attr("href", $("#oligotokensplain").val() + "/" + data );
+                wiz.setNextText("Click to see Results");
+                $("#next").unbind("click");
+                wiz.setNext(function(){
+                    window.location = $("#oligotokensplain").val() + "/" + data;
+                });
+            })
+            .error(function( xhr, statusText, err){
+                $('.my-result').removeClass('hidden alert alert-success alert-warning');
+                $('.my-result').addClass("alert alert-danger");
+                if (xhr.responseText != ""){
+                    $('.my-result').html(xhr.responseText);
+                }
+            })
     }
     //Same as generateOligos1 except it uses fasta instead of line-by-line name/sequence pairs. 
     function cb_generateOligos2(){
@@ -257,15 +304,14 @@ $().ready(function(){
             var errors = oligoFastaValidityCheck(".oligo-fasta");
             //check result and continue if not false.
             if (!errors) {
-                console.log("submit");
+                cb_oligoSubmit(); 
             } else{
                 console.log(errors);
             } 
         });
         wiz.setBack( function() { cb_revertState(wiz) });
     }
-
-    //each amirna represents one oligo to construct ?
+    //checks the validity of each input oligo
     function oligoValidityCheck(classname){
         try{
             prevErrors = errors;
@@ -324,6 +370,7 @@ $().ready(function(){
         });
         return errorsExist;
     }
+    //checks the validity of each entry in the fasta format, also checks fasta format.
     function oligoFastaValidityCheck(classname){
         try{
             prevErrors = errors;

@@ -132,7 +132,7 @@ class DefaultController extends CMSController
     	if ($transcript !== "") {
     		$arguments[10] = "-f";
        		$arguments[11] = $escaped_transcript;
-    	} elseif ($gene !== "") {
+    	} else {
     		$arguments[10] = "-a";
     		$arguments[11] = $transcriptId;
     	}
@@ -149,6 +149,123 @@ class DefaultController extends CMSController
         $token = $this->amiRNADesignerJsonDecoder($json_result);
         return new Response($token, 200);
     }
+    /**
+     * Request handler for Oligo Designer.  Expects a post and the arguments to be passed to the command line function. 
+     * The following function may take a fasta or some comma seperated list of oligos to accept. It will then run
+     * the oligo designer on each input and return the results. We will need to spawn a daemon for each one, and
+     * possibly limit how long it may run (although these are fast so it's probably irrelevant).
+     *
+     * perl bin/amiR_final.pl -s $seq -n $name -t $fb
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function oligoRequestAction(){
+       /*
+        *   perl ./sites/amirna/bin/amiR_final.pl -s $seq -n $name -t $fb"
+        */
+        $request = $this->getRequest();
+        if ($request->getMethod() === 'POST') {
+            $seq = $request->get('seq');
+            $name = $request->get('name');
+            //$fb = $request->get('fb');
+            $fb = "eudicot";
+            $fasta = $request->get('fasta');
+            if(($seq == "" || $name == "") && ($fasta == "")){
+                return new Response("Not enough inputs.", 403);
+            }
+        } else{
+            return new Response("Must be POST.", 403);
+        }
+        $fasta != "" ? $performFast = TRUE : $performFast = FALSE;
+        //list of names and seqs, indicies should match
+        $names = array();
+        $seqs = array();
+        if ($performFast){
+            $fastaLines = explode("\n", $fasta);
+            for($i = 0; $i < sizeof($fastaLines); $i++){
+                if ($i % 2 == 0){
+                    array_push($names, substr($fastaLines[$i], 1 ));
+                } else{
+                    array_push($seqs, $fastaLines[$i]);
+                }
+            }
+        } else{
+            $names = explode(",", $name);
+            $seqs = explode(",", $seq);
+        }
+        $json_results = array();
+        for($i = 0; $i < sizeof($seqs); $i++){ 
+            $daemonSocket = new DaemonHunter();
+            $arguments = array();
+            $arguments[0] = "-s";
+            $arguments[1] = $seqs[$i];
+            $arguments[2] = "-n";
+            $arguments[3] = $names[$i];
+            $arguments[4] = "-t";
+            $arguments[5] = $fb;
+            $json = $daemonSocket->jsonBuilder("amiR_final.pl", "amiR_final.pl", $arguments);
+            $json_result = $daemonSocket->socketSend($json);
+            if(strlen($json_result) < 1){
+                return new Response("Error, unexpected response.", 500);
+            }
+            array_push($json_results, $json_result);
+        }
+        $token = $this->oligoMultiResultsDecoder($json_results);
+        return new Response($token, 200);
+
+    }
+    /**
+     * Writes to the server encoded version of amirnaOligoDesigner_ with each result encoded as an element
+     * in an array. To render this view, just iterate over each result.
+     */
+    public function oligoMultiResultsDecoder($json_results){
+        $token = uniqid("amirnaOligoDesigner_");
+        $plainfile = $this->server_results."/". $token;
+        $pfd = fopen($plainfile, "w");
+        $sfd = fopen($this->server_encoded . "/" . $token, "w");
+        $json_array = array();
+        foreach($json_results as $json_result){
+            $tokenized_results = json_decode($json_result);
+            $plain_result = "Name: " . $tokenized_results->{"results"}->{"name"} . "\n";
+            $plain_result .= "amiRNA: ". $tokenized_results->{"results"}->{"amiRNA"} . "\n";
+            $plain_result .= "miRNA*: " . $tokenized_results->{"results"}->{"miRNA*"} . "\n";
+            $plain_result .= "Forward Oligo: 5' " . $tokenized_results->{"results"}->{"Forward Oligo"} . " 3'\n";
+            $plain_result .= "Reverse Oligo: 5' " . $tokenized_results->{"results"}->{"Reverse Oligo"} . " 3'\n\n";
+            //Write a plain text and json version, json for the view to render
+            array_push($json_array, json_decode($json_result));
+            fwrite($pfd, $plain_result);
+        }
+        
+        fwrite($sfd, json_encode($json_array));
+        fclose($pfd);
+        fclose($sfd);
+        return $token;
+    }
+    public function oligoResultsAction($token){
+        $fd = fopen($this->server_encoded . "/" . $token, "r");
+        $result = "";
+        while( ! feof($fd )){
+            $result .= fread($fd, 8092);
+        }
+        fclose($fd);
+        //returns as an associative array and not an object.
+        $decoded_result =  json_decode($result,true);
+        $dlpath = $this->server_results . "/". $token;
+        return $this->render("HillCMSRnaMakerBundle:Default:amiRNAOligoResults.html.twig", array(
+                             "json_results" => $decoded_result,
+                             "dl_token" => $dlpath )
+                            );
+        
+    }
+
+    //TODO remove useless code during cleanup step
+    //everything below this is kind of wtf why is it here
+
+    
+
+
+
+
 
     public function syntasiDesignerFormAction(){
         $pid = 6;
