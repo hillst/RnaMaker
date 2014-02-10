@@ -3,7 +3,9 @@
 
 <head>
 <meta charset="utf-8">
-<title>amiRNA Suite</title>
+{% block title %}
+<title>Welcome to P-SAMS: the Plant Small RNA Maker Suite</title>
+{% endblock %}
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="">
 <meta name="author" content="">
@@ -40,13 +42,12 @@
 				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
 					<span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span>
 				</button>
-				<a class="navbar-brand" href="{{ path("rnamaker_home") }}"><div id="logo">CarringtonLab</div><div id="logo-assist">Tools</div></a>
+				<a class="navbar-brand" href="{{ path("rnamaker_home") }}"><div id="logo">P-SAMS</div></a>
 			</div>
 			<div class="collapse navbar-collapse">
 				<ul class="nav navbar-nav">
-                    <li><a href="{{ path("rnamaker_amirnadesigner") }}">amiRNA Designer</a></li>
-                    <li><a href="{{ path("rnamaker_syntasidesigner") }}">syntasiRNA Designer</a></li>
-                    <li><a href="{{ path("rnamaker_targetfinder") }}">TargetFinder</a></li>
+                    <li><a href="{{ path("rnamaker_amirnadesigner") }}">P-SAMS amiRNA Designer</a></li>
+                    <li><a href="{{ path("rnamaker_syntasidesigner") }}">P-SAMS syntasiRNA Designer</a></li>
 				</ul>
 			</div>
 		</div>

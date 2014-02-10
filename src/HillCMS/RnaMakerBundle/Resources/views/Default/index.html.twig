@@ -1,14 +1,14 @@
 {%  extends "HillCMSRnaMakerBundle:Default:bootstrap-template.html.twig" %}
+
 {% block body %}
 <div class="container">
 	<div class="jumbotron" style="float:none">
             <h1>{{ main["Header"] }}</h1>
-			    <img class="img-responsive img-rounded" src="{{ asset( main["Image"] ) }}"/>
             <p> {{ main["Content"] }}</p>
 		<div class="col-lg-12 btn-nopad">
 			<a href="{{ path("rnamaker_amirnadesigner") }}" class="btn btn-default btn-block btn-tile btn-secondary">
 				<div class="col-lg-4">
-					<img class = "tile-image pull-left image-responsive" src="{{ asset("includes/images/oligo.png") }}"/> 
+					<img class = "tile-image pull-left image-responsive" src="{{ asset("includes/images/RNAhairpin.png") }}"/> 
 				</div>
 				<div class="col-lg-8 tile-text pull-right">
 				    {{ amirna["Button"] }}
@@ -22,9 +22,9 @@
             </div>
         </div>
 		<div class="col-lg-12 btn-nopad">
-			<a href="{{ path("rnamaker_oligodesigner") }}" class=" btn btn-default btn-block btn-tile btn-tertiary">
+			<a href="{{ path("rnamaker_syntasidesigner") }}" class=" btn btn-default btn-block btn-tile btn-syntasi-tertiary">
 				<div class="col-lg-4">
-					<img class = "tile-image pull-left image-responsive" src="{{ asset("includes/images/RNAhairpin.png") }}"/> 
+					<img class = "tile-image pull-left image-responsive" src="{{ asset("includes/images/oligo.png") }}"/> 
 				</div>
 				<div class="col-lg-8 tile-text pull-right">
 				    {{ syntasirna["Button"]}}
@@ -34,21 +34,6 @@
         <div class="col-lg-12 btn-nopad">
             <div class="btn-description">
                 {{ syntasirna["Description"] }}
-            </div>
-        </div>
-		<div class="col-lg-12 btn-nopad">
-			<a href="{{ path("rnamaker_targetfinder") }}" class=" btn btn-default btn-block btn-tile btn-quartenary">
-				<div class="col-lg-4">
-					<img class = "tile-image pull-left image-responsive" src="{{ asset("includes/images/dna.png") }}"/>
-				</div>
-				<div class="col-lg-8 tile-text pull-right">
-				    {{ targetfinder["Button"]}}
-                </div>
-			</a>
-		</div>
-        <div class="col-lg-12 btn-nopad">
-            <div class="btn-description">
-                {{ targetfinder["Description"] }}
             </div>
         </div>
 	</div>	

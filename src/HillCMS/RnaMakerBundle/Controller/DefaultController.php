@@ -31,7 +31,7 @@ class DefaultController extends CMSController
     	}
     	$homegroups = $this->buildPageGroups($pagethings);
         
-        return $this->render('HillCMSRnaMakerBundle:Default:index.html.twig', array("main" => $homegroups['Main'][0], "amirna" => $homegroups['Main'][5], "syntasirna" => $homegroups["Main"][6], "targetfinder" => $homegroups["Main"][7]));
+        return $this->render('HillCMSRnaMakerBundle:Default:index.html.twig', array("main" => $homegroups['Main'][0], "amirna" => $homegroups['Main'][5], "syntasirna" => $homegroups["Main"][6]));
 
     }
     /*
@@ -139,7 +139,7 @@ class DefaultController extends CMSController
         if ($filtered){
             $arguments[12] = "-o";
         }
-    	$json = $daemonSocket->jsonBuilder("generate_amiRNA_list.pl", "generate_amiRNA_list.pl", $arguments);
+    	$json = $daemonSocket->jsonBuilder("designer_tool.pl", "designer_tool.pl", $arguments);
     
         $json_result = $daemonSocket->socketSend($json);
         if(strlen($json_result) < 1){
