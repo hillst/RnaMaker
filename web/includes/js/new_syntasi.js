@@ -4,24 +4,24 @@ $().ready(function(){
         wiz.addAllYN();
         //add a help pane and place it there
         wiz.notePane.append($(".x-wrapper").outerHTML());
+        wiz.notePane.append("Click ‘Design syntasiRNAs’ if you want to identify optimal syntasiRNA guide sequences that target your gene(s) of interest. Choose ‘Generate oligos’ if you already have syntasiRNA guide sequences and you just want to generate oligos to clone the syntasiRNAs in a BsaI-ccdB vector containing the Arabidopsis TAS1c precursor.");
         wiz.setXClose();
-        wiz.notePane.append(" Click ‘Design an amiRNA’ if you want to identify optimal amiRNA guide sequences that target your gene(s) of interest. Click ‘Generate oligos’ if you already have an amiRNA guide sequence and you just want to generate oligos compatible with cloning in a BsaI-ccdB vector containing the Arabidopsis MIR390a foldback.");
         //if it has children you probably want to append.
-        wiz.textPane.append("Do you need to design an amiRNA or do you already have a guide sequence and need to generate oligos for cloning?");
-        wiz.setYesText("Design an amiRNA");
+        wiz.textPane.append("Do you need to design syntasiRNAs or do you already have syntasiRNA sequence(s) and only need to generate oligos for cloning?");
+        wiz.setYesText("Design syntasiRNAs");
         wiz.setNoText("Generate Oligos");
-        wiz.setYes(cb_designAmiRNA1);
+        wiz.setYes(cb_designSyntasiRNA1);
         wiz.setNo(cb_generateOligos1);
     }
-    function cb_designAmiRNA1(){
+    function cb_designSyntasiRNA1(){
         wiz = new Wizard(wiz);
         wiz.addAllYN();
-        wiz.textPane.append("Will you use your amiRNA in one of the following species?");
-        wiz.textPane.append($("#species").html());
         wiz.notePane.append($(".x-wrapper").outerHTML());
-        wiz.notePane.append("Select a species and click ‘Yes’ if you are going to express your amiRNA in any of the species listed. Click ‘No’ if you are going to express your amiRNA in another species. If you want us to add a new species contact us at site@carringtonlab.org");
+        wiz.notePane.append("Select a species and click ‘Yes’ if you are going to express your syntasiRNAs in any of the species listed. Note that only Arabidopsis thaliana produces miR173 required for triggering syntasiRNA biogenesis, therefore if you select another species you should co-express miR173 to produce syntasiRNAs. Click ‘No’ if you are going to express your syntasiRNA(s) in another species. If you want us to add a new specie contact us at site@carringtonlab.org.");
         wiz.setXClose();
-        wiz.setYes(cb_designAmiRNA2); //make sure it saves the species
+        wiz.textPane.append("Will you use your syntasiRNA in one of the following species?");
+        wiz.textPane.append($("#species").html());
+        wiz.setYes(cb_designSyntasiRNA2); //make sure it saves the species
         wiz.setNo(cb_generateOligos2); 
         $(wiz.yesButton).text("Yes");
         $(wiz.noButton).text("No");
@@ -30,13 +30,12 @@ $().ready(function(){
         });
         
     }
-    function cb_designAmiRNA2(){
+    function cb_designSyntasiRNA2(){
         wiz.species = $("#database option:selected").text();
         wiz.speciesId = $("#database option:selected").val();
         wiz = new Wizard(wiz);
         wiz.restoreFormFields(); //gets species/speciesid
         wiz.addAllYN();
-        //wiz.helpPane.text("Click ‘Annotated transcript(s)’ if you have gene ID(s). Click ‘Unannotated/exogenous transcript(s)’ if you want to target transcripts that do not have an assigned gene ID or are not found in the selected reference transcriptome.");
         wiz.notePane.append($(".x-wrapper").outerHTML());
         wiz.notePane.append("Click ‘Annotated transcript(s)’ if you have gene ID(s). Click ‘Unannotated/exogenous transcript(s)’ if you want to target transcripts that do not have an assigned gene ID or are not found in the selected reference transcriptome.");
         wiz.setXClose();
@@ -45,11 +44,11 @@ $().ready(function(){
         wiz.setNoText("Option 2");
         //work in progress
         //wiz.noButton.css("font-size", "16px").css("height", height);
-        wiz.setYes(cb_designAmiRNA3_annotated);
-        wiz.setNo(cb_designAmiRNA3_unannotated);
+        wiz.setYes(cb_designSyntasiRNA3_annotated);
+        wiz.setNo(cb_designSyntasiRNA3_unannotated);
         wiz.setBack(function(){ cb_revertState(wiz); });
     }
-    function cb_designAmiRNA3_annotated(){
+    function cb_designSyntasiRNA3_annotated(){
         wiz = new Wizard(wiz);
         wiz.restoreFormFields(); 
         wiz.addAllNB();
@@ -59,16 +58,13 @@ $().ready(function(){
         wiz.textPane.append( $("#transcript-lookup").outerHTML() );
         wiz.textPane.find( $("#transcript-lookup").addClass("transcript-lookup") );
         wiz.addPlusButton( ".transcript-lookup" );
-        wiz.setNext(cb_designAmiRNA4_a);
+        wiz.setNext(cb_designSyntasiRNA4_a);
         wiz.setBack(function(){ cb_revertState(wiz); });
     }
-    function cb_designAmiRNA3_unannotated(){
+    function cb_designSyntasiRNA3_unannotated(){
         wiz = new Wizard(wiz);
         wiz.restoreFormFields();
         wiz.addAllNB();
-        wiz.notePane.append($(".x-wrapper").outerHTML());
-        wiz.notePane.append("this is help text");
-        wiz.setXClose();
         $("#sequence").val("");
         $("#gene").val("");
         wiz.textPane.append("Enter or paste FASTA sequence(s) of target transcript(s)");
@@ -93,12 +89,12 @@ $().ready(function(){
                     //reserved for potential alphabet test
                 }
             }
-            cb_designAmiRNA4_u();
+            cb_designSyntasiRNA4_u();
         }); 
         wiz.setBack(function() { cb_revertState(wiz); });
     }
     //annotated
-    function cb_designAmiRNA4_a(){
+    function cb_designSyntasiRNA4_a(){
         var transid = "";
         wiz.textPane.find(".gene").each(function(){
             transid += $(this).val() + ",";
@@ -116,11 +112,11 @@ $().ready(function(){
         wiz.textPane.append("Do you want the results to be automatically filtered based on target specificity?");
         wiz.setYes(function(){
             wiz.filtered = true;
-            cb_designAmiRNAFinal();
+            cb_designSyntasiRNAFinal();
         });
         wiz.setNo(function(){
             wiz.filtered = false;
-            cb_designAmiRNAFinal();
+            cb_designSyntasiRNAFinal();
         });
         wiz.setBack(function(){ 
             //rebind the plus button as well
@@ -132,7 +128,7 @@ $().ready(function(){
         });
     }
     //unannotated
-    function cb_designAmiRNA4_u(){
+    function cb_designSyntasiRNA4_u(){
         var trans = "";
         wiz.textPane.find(".sequence").each(function(){
             trans += $(this).val() + ",";
@@ -144,17 +140,14 @@ $().ready(function(){
         wiz = new Wizard(wiz);
         wiz.restoreFormFields();
         wiz.addAllYN();
-        wiz.notePane.append($(".x-wrapper").outerHTML());
-        wiz.notePane.append("");
-        wiz.setXClose();
         wiz.textPane.append("Do you want the results to be automatically filtered based on target specificity?");
         wiz.setYes(function(){ 
             wiz.filtered = true;
-            cb_designAmiRNAFinal(); 
+            cb_designSyntasiRNAFinal(); 
         });
         wiz.setNo(function(){
             wiz.filtered = false;
-            cb_designAmiRNAFinal();
+            cb_designSyntasiRNAFinal();
         });
         wiz.setBack(function(){
             cb_revertState(wiz);
@@ -166,7 +159,7 @@ $().ready(function(){
         
     }
     
-    function cb_designAmiRNAFinal(){
+    function cb_designSyntasiRNAFinal(){
         wiz = new Wizard(wiz);
         wiz.restoreFormFields();
         wiz.addAllNB();
@@ -191,13 +184,12 @@ $().ready(function(){
         $('.my-result').addClass('alert alert-warning');
         $('.my-result').html('<img src="'+ $("#gifloader").val() + '"/>' );
 
-        $.post( $("#rnamaker_amirnarequest").val(), { transcript: wiz.transcript, transcriptId: wiz.transcriptId, species: wiz.speciesId, filtered: wiz.filtered } )
+        $.post( $("#rnamaker_syntasirequest").val(), { transcript: wiz.transcript, transcriptId: wiz.transcriptId, species: wiz.speciesId, filtered: wiz.filtered } )
             .success(function(data){
                 $('.my-result').removeClass('hidden alert alert-danger alert-warning');
                 $('.my-result').addClass("alert alert-success");
                 $('.my-result').text("Success!");
                 $("#next").animate({
-                      backgroundColor: "#7CB02C",
                       color: "#fff"
                 }, 1000 );
                 $("#next").attr("href", $("#tokensplain").val() + "/" + data );
@@ -220,7 +212,7 @@ $().ready(function(){
     function cb_generateOligos1(){
         wiz = new Wizard(wiz);
         wiz.addAllNB();
-        wiz.textPane.append("Enter or paste an amiRNA sequence. Click the '+' button for entering additional amiRNA sequences.");
+        wiz.textPane.append("Enter or paste a syntasiRNA sequence. Click the '+' button for entering additional syntasiRNA sequences.");
         wiz.textPane.append($("#oligo-form").outerHTML());
         wiz.textPane.find("#oligo-form").addClass("oligo-form");
         wiz.addPlusButton(".oligo-form");
@@ -287,6 +279,7 @@ $().ready(function(){
                 $('.my-result').addClass("alert alert-success");
                 $('.my-result').text("Success!");
                 $("#next").animate({
+                      backgroundColor: "#7CB02C",
                       color: "#fff"
                 }, 1000 );
                 console.log(data);
@@ -311,7 +304,7 @@ $().ready(function(){
         wiz.addAllNB();
         wiz.textPane.append("Enter or paste FASTA sequence(s) of target transcript(s)")
         wiz.textPane.append($("#oligo-fasta-form").outerHTML());
-        wiz.textPane.find("#oligo-fasta-form").prepend("<label for='oligo-fasta-form'>amiRNA fasta</label>");
+        wiz.textPane.find("#oligo-fasta-form").prepend("<label for='oligo-fasta-form'>syntasiRNA fasta</label>");
         wiz.textPane.find("#oligo-fasta-form").addClass("oligo-fasta-form");
         wiz.wizardPane.find(".add").click(function(){
             $('.oligo-fasta-form').last().find(".oligo-fasta").removeClass("alert alert-warning alert-danger input-warning input-danger");
@@ -361,7 +354,7 @@ $().ready(function(){
                 color == "none" ? color = "yellow" : "";
             }
             if (seq.substr(18,1).toUpperCase() !== "C"){
-                warnings += "Warning: We recommend a C at amiRNA position 19, in order to have a 5' G on the miR*<br/>";
+                warnings += "Warning: We recommend a C at syntasiRNA position 19, in order to have a 5' G on the miR*<br/>";
                 color == "none" ? color = "yellow" : "";
             }
             if (color == "red"){
@@ -433,7 +426,7 @@ $().ready(function(){
                 color == "none" ? color = "yellow" : "";
             }
             if (seq.substr(18,1).toUpperCase() !== "C"){
-                warnings += "Warning: We recommend a C at amiRNA position 19, in order to have a 5' G on the miR*: "+ name + "<br/>";
+                warnings += "Warning: We recommend a C at syntasiRNA position 19, in order to have a 5' G on the miR*: "+ name + "<br/>";
                 color == "none" ? color = "yellow" : "";
             }
             if (color == "red"){

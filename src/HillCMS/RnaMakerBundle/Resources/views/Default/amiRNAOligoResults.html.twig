@@ -5,11 +5,11 @@
 		<h1 class="tool-header"> amiRNA Oligo Designer Results </h1>
             {% for result in json_results %}
             <div class="col-lg-2">Name: </div><div class="col-lg-10"> {{ result['results']['name'] }} </div>
-            <div class="col-lg-2">amiRNA: </div><div class="col-lg-10">5' {{ result['results']['amiRNA'] }} 3'</div>
-            <div class="col-lg-2">amiRNA*: </div><div class="col-lg-10">5' {{ result['results']['miRNA*'] }} 3'</div>
+            <div class="col-lg-2">amiR-Trich: </div><div class="col-lg-10">5' {{ result['results']['amiRNA'] }} 3'</div>
+            <div class="col-lg-2">amiR-Trich*: </div><div class="col-lg-10">5' {{ result['results']['miRNA*'] }} 3'</div>
             <div class="col-lg-2">Forward Oligo: </div><div class="col-lg-10">5' {{ result['results']['Forward Oligo'] }} 3'</div>
             <div class="col-lg-2">Reverse Oligo: </div><div class="col-lg-10">5' {{ result['results']['Reverse Oligo'] }} 3'</div>
-	     	<a id = "download" class = "btn btn-default btn-block btn-tertiary" href="{{ asset( dl_token)}}" download style="display:inline-block">Download</a>
+	     	<a id = "download" class = "btn btn-default btn-block btn-amirna-primary" href="{{ asset( dl_token)}}" download style="display:inline-block">Download</a>
 	        {% endfor %}
     </div>	
 	

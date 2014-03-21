@@ -50,19 +50,32 @@ body {
 	padding-left: 0px;
 	padding-right: 0px;
 }
-
+.btn-amirna-primary{
+    background-color: #248F40;
+}
 .btn-secondary{
 	background-color: #7CB02C; 
 }
 
 .btn-tertiary{
-	background-color: #206676; 
+	background-color: #428bca; 
+
 }
 
 .btn-quartenary{
 	background-color: #482A83;
 }
+.btn-syntasi-secondary{
+    background-color: #b67a60;
+}
 
+.btn-syntasi-tertiary{
+    background-color: #348a9d;
+}
+
+.btn-syntasi-quartenary{
+    background-color: #9460b6;
+}
 .btn-no{
     background-color: DarkRed;
 }
@@ -70,7 +83,17 @@ body {
 .container{
 	height: 769%;
 }
-
+.help{
+    text-align: right;
+    padding-bottom: 20px;
+    opacity: .5;
+    font-size: 20px;
+    cursor: pointer;
+}
+.help-pane{
+    min-height: 100%;
+    height: 100%;
+}
 .input-warning{
     border-color: #DEB887;
     margin-bottom: 0px;
@@ -96,6 +119,10 @@ body {
 .modal{
     overflow: auto;
 }
+.modal-body{
+    overflow: auto;
+}
+
 .name{
     cursor: pointer;
     font-weight: normal; 
@@ -103,7 +130,6 @@ body {
 .no-float{
 	float:none;
 }
-
 .syntasi{
     background-color: #64CF80;
 }
@@ -169,4 +195,25 @@ body {
 .wizard{
     visibility: hidden;
     display: none;
+}
+#wizard-text{
+    line-height: normal;
+    word-break: break-word;
+}
+#wizard-note{
+    box-shadow: 10px 10px 5px #888888;
+    margin-bottom: 20px;
+    font-size: 16px;
+    padding: 10px;
+    padding-top: 0px;
+    border-radius: 5px;
+    border: orange 4px solid;
+    background-color: #FFF;
+    display: none;
+}
+.x{
+    text-align: right;
+    cursor: pointer;
+    padding-right: 0px;
+    opacity: .8;
 }

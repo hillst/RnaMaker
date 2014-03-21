@@ -27,8 +27,10 @@ function Wizard(previousState){
     this.backButton = $("#back-orig").outerHTML();
     this.backButton = $(this.backButton).attr("id", "back").outerHTML();
     this.notePane = $("#wizard-note").text("");
+    this.notePane.hide();
     this.textPane = $("#wizard-text").text(""); //clear, no children.
     this.wizardPane = $("#wizard-pane").text(""); //dont clear because it has children
+    this.xWrapper = $("#x-wrapper").outerHTML();
     //click callbacks
     this.yesClick = undefined;
     this.noClick = undefined;
@@ -107,6 +109,7 @@ function Wizard(previousState){
         //always saved    
         $(wizard.backButton).text($(previousState.backButton).text());
         wizard.setBack(previousState.backClick);
+        wizard.setXClose();
         return wizard;
     }
     //place first
@@ -143,6 +146,12 @@ function Wizard(previousState){
         //should come before wiz pane probably
         this.textPane.append(this.notePane);
         return this;
+    }
+    this.setXClose = function(){
+        $(".x").click(function(){
+            console.log("count it");
+            $("#wizard-note").fadeOut(1000);
+        });
     }
     this.addAllYN = function(){
         this.addTextPane().addNotePane().addBackButton().addYesButton().addNoButton();

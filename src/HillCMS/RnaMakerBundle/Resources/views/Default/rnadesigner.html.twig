@@ -1,18 +1,12 @@
-{%  extends "HillCMSRnaMakerBundle:Default:bootstrap-template.html.twig" %}
-
+{%  extends "HillCMSRnaMakerBundle:Default:rnadesigner-bootstrap-template.html.twig" %}
 {% block body %}
 <div class="container">
 	<div class="jumbotron" style="float:none">
-            <h1>{{ main["Header"] }}</h1>
-            <p style="font: red;
-                      color: red;
-                      font-weight: bold;
-                      font-size: 36px;">- UNDER CONSTRUCTION - </p>
-            <p> {{ main["Content"] }}</p>
+            <h1 style="padding-bottom: 40px">RNADesigner Tools</h1>
 		<div class="col-lg-12 btn-nopad">
 			<a href="{{ path("rnamaker_amirnadesigner") }}" class="btn btn-default btn-block btn-tile btn-secondary">
 				<div class="col-lg-4">
-					<img class = "tile-image pull-left image-responsive" src="{{ asset("includes/images/RNAhairpin.png") }}"/> 
+					<img class = "tile-image pull-left image-responsive" src="{{ asset("includes/images/oligo.png") }}"/> 
 				</div>
 				<div class="col-lg-8 tile-text pull-right">
 				    {{ amirna["Button"] }}
@@ -26,9 +20,9 @@
             </div>
         </div>
 		<div class="col-lg-12 btn-nopad">
-			<a href="{{ path("rnamaker_syntasidesigner") }}" class=" btn btn-default btn-block btn-tile btn-syntasi-tertiary">
+			<a href="{{ path("rnamaker_syntasidesigner") }}" class=" btn btn-default btn-block btn-tile btn-tertiary">
 				<div class="col-lg-4">
-					<img class = "tile-image pull-left image-responsive" src="{{ asset("includes/images/oligo.png") }}"/> 
+					<img class = "tile-image pull-left image-responsive" src="{{ asset("includes/images/RNAhairpin.png") }}"/> 
 				</div>
 				<div class="col-lg-8 tile-text pull-right">
 				    {{ syntasirna["Button"]}}

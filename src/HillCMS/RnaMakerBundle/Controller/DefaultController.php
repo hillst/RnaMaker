@@ -143,7 +143,7 @@ class DefaultController extends CMSController
     
         $json_result = $daemonSocket->socketSend($json);
         if(strlen($json_result) < 1){
-            return new Response("Error, unexpected response.", 500);
+            return new Response("Error, unexpected response. " . print_r($arguments, TRUE), 500);
         }
         
         $token = $this->amiRNADesignerJsonDecoder($json_result);
@@ -206,7 +206,7 @@ class DefaultController extends CMSController
             $json = $daemonSocket->jsonBuilder("amiR_final.pl", "amiR_final.pl", $arguments);
             $json_result = $daemonSocket->socketSend($json);
             if(strlen($json_result) < 1){
-                return new Response("Error, unexpected response.", 500);
+                return new Response("Error, unexpected response. " . print_r($arguments, TRUE), 500);
             }
             array_push($json_results, $json_result);
         }
