@@ -66,9 +66,6 @@ $().ready(function(){
         wiz = new Wizard(wiz);
         wiz.restoreFormFields();
         wiz.addAllNB();
-        wiz.notePane.append($(".x-wrapper").outerHTML());
-        wiz.notePane.append("this is help text");
-        wiz.setXClose();
         $("#sequence").val("");
         $("#gene").val("");
         wiz.textPane.append("Enter or paste FASTA sequence(s) of target transcript(s)");
