@@ -7,3 +7,4 @@ web/server_results/*
 web/server_encoded
 web/results
 .project
+*.swp

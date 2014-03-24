@@ -1,5 +1,6 @@
 $().ready(function(){
     function baseState(){
+        $("#close-clear").addClass("hidden"); //references to close-clear are to hide it on the home page.
         wiz = new Wizard();
         wiz.addAllYN();
         //add a help pane and place it there
@@ -12,11 +13,13 @@ $().ready(function(){
         wiz.setNoText("Generate Oligos");
         wiz.setYes(cb_designAmiRNA1);
         wiz.setNo(cb_generateOligos1);
+        wiz.setBack(function(){ $(".close").click();  });
     }
     function cb_designAmiRNA1(){
+        $("#close-clear").removeClass("hidden"); 
         wiz = new Wizard(wiz);
         wiz.addAllYN();
-        wiz.textPane.append("Will you use your amiRNA in one of the following species?");
+        wiz.textPane.append("Will you use your amiRNA in one of the following species?<br/><br/>");
         wiz.textPane.append($("#species").html());
         wiz.notePane.append($(".x-wrapper").outerHTML());
         wiz.notePane.append("Select a species and click ‘Yes’ if you are going to express your amiRNA in any of the species listed. Click ‘No’ if you are going to express your amiRNA in another species. If you want us to add a new species contact us at site@carringtonlab.org");
@@ -36,7 +39,6 @@ $().ready(function(){
         wiz = new Wizard(wiz);
         wiz.restoreFormFields(); //gets species/speciesid
         wiz.addAllYN();
-        //wiz.helpPane.text("Click ‘Annotated transcript(s)’ if you have gene ID(s). Click ‘Unannotated/exogenous transcript(s)’ if you want to target transcripts that do not have an assigned gene ID or are not found in the selected reference transcriptome.");
         wiz.notePane.append($(".x-wrapper").outerHTML());
         wiz.notePane.append("Click ‘Annotated transcript(s)’ if you have gene ID(s). Click ‘Unannotated/exogenous transcript(s)’ if you want to target transcripts that do not have an assigned gene ID or are not found in the selected reference transcriptome.");
         wiz.setXClose();
@@ -47,7 +49,10 @@ $().ready(function(){
         //wiz.noButton.css("font-size", "16px").css("height", height);
         wiz.setYes(cb_designAmiRNA3_annotated);
         wiz.setNo(cb_designAmiRNA3_unannotated);
-        wiz.setBack(function(){ cb_revertState(wiz); });
+        wiz.setBack(function(){ 
+            $("#close-clear").addClass("hidden");
+            cb_revertState(wiz); 
+        });
     }
     function cb_designAmiRNA3_annotated(){
         wiz = new Wizard(wiz);
@@ -55,7 +60,10 @@ $().ready(function(){
         wiz.addAllNB();
         $("#sequence").val(""); //clear form?
         $("#gene").val("");
-        wiz.textPane.append("Enter a target gene ID. Click the '+' button for entering additional target gene IDs to target multiple genes.");
+        wiz.notePane.append($(".x-wrapper").outerHTML());
+        wiz.notePane.append("Click the ‘+’ button for entering additional target gene IDs to target multiple genes. Click the ‘-‘ button to delete target gene IDs.");
+        wiz.setXClose();
+        wiz.textPane.append("Enter a target Gene ID.<br/><br/>");
         wiz.textPane.append( $("#transcript-lookup").outerHTML() );
         wiz.textPane.find( $("#transcript-lookup").addClass("transcript-lookup") );
         wiz.addPlusButton( ".transcript-lookup" );
@@ -66,9 +74,12 @@ $().ready(function(){
         wiz = new Wizard(wiz);
         wiz.restoreFormFields();
         wiz.addAllNB();
+        wiz.notePane.append($(".x-wrapper").outerHTML());
+        wiz.notePane.append("The sequence(s) of the target transcript(s) must be in FASTA format. When multiple FASTA sequences are added, each FASTA sequence must have a unique name.");
+        wiz.setXClose();
         $("#sequence").val("");
         $("#gene").val("");
-        wiz.textPane.append("Enter or paste FASTA sequence(s) of target transcript(s)");
+        wiz.textPane.append("Enter or paste FASTA sequence(s) of target transcript(s)<br/><br/>");
         wiz.textPane.append( $("#wizard-transcript").outerHTML() );
         wiz.textPane.find( $("#wizard-transcript").addClass("wizard-transcript") );
         wiz.textPane.after($(".result").outerHTML());
@@ -167,6 +178,9 @@ $().ready(function(){
         wiz = new Wizard(wiz);
         wiz.restoreFormFields();
         wiz.addAllNB();
+        wiz.notePane.append($(".x-wrapper").outerHTML());
+        wiz.notePane.append("Press submit to submit your P-SAMS job to the server. This may take some time.");
+        wiz.setXClose();
         wiz.textPane.append("<h5>Species: " +wiz.species+ "</h5>");
         //foreach
         if(wiz.transcriptId !== ""){
@@ -215,12 +229,18 @@ $().ready(function(){
     }
     
     function cb_generateOligos1(){
+        $("#close-clear").removeClass("hidden"); 
         wiz = new Wizard(wiz);
         wiz.addAllNB();
-        wiz.textPane.append("Enter or paste an amiRNA sequence. Click the '+' button for entering additional amiRNA sequences.");
+        wiz.notePane.append($(".x-wrapper").outerHTML());
+        wiz.notePane.append("Click the ‘+’ button for entering additional amiRNA sequences. Click the ‘-‘ button the delete amiRNA sequences.");
+        wiz.setXClose();
+        wiz.textPane.append("Enter or paste an amiRNA sequence. Click on ‘<span style='border-bottom: 1px dashed #000;font-weight: normal;'>amiRNA</span>’ to edit the name of the amiRNA.<br/><br/>");
         wiz.textPane.append($("#oligo-form").outerHTML());
         wiz.textPane.find("#oligo-form").addClass("oligo-form");
-        wiz.addPlusButton(".oligo-form");
+        wiz.addPlusButton(".oligo-form", function(){
+            wiz.textPane.find(".name").last().text("amiRNA");
+        });
         wiz.wizardPane.find(".add").click(function(){ 
             $(".name").click(toInputTransform);
             $('.oligo-form').last().find(".oligo-seq").removeClass("alert alert-warning alert-danger input-warning input-danger"); 
@@ -232,9 +252,11 @@ $().ready(function(){
             if (!$(event.target).hasClass('name')) {
                 $(".modified").each(function(){
                     var val = $(this).val()
+                    if (val == "" ){
+                        val = "amiRNA"; 
+                    }
                     $(this).replaceWith("<label class='name' style='border-bottom: 1px dashed #000;text-decoration: none;'>" + val + "</label>");
                     $(".name").click(toInputTransform);
-
                 });
             }
         });
@@ -255,7 +277,11 @@ $().ready(function(){
                 console.log(errors);
             }
         });
-        wiz.setBack( function() { $(".modal").unbind("click"); cb_revertState(wiz) });
+        wiz.setBack( function() { 
+            $("#close-clear").addClass("hidden");
+            $(".modal").unbind("click"); 
+            cb_revertState(wiz) 
+        });
     }
     function cb_oligoSubmit(){
         var seq = "";
@@ -306,9 +332,11 @@ $().ready(function(){
     function cb_generateOligos2(){
         wiz = new Wizard(wiz);
         wiz.addAllNB();
-        wiz.textPane.append("Enter or paste FASTA sequence(s) of target transcript(s)")
+        wiz.notePane.append($(".x-wrapper").outerHTML());
+        wiz.notePane.append("The sequence(s) of the target transcript(s) must be in FASTA format. When multiple FASTA sequences are added, each FASTA sequence must have a unique name.");
+        wiz.setXClose();
+        wiz.textPane.append("Enter or paste FASTA sequence(s) of target transcript(s)<br/><br/>")
         wiz.textPane.append($("#oligo-fasta-form").outerHTML());
-        wiz.textPane.find("#oligo-fasta-form").prepend("<label for='oligo-fasta-form'>amiRNA fasta</label>");
         wiz.textPane.find("#oligo-fasta-form").addClass("oligo-fasta-form");
         wiz.wizardPane.find(".add").click(function(){
             $('.oligo-fasta-form').last().find(".oligo-fasta").removeClass("alert alert-warning alert-danger input-warning input-danger");

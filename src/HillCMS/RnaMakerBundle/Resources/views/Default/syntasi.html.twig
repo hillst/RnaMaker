@@ -49,18 +49,15 @@
             <div class="col-xs-2 x">x</div>
         </div>
         <div class="form-group" id = "wizard-transcript">
-            <label for="sequence">Target transcript FASTA sequence:</label>
             <textarea class="form-control sequence" id="sequence" name="sequence" rows="2" placeholder=">Assession-1                             
 ATGATGATGATGATGATGATG" ></textarea>
         </div>
         <div class="form-group" id = "transcript-lookup">
             <label for="gene">Gene ID:</label>
-            <input type="text" class="form-control gene" id="gene" placeholder="AT1G01040.1" name="gene">
+            <input type="text" class="form-control gene" id="gene" placeholder="AT1G01040" name="gene">
         </div>
     </div>
     <div class="form-group wizard" id ="species">
-        <br/>
-        <br/>
         <label for="database">Species Database:</label>
         <!-- change to non-integer values -->
           <select class="form-control" name="database" id="database">
@@ -71,6 +68,7 @@ ATGATGATGATGATGATGATG" ></textarea>
     </div>
     <div class="hidden">
         <a class="glyphicon glyphicon-plus add"></a>
+        <a class="glyphicon glyphicon-minus minus"></a>
     </div>
     <!-- initial state -->
     <div class="wizard wizard-part" id="wizard-no">
@@ -84,7 +82,7 @@ ATGATGATGATGATGATGATG" ></textarea>
     </div>
     <div class="wizard">
         <div class="form-group" id="oligo-fasta-form">
-            <textarea rows="2" class="form-control oligo-fasta" id="oligo-fasta" placeholder=">assession-1" name="fasta"></textarea>
+            <textarea rows="2" class="form-control oligo-fasta" id="oligo-fasta" placeholder=">accession-1" name="fasta"></textarea>
         </div>
     <div class="wizard wizard-part" id="wizard-submissionform">
         <form role="form" class="designer">

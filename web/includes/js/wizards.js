@@ -149,7 +149,6 @@ function Wizard(previousState){
     }
     this.setXClose = function(){
         $(".x").click(function(){
-            console.log("count it");
             $("#wizard-note").fadeOut(1000);
         });
     }
@@ -205,15 +204,32 @@ function Wizard(previousState){
         $("#back").click(cb_back);
         return this;
     }
-    //expects a class unique to the clonal field.
-    this.addPlusButton = function( clonalField ){
+    //expects a class unique to the clonal field and an optional callback that is extra code for each
+    //      time the plus button is pressed.
+    this.addPlusButton = function( clonalField, custom_cb){
         if ( this.textPane.find(".add").length <= 0){
+            $(clonalField).last().after($(".minus").outerHTML());
+            $(".minus").hide();
             $(clonalField).last().after( $(".add").outerHTML() );
         }
         this.textPane.find(".add").click(function(){
             $(clonalField).last().after( $(clonalField).outerHTML() );
             //will not affect anything other than the specific form it's targetting
             $(clonalField).last().find(".oligo-seq").removeClass("alert alert-warning alert-danger input-warning input-danger");
+            if ( $(clonalField).length > 1){
+                $(".minus").show();        
+            }
+            if (typeof custom_cb != "undefined"){
+                custom_cb();
+            }
+        });
+        this.textPane.find(".minus").click(function(){
+            if ( $(clonalField).length !== 1){
+                $(clonalField).last().remove();
+            }
+            if ( $(clonalField).length === 1){
+                $(".minus").hide();
+            }
         });
     }
     this.resetState = function(){

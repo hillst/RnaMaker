@@ -1,5 +1,6 @@
 $().ready(function(){
     function baseState(){
+        $("#close-clear").addClass("hidden");
         wiz = new Wizard();
         wiz.addAllYN();
         //add a help pane and place it there
@@ -12,20 +13,23 @@ $().ready(function(){
         wiz.setNoText("Generate Oligos");
         wiz.setYes(cb_designSyntasiRNA1);
         wiz.setNo(cb_generateOligos1);
+        wiz.setBack(function(){ $(".close").click();  });
     }
     function cb_designSyntasiRNA1(){
+        $("#close-clear").removeClass("hidden");
         wiz = new Wizard(wiz);
         wiz.addAllYN();
         wiz.notePane.append($(".x-wrapper").outerHTML());
         wiz.notePane.append("Select a species and click ‘Yes’ if you are going to express your syntasiRNAs in any of the species listed. Note that only Arabidopsis thaliana produces miR173 required for triggering syntasiRNA biogenesis, therefore if you select another species you should co-express miR173 to produce syntasiRNAs. Click ‘No’ if you are going to express your syntasiRNA(s) in another species. If you want us to add a new specie contact us at site@carringtonlab.org.");
         wiz.setXClose();
-        wiz.textPane.append("Will you use your syntasiRNA in one of the following species?");
+        wiz.textPane.append("Will you use your syntasiRNA in one of the following species?<br/><br/>");
         wiz.textPane.append($("#species").html());
         wiz.setYes(cb_designSyntasiRNA2); //make sure it saves the species
         wiz.setNo(cb_generateOligos2); 
         $(wiz.yesButton).text("Yes");
         $(wiz.noButton).text("No");
         wiz.setBack(function(){
+            $("#close-clear").addClass("hidden");
             cb_revertState(wiz);
         });
         
@@ -52,9 +56,12 @@ $().ready(function(){
         wiz = new Wizard(wiz);
         wiz.restoreFormFields(); 
         wiz.addAllNB();
+        wiz.notePane.append($(".x-wrapper").outerHTML());
+        wiz.notePane.append("Click the ‘+’ button for entering additional target gene IDs to target multiple genes. Click the ‘-‘ button to delete target gene IDs.");
+        wiz.setXClose();
         $("#sequence").val(""); //clear form?
         $("#gene").val("");
-        wiz.textPane.append("Enter a target gene ID. Click the '+' button for entering additional target gene IDs to target multiple genes.");
+        wiz.textPane.append("Enter a target gene ID.<br/><br/>"); 
         wiz.textPane.append( $("#transcript-lookup").outerHTML() );
         wiz.textPane.find( $("#transcript-lookup").addClass("transcript-lookup") );
         wiz.addPlusButton( ".transcript-lookup" );
@@ -65,9 +72,12 @@ $().ready(function(){
         wiz = new Wizard(wiz);
         wiz.restoreFormFields();
         wiz.addAllNB();
+        wiz.notePane.append($(".x-wrapper").outerHTML());
+        wiz.notePane.append("The sequence(s) of the target transcript(s) must be in FASTA format. When multiple FASTA sequences are added, each FASTA sequence must have a unique name.");
+        wiz.setXClose();
         $("#sequence").val("");
         $("#gene").val("");
-        wiz.textPane.append("Enter or paste FASTA sequence(s) of target transcript(s)");
+        wiz.textPane.append("Enter or paste FASTA sequence(s) of target transcript(s)<br/><br/>");
         wiz.textPane.append( $("#wizard-transcript").outerHTML() );
         wiz.textPane.find( $("#wizard-transcript").addClass("wizard-transcript") );
         wiz.textPane.after($(".result").outerHTML());
@@ -163,6 +173,9 @@ $().ready(function(){
         wiz = new Wizard(wiz);
         wiz.restoreFormFields();
         wiz.addAllNB();
+        wiz.notePane.append($(".x-wrapper").outerHTML());
+        wiz.notePane.append("Press submit to submit your P-SAMS job to the server. This may take some time.");
+        wiz.setXClose();
         wiz.textPane.append("<h5>Species: " +wiz.species+ "</h5>");
         //foreach
         if(wiz.transcriptId !== ""){
@@ -210,12 +223,18 @@ $().ready(function(){
     }
     
     function cb_generateOligos1(){
+        $("#close-clear").removeClass("hidden");
         wiz = new Wizard(wiz);
         wiz.addAllNB();
-        wiz.textPane.append("Enter or paste a syntasiRNA sequence. Click the '+' button for entering additional syntasiRNA sequences.");
+        wiz.notePane.append($(".x-wrapper").outerHTML());
+        wiz.notePane.append("Click the ‘+’ button for entering additional syntasiRNA sequences. Click the ‘-‘ button the delete syntasiRNA sequences.");
+        wiz.setXClose(); 
+        wiz.textPane.append("Enter or paste a syntasiRNA sequence. Click on '<span style='border-bottom: 1px dashed #000;font-weight: normal;'>syntasiRNA</span>' to edit the name of the syntasiRNA.<br/><br/>");
         wiz.textPane.append($("#oligo-form").outerHTML());
         wiz.textPane.find("#oligo-form").addClass("oligo-form");
-        wiz.addPlusButton(".oligo-form");
+        wiz.addPlusButton(".oligo-form", function(){
+            wiz.textPane.find(".name").last().text("syntasiRNA");
+        });
         wiz.wizardPane.find(".add").click(function(){ 
             $(".name").click(toInputTransform);
             $('.oligo-form').last().find(".oligo-seq").removeClass("alert alert-warning alert-danger input-warning input-danger"); 
@@ -227,9 +246,11 @@ $().ready(function(){
             if (!$(event.target).hasClass('name')) {
                 $(".modified").each(function(){
                     var val = $(this).val()
+                    if (val == ""){
+                        val = "syntasiRNA";
+                    }
                     $(this).replaceWith("<label class='name' style='border-bottom: 1px dashed #000;text-decoration: none;'>" + val + "</label>");
                     $(".name").click(toInputTransform);
-
                 });
             }
         });
@@ -250,7 +271,11 @@ $().ready(function(){
                 console.log(errors);
             }
         });
-        wiz.setBack( function() { $(".modal").unbind("click"); cb_revertState(wiz) });
+        wiz.setBack( function() { 
+            $("#close-clear").addClass("hidden");
+            $(".modal").unbind("click"); 
+            cb_revertState(wiz) 
+        });
     }
     function cb_oligoSubmit(){
         var seq = "";
@@ -302,9 +327,11 @@ $().ready(function(){
     function cb_generateOligos2(){
         wiz = new Wizard(wiz);
         wiz.addAllNB();
-        wiz.textPane.append("Enter or paste FASTA sequence(s) of target transcript(s)")
+        wiz.notePane.append($(".x-wrapper").outerHTML());
+        wiz.notePane.append("The sequence(s) of the target transcript(s) must be in FASTA format. When multiple FASTA sequences are added, each FASTA sequence must have a unique name.");
+        wiz.setXClose();
+        wiz.textPane.append("Enter or paste FASTA sequence(s) of target transcript(s)<br/><br/>")
         wiz.textPane.append($("#oligo-fasta-form").outerHTML());
-        wiz.textPane.find("#oligo-fasta-form").prepend("<label for='oligo-fasta-form'>syntasiRNA fasta</label>");
         wiz.textPane.find("#oligo-fasta-form").addClass("oligo-fasta-form");
         wiz.wizardPane.find(".add").click(function(){
             $('.oligo-fasta-form').last().find(".oligo-fasta").removeClass("alert alert-warning alert-danger input-warning input-danger");
