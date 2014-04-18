@@ -2,10 +2,60 @@
 {% block body %}
 <div class="container">
 	<div class="jumbotron" style="float:none">
-		<h1 class="tool-header"> Placeholder Results </h1>
-		<p>{{ results|raw }}</p>
-		<a id = "download" class = "btn btn-default btn-block btn-tertiary" href="{{ asset(dl_token)}}" download>Download</a>
+		<h1 class="tool-header">Results </h1>
+        <h2>Optimal Results</h2>
+        {% if results['optimal']|length == 0 %}
+            <div class ="col-lg-12 amirna">No optimal results found.</div>
+        {% endif %}
+        {% for key, value in results['optimal'] %}
+            <div class="amirna">
+            <p><h3>{{ key }}</h3></p>
+            {% for keyinfo, info in value %}
+                {% if keyinfo == 'TargetFinder' %}
+                    <p><h3>TargetFinder</h3></p>
+                    {% for tfkey, tfresult in value[keyinfo] %}
+                       <h3>Hit: {{ tfkey }}</h3>
+                       {% for hit in tfresult["hits"] %}
+                            {% for hitk, hitv in hit %}
+                                <div class="col-lg-4">{{ hitk }}</div><div class="col-lg-8">{{hitv|raw}}</div>
+                            {% endfor %}
+                       {% endfor %}
+                        <br/>
+                    {% endfor %}
+                {% endif %}
+                {% if keyinfo != 'TargetFinder' %}
+                   <p><strong>{{keyinfo|raw}}</strong> {{info|raw}}</p>
+                {% endif %}
+            {% endfor %}
+            </div>
+        {% endfor %}
+        <h2>Sub-optimal Results</h2>
+        {% if results['suboptimal']|length == 0 %}
+            <div class = "col-lg-12 amirna">No sub-optimal results found</div>
+        {% endif %}
+        {% for key, value in results['suboptimal'] %}
+            <div class="amirna">
+            <p><h3>{{ key }}</h3></p>
+            {% for keyinfo, info in value %}
+                {% if keyinfo == 'TargetFinder' %}
+                    <p><h3>TargetFinder</h3></p>
+                    {% for tfkey, tfresult in value[keyinfo] %}
+                       <h3>Hit: {{ tfkey }}</h3>
+                       {% for hit in tfresult["hits"] %}
+                            {% for hitk, hitv in hit %}
+                                <div class="col-lg-4">{{ hitk }}</div><div class="col-lg-8">{{hitv|raw}}</div>
+                            {% endfor %}
+                       {% endfor %}
+                        <br/>
+                    {% endfor %}
+                {% endif %}
+                {% if keyinfo != 'TargetFinder' %}
+                   <p><strong>{{keyinfo|raw}}</strong> {{info|raw}}</p>
+                {% endif %}
+            {% endfor %}
+            </div>
+        {% endfor %} 
+        <a id = "download" class = "btn btn-default btn-block btn-tertiary" href="{{ asset(dl_token)}}" download>Download</a>
 	</div>	
-	
 </div>
 {% endblock %}

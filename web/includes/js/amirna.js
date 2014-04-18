@@ -22,10 +22,10 @@ $().ready(function(){
         wiz.textPane.append("Will you use your amiRNA in one of the following species?<br/><br/>");
         wiz.textPane.append($("#species").html());
         wiz.notePane.append($(".x-wrapper").outerHTML());
-        wiz.notePane.append("Select a species and click ‘Yes’ if you are going to express your amiRNA in any of the species listed. Click ‘No’ if you are going to express your amiRNA in another species. If you want us to add a new species contact us at site@carringtonlab.org");
+        wiz.notePane.append("Select a species and click ‘Yes’ if you are going to express your amiRNA in any of the species listed. Click ‘No’ if you are going to express your amiRNA in another species. If you want us to add a new species contact us at <a href='mailto:administrator@carringtonlab.org?Subject=P-SAMS' target='_top'>administrator@carringtonlab.org</a>");
         wiz.setXClose();
         wiz.setYes(cb_designAmiRNA2); //make sure it saves the species
-        wiz.setNo(cb_generateOligos2); 
+        wiz.setNo(cb_designAmiRNA2_custom);//make sure it does NOT save the species 
         $(wiz.yesButton).text("Yes");
         $(wiz.noButton).text("No");
         wiz.setBack(function(){
@@ -70,6 +70,32 @@ $().ready(function(){
         wiz.setNext(cb_designAmiRNA4_a);
         wiz.setBack(function(){ cb_revertState(wiz); });
     }
+    //functionally same as designAmiRNA3_unannotated but avoids specificty route
+    function cb_designAmiRNA2_custom(){
+        wiz = new Wizard(wiz);
+        wiz.restoreFormFields();
+        wiz.addAllNB();
+        wiz.notePane.append($(".x-wrapper").outerHTML());
+        wiz.notePane.append("The sequence(s) of the target transcript(s) must be in FASTA format. When multiple FASTA sequences are added, each FASTA sequence must have a unique name.");
+        wiz.setXClose();
+        $("#sequence").val("");
+        $("#gene").val("");
+        wiz.textPane.append("Enter or paste FASTA sequence(s) of target transcript(s)<br/><br/>");
+        wiz.textPane.append( $("#wizard-transcript").outerHTML() );
+        wiz.textPane.find( $("#wizard-transcript").addClass("wizard-transcript") );
+        wiz.textPane.after($(".result").outerHTML());
+        $("#wizard-pane").find(".result").removeClass("result").addClass("my-result");
+        wiz.setNext(function(){
+            var fasta = $("#wizard-text").find("#sequence").val().split("\n");
+            wiz.wizardPane.find(".my-result").removeClass("alert alert-danger").addClass("hidden").text("");
+            if (fasta[0].substr(0,1) != ">"){
+                wiz.wizardPane.find(".my-result").removeClass("hidden").addClass("alert alert-danger").text("Please insert a valid fasta sequence");
+                return;
+            }
+            cb_designAmiRNA4_custom();
+        });
+        wiz.setBack(function() { cb_revertState(wiz); });
+    }
     function cb_designAmiRNA3_unannotated(){
         wiz = new Wizard(wiz);
         wiz.restoreFormFields();
@@ -85,18 +111,15 @@ $().ready(function(){
         wiz.textPane.after($(".result").outerHTML());
         $("#wizard-pane").find(".result").removeClass("result").addClass("my-result");
         wiz.setNext(function(){
-            var fasta = wiz.textPane.find("#sequence").val().split("\n");
+            var fasta = wiz.textPane.find(".sequence").val().split("\n");
             wiz.wizardPane.find(".my-result").removeClass("alert alert-danger").addClass("hidden").text("");
-            if (fasta.length < 2 || fasta.length % 2 != 0){
-                wiz.wizardPane.find(".my-result").removeClass("hidden").addClass("alert alert-danger").text("Please insert a fasta sequence");
+            if (fasta[0].substr(0,1) != ">"){ 
+                wiz.wizardPane.find(".my-result").removeClass("hidden").addClass("alert alert-danger").text("Please insert a valid fasta sequence");
                 return;
             }
             for (var i = 0; i < fasta.length; i++){
-                if ( i % 2 === 0){
-                    if (fasta[i].substr(0,1) != ">"){
-                        wiz.wizardPane.find(".my-result").removeClass("hidden").addClass("alert alert-danger").text("Please insert a valid fasta sequence");
-                        return;
-                    } 
+                if (true){
+                    //nothing really happens in this test (as in no test happens)
                 } else{
                     //reserved for potential alphabet test
                 }
@@ -153,7 +176,7 @@ $().ready(function(){
         wiz.restoreFormFields();
         wiz.addAllYN();
         wiz.notePane.append($(".x-wrapper").outerHTML());
-        wiz.notePane.append("");
+        wiz.notePane.append("Clicking ‘Yes’ will activate a target prediction module. Results that have predicted undesired targets will be discarded. Click ‘No’ to deactivate the target prediction module.");
         wiz.setXClose();
         wiz.textPane.append("Do you want the results to be automatically filtered based on target specificity?");
         wiz.setYes(function(){ 
@@ -173,7 +196,18 @@ $().ready(function(){
         });
         
     }
-    
+    function cb_designAmiRNA4_custom(){
+        var trans = "";
+        wiz.textPane.find(".sequence").each(function(){
+            trans += $(this).val() + ",";
+        });
+        trans = trans.substring(0, trans.length-1);
+        if ( trans != "") {
+            wiz.transcript = trans;
+        }
+        wiz.filtered = false;    
+        cb_designAmiRNAFinal();
+    } 
     function cb_designAmiRNAFinal(){
         wiz = new Wizard(wiz);
         wiz.restoreFormFields();
@@ -195,12 +229,14 @@ $().ready(function(){
         $("#wizard-pane").find(".result").removeClass("result").addClass("my-result");
         wiz.setNextText("Submit");
         wiz.setNext(cb_submit);
-        wiz.setBack( function(){ cb_revertState(wiz) } );
+        wiz.setBack( function(){            
+             cb_revertState(wiz) 
+        });
     }
     function cb_submit(){
         $('.my-result').removeClass('hidden alert alert-danger alert-success');
         $('.my-result').addClass('alert alert-warning');
-        $('.my-result').html('<img src="'+ $("#gifloader").val() + '"/>' );
+        $('.my-result').html('This may take a while, please wait. <img src="'+ $("#gifloader").val() + '"/>' );
 
         $.post( $("#rnamaker_amirnarequest").val(), { transcript: wiz.transcript, transcriptId: wiz.transcriptId, species: wiz.speciesId, filtered: wiz.filtered } )
             .success(function(data){
@@ -329,7 +365,7 @@ $().ready(function(){
             })
     }
     //Same as generateOligos1 except it uses fasta instead of line-by-line name/sequence pairs. 
-    function cb_generateOligos2(){
+    function cb_generateOligos2(){ //TODO this is a misnomer
         wiz = new Wizard(wiz);
         wiz.addAllNB();
         wiz.notePane.append($(".x-wrapper").outerHTML());
@@ -345,13 +381,8 @@ $().ready(function(){
         $("#wizard-pane").find(".result").removeClass("result").addClass("my-result");
         wiz.setNextText("Submit");
         wiz.setNext( function() {
-            var errors = oligoFastaValidityCheck(".oligo-fasta");
             //check result and continue if not false.
-            if (!errors) {
-                cb_oligoSubmit(); 
-            } else{
-                console.log(errors);
-            } 
+                cb_ami(); 
         });
         wiz.setBack( function() { cb_revertState(wiz) });
     }
@@ -441,6 +472,7 @@ $().ready(function(){
             result = wiz.wizardPane.find(".my-result");
             var color = "none";
             wiz.textPane.find(classname).removeClass("alert alert-warning alert-danger input-warning input-danger");
+            /*
             if(name.substr(0,1) != ">"){
                 errors += "Error: One of your fasta headers does not begin with '>': " + name + "<br/>";
                 color = "red";
@@ -460,7 +492,7 @@ $().ready(function(){
             if (seq.substr(18,1).toUpperCase() !== "C"){
                 warnings += "Warning: We recommend a C at amiRNA position 19, in order to have a 5' G on the miR*: "+ name + "<br/>";
                 color == "none" ? color = "yellow" : "";
-            }
+            }*/
             if (color == "red"){
                 wiz.textPane.find(classname).addClass("alert alert-danger input-danger");
             } else if (color == "yellow"){

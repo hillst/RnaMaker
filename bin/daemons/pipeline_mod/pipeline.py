@@ -4,7 +4,7 @@ import time
 import json
 import threading
 import Queue
-from sys import argv, exit, stdout
+from sys import argv, exit, stdout, stderr
 from copy import deepcopy
 from os import listdir
 from os.path import isfile, join
@@ -115,13 +115,20 @@ class PipelineProcess:
     def startProcessAsync(self):
         try:
             if self.output == None:
-                self.process = Popen([self.getProcpath()] + self.getArgs(), stdin=PIPE, stdout=PIPE, stderr=PIPE)
+                if self.error == None:
+                    self.process = Popen([self.getProcpath()] + self.getArgs(), stdin=PIPE, stdout=PIPE, stderr=PIPE)
+                else:
+                    print >> stderr, "error checking is enabled"
+                    error = open(self.error,"a")
+                    self.process = Popen([self.getProcpath()] + self.getArgs(), stdin=PIPE, stdout=PIPE, stderr=error)
             else:
                 output = open(self.output, 'w')
                 if self.error != None:
+                    print >> stderr,"error checking is enabled"
                     error = open(self.error, "a")
                     self.process = Popen([self.getProcpath()] + self.getArgs(), stdin=PIPE, stdout=output, stderr=error)
                 else:
+                    print >> stderr, "error checking is disabled"
                     self.process = Popen([self.getProcpath()] + self.getArgs(), stdin=PIPE, stdout=output, stderr=PIPE)
         except OSError:
             bcolors.printFail("Pipeline Error: the program " + self.getProcpath() + " does not exist. Exiting.")
@@ -145,13 +152,14 @@ class SingleSettingRunner:
     """
         Expects a string argument representing a json object. The only required fields in this json object are, process name, process path, output, and arguments.
     """
-    def __init__(self, settings):
+    def __init__(self, settings, error=None):
         self.process = None
         dec = JsonSettings().decode(settings)
         for proc, settings in dec.iteritems():
             if  "path" not in settings or "arguments" not in settings:
                 raise Exception("Invalid json input. Output, path, arguments are all required.")
             self.process = PipelineProcess(proc, settings['path'], settings['arguments'], 1)
+            self.process.setError(error)
     def startProcess(self):
         if self.process is None:
             raise Exception("Process not yet initialized.")

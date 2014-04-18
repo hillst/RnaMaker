@@ -73,7 +73,7 @@ class DefaultController extends CMSController
      * derived from the selected database.
      *
      * Executed Commands:
-     * perl ./sites/amirna/bin/generate_amiRNA_list.pl -f $sequence -d $database -s $species -l $offTargets -r $num -t $fb
+     * perl /shares/jcarrington_share/www/psams/bin/psams.pl -f $sequence -d $database -s $species -l $offTargets -r $num -t $fb
      */
     public function amirnaDesignerRequestAction(){
 	    $request = $this->getRequest();
@@ -82,7 +82,7 @@ class DefaultController extends CMSController
     		$transcriptId = $request->get('transcriptId');
     		$filtered = $request->get("filtered");
             $transcript = $request->get('transcript');
-		    if($speciesId == "" || ($transcript == "" && $transcriptId == "") || $filtered == ""){
+		    if( ($transcript == "" && $transcriptId == "") || $filtered == ""){
     			return new Response("Error: Missing one of the required fields.", 400);
             }
     	} else{
@@ -90,15 +90,17 @@ class DefaultController extends CMSController
     	} 
     	$em = $this->getDoctrine()->getManager();
     	$repo = $em->getRepository("HillCMSRnaMakerBundle:TargetfinderDbs");
-    	
-    	$dbs = $repo->findBy(array("dbId" => $speciesId));
-    	if (sizeof($dbs) < 1){
-    		return new Response("Invalid species.", 400);
-    	}
-    		
-	    $root = $this->get('kernel')->getRootDir() ."/../amirna_dbs";
-    	$database =  $dbs[0]->getDbPath();
-    	$species =  $dbs[0]->getSpecies();
+    	if ($speciesId !== ""){
+    	    $dbs = $repo->findBy(array("dbId" => $speciesId));
+    	    if (sizeof($dbs) < 1){
+    		    return new Response("Invalid species.", 400);
+    	    }
+            $root = $this->get('kernel')->getRootDir() ."/../amirna_dbs";
+            $database =  $dbs[0]->getDbPath();
+            $species =  $dbs[0]->getSpecies();
+    	} else{
+            $species = "";
+        }
         $escaped_transcript = "";
     	if ($transcriptId != "") {
     		if ($species !== 'S_ITALICA') {
@@ -107,15 +109,13 @@ class DefaultController extends CMSController
     			}
     		}
     	} else {
-            //must reconstruct with espaced newline characters
+            //must reconstruct with escpaced newline characters
             $fasta = explode("\n", $transcript);
-            if (sizeof($fasta) % 2 != 0){
-                return new Response("Error 1, malformed fasta.", 400);
-            }
+            if (substr($fasta[0],0,1) != ">"){
+                //legacy i think
+                return new Response("Error 2, malformed fasta." . substr($fasta[0], 0,1), 400);
+            } 
             for($i = 0; $i < sizeof($fasta); $i++){
-                if($i % 2 == 0 && substr($fasta[$i],0,1) != ">"){
-                    return new Response("Error 2, malformed fasta.", 400);
-                }
                 $escaped_transcript .= $fasta[$i] . "\\n";
             }
         }
@@ -125,10 +125,10 @@ class DefaultController extends CMSController
 
         $daemonSocket = new DaemonHunter();
     	$arguments = array();
-    	$arguments[0] = "-d";
-    	$arguments[1] = $database;
-    	$arguments[2] = "-s";
-    	$arguments[3] = $species;
+        if ($species !== ""){
+            $arguments[2] = "-s";
+            $arguments[3] = $species;
+        }
     	if ($transcript !== "") {
     		$arguments[10] = "-f";
        		$arguments[11] = $escaped_transcript;
@@ -136,14 +136,13 @@ class DefaultController extends CMSController
     		$arguments[10] = "-a";
     		$arguments[11] = $transcriptId;
     	}
-        if ($filtered){
+        if ($filtered != "false"){
             $arguments[12] = "-o";
         }
-    	$json = $daemonSocket->jsonBuilder("designer_tool.pl", "designer_tool.pl", $arguments);
-    
+    	$json = $daemonSocket->jsonBuilder("psams.pl", "psams.pl", $arguments);
         $json_result = $daemonSocket->socketSend($json);
         if(strlen($json_result) < 1){
-            return new Response("Error, unexpected response. " . print_r($arguments, TRUE), 500);
+            return new Response("Error, unexpected response. " . print_r($json, TRUE), 500);
         }
         
         $token = $this->amiRNADesignerJsonDecoder($json_result);
@@ -226,9 +225,8 @@ class DefaultController extends CMSController
         $json_array = array();
         foreach($json_results as $json_result){
             $tokenized_results = json_decode($json_result);
-            $plain_result = "Name: " . $tokenized_results->{"results"}->{"name"} . "\n";
-            $plain_result .= "amiRNA: ". $tokenized_results->{"results"}->{"amiRNA"} . "\n";
-            $plain_result .= "miRNA*: " . $tokenized_results->{"results"}->{"miRNA*"} . "\n";
+            $plain_result = $tokenized_results->{"results"}->{"name"}.": ". $tokenized_results->{"results"}->{"amiRNA"} . "\n";
+            $plain_result .= $tokenized_results->{"results"}->{"name"}.": " . $tokenized_results->{"results"}->{"miRNA*"} . "\n";
             $plain_result .= "Forward Oligo: 5' " . $tokenized_results->{"results"}->{"Forward Oligo"} . " 3'\n";
             $plain_result .= "Reverse Oligo: 5' " . $tokenized_results->{"results"}->{"Reverse Oligo"} . " 3'\n\n";
             //Write a plain text and json version, json for the view to render
@@ -257,15 +255,6 @@ class DefaultController extends CMSController
                             );
         
     }
-
-    //TODO remove useless code during cleanup step
-    //everything below this is kind of wtf why is it here
-
-    
-
-
-
-
 
     public function syntasiDesignerFormAction(){
         $pid = 6;
@@ -325,79 +314,61 @@ class DefaultController extends CMSController
         fclose($fd);
         return $this->render("HillCMSRnaMakerBundle:Default:syntasiResults.html.twig", array("results" => $results, "dl_token" => $token));
     }
-    /**
-     * Handles requeusts for the target finder. Validates the POST submission and connects to the daemon. If the submission is missing a field, it will return 403.
-     * If the response from the daemon is bad (format is not "statuscode","resultname"), it will return 500.
-     * 
-     * Executes:
-     * perl bin/targetfinder.pl -q $name -s $miRNA -d $db -c $score"
-     */
-    public function targetFinderRequestAction(){
-       	$request = $this->getRequest();
-    	if ($request->getMethod() === 'POST') {
-    		$miRNA = $request->get('miRNA');
-    		$name = $request->get('name');
-    		$db = $request->get('database');
-    		$score = $request->get('score');
-    		
-    		if($miRNA == "" || $name == "" || $db == "" || $score == ""){
-    			return new Response("Error: One of the required fields is empty.", 400);
-    		}
-    	} else{
-    		return new Response("Error: Must be POST", 400);
-    	}
-    	 
-    	$daemonSocket = new DaemonHunter();
-    	$arguments = array();
-    	$arguments[0] = "-s";
-    	$arguments[1] = $miRNA;
-    	$arguments[2] = "-q";
-    	$arguments[3] = $name;
-    	$arguments[4] = "-d";
-    	$arguments[5] = $db;
-    	$arguments[6] = "-c";
-    	$arguments[7] = $score;
-    	$json = $daemonSocket->jsonBuilder("targetfinder.pl", "targetfinder.pl", $this->server_results."/".uniqid("targetfinder_"), $arguments);
-	
-    	$json_result = $daemonSocket->socketSend($json);
-        if (strlen($json_result) < 1){
-            return new Response("Error, unexpected empty response.", 500);
-        }	
-        $token = $this->targetFinderJsonDecoder($json_result);
-        return new Response($token , 200);
-    }
     
-    
-    public function targetFinderFormAction(){
-    	$pid = 2;
-    	$em = $this->getDoctrine()->getManager();
-    	$repo = $em->getRepository("HillCMSManageBundle:CmsPageThings");
-    	$pagethings = $repo->findBy(array("pageid" => $pid)); 
-    	if (sizeof($pagethings) === 0){
-    		//empty page
-    		return new Response("Error", 404);
-    	}
-    	$homegroups = $this->buildPageGroups($pagethings);
-    	$repo = $em->getRepository("HillCMSRnaMakerBundle:TargetfinderDbs");
-    	$dbs = $repo->findAll();
-    	$root = $this->get('kernel')->getRootDir() ."/../amirna_dbs"; //directory of amirna sql_lite dbs
-    	 
-    	return $this->render('HillCMSRnaMakerBundle:Default:targetfinder.html.twig', array("groups" => $homegroups['Target'], "dbs" => $dbs, "root"=>$root));
-    }
     /**
      * Function responsible for parsing the amiRNADesigner results and saving them to disk.
      */
     public function amiRNADesignerJsonDecoder($json_result){
         //decode results to plain text
-        
-        //$tokenized_results = json_decode($json_result);
-        //there is no json to decode yet.
-        $plain_result = $json_result;        
-
         //write to disk    
         $token = uniqid("amirnaDesigner_");
         $plainfile = $this->server_results . "/" . $token;
         $fd = fopen($plainfile, "w");
+        $plain_result = "Optimal Results\n";
+        $json_assoc = json_decode($json_result, True);
+        if (sizeof($json_assoc['optimal'] == 0)){
+            $plain_result .= "No optimal results.\n";
+        }
+        foreach($json_assoc['optimal'] as $key => $value){
+            foreach($value as $keyinfo => $info){
+                if ($keyinfo == "TargetFinder"){
+                    $plain_result .= "TargetFinder\n";
+                    foreach($value[$keyinfo] as $tfkey => $tfvalue){
+                        $plain_result .= "Hit: $tfkey\n";
+                        foreach($tfvalue["hits"] as $hit){
+                            foreach($hit as $hitk => $hitv){
+                                $plain_result .= "$hitk\t$hitv\n";
+                            }
+                        }        
+                    }
+                    $plain_result .= "\n";
+                } else{
+                    $plain_result .= "$keyinfo\t$info\n";
+                }
+            }
+        }
+        $plain_result .= "Sub-optimal Results\n";
+        if (sizeof($json_assoc['suboptimal'] == 0)){
+            $plain_result .= "No sub-optimal results.\n";
+        } 
+        foreach($json_assoc['suboptimal'] as $key => $value){
+            foreach($value as $keyinfo => $info){
+                if ($keyinfo == "TargetFinder"){
+                    $plain_result .= "TargetFinder\n";
+                    foreach($value[$keyinfo] as $tfkey => $tfvalue){
+                        $plain_result .= "Hit: $tfkey\n";
+                        foreach($tfvalue["hits"] as $hit){
+                            foreach($hit as $hitk => $hitv){
+                                $plain_result .= "$hitk\t$hitv\n";
+                            }
+                        }
+                    }
+                    $plain_result .= "\n";
+                } else{
+                    $plain_result .= "$keyinfo\t$info\n";
+                }
+            }
+        }
         fwrite($fd, $plain_result);
         fclose($fd);
         $fd = fopen($this->server_encoded . "/" . $token, "w");
@@ -415,28 +386,20 @@ class DefaultController extends CMSController
             $result .= fread($fd, 8092);
         }
         fclose($fd);
-        //again there is no json yet so it's commented out.
-        //$decoded_result =  json_decode($result);
-        
+        $json_decoded = json_decode($result, true);
         $dlpath = $this->server_results . "/". $token;
-        //"amiRNA" => $decoded_result->{"results"}->{"amiRNA"},
         return $this->render("HillCMSRnaMakerBundle:Default:amiRNADesignerResults.html.twig", array(
-            "dl_token"=> $dlpath,
-             "results" => $result
+             "dl_token"=> $dlpath,
+             "results" => $json_decoded
         ));
     }
+    
+    public function downloadsAction(){
+        return $this->render("HillCMSRnaMakerBundle:Default:downloads.html.twig", array());
+    }
 
-    public function targetFinderResultsAction(){
-        /*
-        "hit-50": {
-        "hit_accession": "AT5G38610.1 | Symbols:  | Plant invertase/pectin methylesterase inhibitor superfamily protein",
-        "score":"4",
-        "strand":"580-598 (+)",
-        "target_seq":"AUGCUCUCU-UCUUCUGUCA",
-        "homology_string":"&nbsp:::::&nbsp::&nbsp::::::::::",
-        "miR_seq":"CACGAGUGAGAGAAGACAGU"
-        */
-        //parse a list of these out from the response and do the normal server_encoded server_plain process.
+    public function contactAction(){
+        return $this->render("HillCMSRnaMakerBundle:Default:contacts.html.twig", array());
     }
     
  

@@ -34,7 +34,6 @@ security:
         # if this app is pushed to production be sure the manage area is all https. basic_auth demands this.
         #- { path: ^/manage, roles: ROLE_ADMIN, requires_channel: https}
         - { path: ^/syntasi, roles: [ROLE_ADMIN, ROLE_USER] }
-        - { path: ^/amirna, roles: [ROLE_ADMIN, ROLE_USER] }
         - { path: ^/manage, roles: [ROLE_ADMIN, ROLE_USER] }
         - { path: ^/manage/save, roles: [ROLE_ADMIN, ROLE_USER]}
         - { path: ^/manage/addthing, roles: [ROLE_ADMIN, ROLE_USER]}

@@ -1,0 +1,180 @@
+Use of uninitialized value $species in hash element at /shares/jcarrington_share/www/psams/bin/psams.pl line 25.
+Use of uninitialized value $species in hash element at /shares/jcarrington_share/www/psams/bin/psams.pl line 26.
+Use of uninitialized value $db in concatenation (.) or string at /shares/jcarrington_share/www/psams/bin/psams.pl line 31.
+Building foreground index... Use of uninitialized value $id in hash element at /shares/jcarrington_share/www/psams/bin/psams.pl line 249.
+Use of uninitialized value $id in hash element at /shares/jcarrington_share/www/psams/bin/psams.pl line 249.
+Use of uninitialized value $id in hash element at /shares/jcarrington_share/www/psams/bin/psams.pl line 249.
+Use of uninitialized value $id in hash element at /shares/jcarrington_share/www/psams/bin/psams.pl line 249.
+Use of uninitialized value $id in hash element at /shares/jcarrington_share/www/psams/bin/psams.pl line 249.
+Use of uninitialized value $id in hash element at /shares/jcarrington_share/www/psams/bin/psams.pl line 249.
+Use of uninitialized value $id in hash element at /shares/jcarrington_share/www/psams/bin/psams.pl line 249.
+Use of uninitialized value $id in hash element at /shares/jcarrington_share/www/psams/bin/psams.pl line 249.
+Use of uninitialized value $id in hash element at /shares/jcarrington_share/www/psams/bin/psams.pl line 249.
+Use of uninitialized value $id in hash element at /shares/jcarrington_share/www/psams/bin/psams.pl line 249.
+Use of uninitialized value $id in hash element at /shares/jcarrington_share/www/psams/bin/psams.pl line 249.
+Use of uninitialized value $id in hash element at /shares/jcarrington_share/www/psams/bin/psams.pl line 249.
+Use of uninitialized value $id in hash element at /shares/jcarrington_share/www/psams/bin/psams.pl line 249.
+Use of uninitialized value $id in hash element at /shares/jcarrington_share/www/psams/bin/psams.pl line 249.
+Use of uninitialized value $id in hash element at /shares/jcarrington_share/www/psams/bin/psams.pl line 249.
+Use of uninitialized value $id in hash element at /shares/jcarrington_share/www/psams/bin/psams.pl line 249.
+Use of uninitialized value $id in hash element at /shares/jcarrington_share/www/psams/bin/psams.pl line 249.
+Use of uninitialized value $id in hash element at /shares/jcarrington_share/www/psams/bin/psams.pl line 249.
+Use of uninitialized value $id in hash element at /shares/jcarrington_share/www/psams/bin/psams.pl line 249.
+Use of uninitialized value $id in hash element at /shares/jcarrington_share/www/psams/bin/psams.pl line 249.
+Use of uninitialized value $id in hash element at /shares/jcarrington_share/www/psams/bin/psams.pl line 249.
+Use of uninitialized value $id in hash element at /shares/jcarrington_share/www/psams/bin/psams.pl line 249.
+Use of uninitialized value $id in hash element at /shares/jcarrington_share/www/psams/bin/psams.pl line 249.
+1 sequences loaded...done
+Finding sites in foreground transcripts... 
+DBD::SQLite::db prepare failed: no such table: kmers at /shares/jcarrington_share/www/psams/bin/psams.pl line 308.
+  Transcript  is 1740 nt long
+Can't call method "execute" on an undefined value at /shares/jcarrington_share/www/psams/bin/psams.pl line 321.
+Building foreground index... 1 sequences loaded...done
+Finding sites in foreground transcripts... 
+  Transcript GUS is 1735 nt long
+Grouping sites... done
+Sorting and outputing results... 
+Analyzing 1627 total sites... 
+Use of uninitialized value $species in hash element at /shares/jcarrington_share/www/psams/bin/psams.pl line 25.
+Use of uninitialized value $species in hash element at /shares/jcarrington_share/www/psams/bin/psams.pl line 26.
+Use of uninitialized value $db in concatenation (.) or string at /shares/jcarrington_share/www/psams/bin/psams.pl line 31.
+Building foreground index... 1 sequences loaded...done
+Finding sites in foreground transcripts... 
+DBD::SQLite::db prepare failed: no such table: kmers at /shares/jcarrington_share/www/psams/bin/psams.pl line 308.
+  Transcript GUS is 1735 nt long
+Grouping sites... done
+Sorting and outputing results... 
+Analyzing 1712 total sites... 
+DBD::SQLite::db prepare failed: no such table: annotation at /shares/jcarrington_share/www/psams/bin/psams.pl line 698.
+Use of uninitialized value $mRNAdb in concatenation (.) or string at /shares/jcarrington_share/www/psams/bin/psams.pl line 699.
+DBD::SQLite::db prepare failed: no such table: annotation at /shares/jcarrington_share/www/psams/bin/psams.pl line 698.
+Use of uninitialized value $mRNAdb in concatenation (.) or string at /shares/jcarrington_share/www/psams/bin/psams.pl line 699.
+DBD::SQLite::db prepare failed: no such table: annotation at /shares/jcarrington_share/www/psams/bin/psams.pl line 698.
+Use of uninitialized value $mRNAdb in concatenation (.) or string at /shares/jcarrington_share/www/psams/bin/psams.pl line 699.
+Use of uninitialized value $species in hash element at /shares/jcarrington_share/www/psams/bin/psams.pl line 25.
+Use of uninitialized value $species in hash element at /shares/jcarrington_share/www/psams/bin/psams.pl line 26.
+Use of uninitialized value $db in concatenation (.) or string at /shares/jcarrington_share/www/psams/bin/psams.pl line 31.
+Building foreground index... 1 sequences loaded...done
+Finding sites in foreground transcripts... 
+DBD::SQLite::db prepare failed: no such table: kmers at /shares/jcarrington_share/www/psams/bin/psams.pl line 308.
+  Transcript GUS is 1735 nt long
+Grouping sites... done
+Sorting and outputing results... 
+Analyzing 1712 total sites... 
+DBD::SQLite::db prepare failed: no such table: annotation at /shares/jcarrington_share/www/psams/bin/psams.pl line 698.
+Use of uninitialized value $mRNAdb in concatenation (.) or string at /shares/jcarrington_share/www/psams/bin/psams.pl line 699.
+DBD::SQLite::db prepare failed: no such table: annotation at /shares/jcarrington_share/www/psams/bin/psams.pl line 698.
+Use of uninitialized value $mRNAdb in concatenation (.) or string at /shares/jcarrington_share/www/psams/bin/psams.pl line 699.
+DBD::SQLite::db prepare failed: no such table: annotation at /shares/jcarrington_share/www/psams/bin/psams.pl line 698.
+Use of uninitialized value $mRNAdb in concatenation (.) or string at /shares/jcarrington_share/www/psams/bin/psams.pl line 699.
+Use of uninitialized value $species in hash element at /shares/jcarrington_share/www/psams/bin/psams.pl line 25.
+Use of uninitialized value $species in hash element at /shares/jcarrington_share/www/psams/bin/psams.pl line 26.
+Use of uninitialized value $db in concatenation (.) or string at /shares/jcarrington_share/www/psams/bin/psams.pl line 31.
+Building foreground index... 1 sequences loaded...done
+Finding sites in foreground transcripts... 
+DBD::SQLite::db prepare failed: no such table: kmers at /shares/jcarrington_share/www/psams/bin/psams.pl line 308.
+  Transcript GUS is 1735 nt long
+Grouping sites... done
+Sorting and outputing results... 
+Analyzing 1712 total sites... 
+DBD::SQLite::db prepare failed: no such table: annotation at /shares/jcarrington_share/www/psams/bin/psams.pl line 698.
+Use of uninitialized value $mRNAdb in concatenation (.) or string at /shares/jcarrington_share/www/psams/bin/psams.pl line 699.
+DBD::SQLite::db prepare failed: no such table: annotation at /shares/jcarrington_share/www/psams/bin/psams.pl line 698.
+Use of uninitialized value $mRNAdb in concatenation (.) or string at /shares/jcarrington_share/www/psams/bin/psams.pl line 699.
+DBD::SQLite::db prepare failed: no such table: annotation at /shares/jcarrington_share/www/psams/bin/psams.pl line 698.
+Use of uninitialized value $mRNAdb in concatenation (.) or string at /shares/jcarrington_share/www/psams/bin/psams.pl line 699.
+Building foreground index... done
+Finding sites in foreground transcripts... 
+  Transcript AT5G21150.1 is 3018 nt long
+  Transcript AT2G27040.2 is 3189 nt long
+  Transcript AT5G21030.1 is 2553 nt long
+  Transcript AT2G27040.1 is 3170 nt long
+Grouping sites... done
+Sorting and outputing results... 
+Analyzing 1 total sites... 
+Use of uninitialized value $species in hash element at /shares/jcarrington_share/www/psams/bin/psams.pl line 25.
+Use of uninitialized value $species in hash element at /shares/jcarrington_share/www/psams/bin/psams.pl line 26.
+Use of uninitialized value $db in concatenation (.) or string at /shares/jcarrington_share/www/psams/bin/psams.pl line 31.
+Building foreground index... 1 sequences loaded...done
+Finding sites in foreground transcripts... 
+DBD::SQLite::db prepare failed: no such table: kmers at /shares/jcarrington_share/www/psams/bin/psams.pl line 308.
+  Transcript GUS is 1735 nt long
+Grouping sites... done
+Sorting and outputing results... 
+Analyzing 1712 total sites... 
+DBD::SQLite::db prepare failed: no such table: annotation at /shares/jcarrington_share/www/psams/bin/psams.pl line 698.
+Use of uninitialized value $mRNAdb in concatenation (.) or string at /shares/jcarrington_share/www/psams/bin/psams.pl line 699.
+DBD::SQLite::db prepare failed: no such table: annotation at /shares/jcarrington_share/www/psams/bin/psams.pl line 698.
+Use of uninitialized value $mRNAdb in concatenation (.) or string at /shares/jcarrington_share/www/psams/bin/psams.pl line 699.
+DBD::SQLite::db prepare failed: no such table: annotation at /shares/jcarrington_share/www/psams/bin/psams.pl line 698.
+Use of uninitialized value $mRNAdb in concatenation (.) or string at /shares/jcarrington_share/www/psams/bin/psams.pl line 699.
+Use of uninitialized value $species in hash element at /shares/jcarrington_share/www/psams/bin/psams.pl line 25.
+Use of uninitialized value $species in hash element at /shares/jcarrington_share/www/psams/bin/psams.pl line 26.
+Use of uninitialized value $db in concatenation (.) or string at /shares/jcarrington_share/www/psams/bin/psams.pl line 31.
+Building foreground index... 1 sequences loaded...done
+Finding sites in foreground transcripts... 
+DBD::SQLite::db prepare failed: no such table: kmers at /shares/jcarrington_share/www/psams/bin/psams.pl line 308.
+  Transcript GUS is 1735 nt long
+Grouping sites... done
+Sorting and outputing results... 
+Analyzing 1712 total sites... 
+DBD::SQLite::db prepare failed: no such table: annotation at /shares/jcarrington_share/www/psams/bin/psams.pl line 698.
+Use of uninitialized value $mRNAdb in concatenation (.) or string at /shares/jcarrington_share/www/psams/bin/psams.pl line 699.
+DBD::SQLite::db prepare failed: no such table: annotation at /shares/jcarrington_share/www/psams/bin/psams.pl line 698.
+Use of uninitialized value $mRNAdb in concatenation (.) or string at /shares/jcarrington_share/www/psams/bin/psams.pl line 699.
+DBD::SQLite::db prepare failed: no such table: annotation at /shares/jcarrington_share/www/psams/bin/psams.pl line 698.
+Use of uninitialized value $mRNAdb in concatenation (.) or string at /shares/jcarrington_share/www/psams/bin/psams.pl line 699.
+Use of uninitialized value $species in hash element at /shares/jcarrington_share/www/psams/bin/psams.pl line 25.
+Use of uninitialized value $species in hash element at /shares/jcarrington_share/www/psams/bin/psams.pl line 26.
+Use of uninitialized value $db in concatenation (.) or string at /shares/jcarrington_share/www/psams/bin/psams.pl line 31.
+Building foreground index... 1 sequences loaded...done
+Finding sites in foreground transcripts... 
+DBD::SQLite::db prepare failed: no such table: kmers at /shares/jcarrington_share/www/psams/bin/psams.pl line 308.
+  Transcript GUS is 1735 nt long
+Grouping sites... done
+Sorting and outputing results... 
+Analyzing 1712 total sites... 
+DBD::SQLite::db prepare failed: no such table: annotation at /shares/jcarrington_share/www/psams/bin/psams.pl line 698.
+Use of uninitialized value $mRNAdb in concatenation (.) or string at /shares/jcarrington_share/www/psams/bin/psams.pl line 699.
+DBD::SQLite::db prepare failed: no such table: annotation at /shares/jcarrington_share/www/psams/bin/psams.pl line 698.
+Use of uninitialized value $mRNAdb in concatenation (.) or string at /shares/jcarrington_share/www/psams/bin/psams.pl line 699.
+DBD::SQLite::db prepare failed: no such table: annotation at /shares/jcarrington_share/www/psams/bin/psams.pl line 698.
+Use of uninitialized value $mRNAdb in concatenation (.) or string at /shares/jcarrington_share/www/psams/bin/psams.pl line 699.
+Use of uninitialized value $species in hash element at /shares/jcarrington_share/www/psams/bin/psams.pl line 25.
+Use of uninitialized value $species in hash element at /shares/jcarrington_share/www/psams/bin/psams.pl line 26.
+Use of uninitialized value $db in concatenation (.) or string at /shares/jcarrington_share/www/psams/bin/psams.pl line 31.
+Building foreground index... 1 sequences loaded...done
+Finding sites in foreground transcripts... 
+DBD::SQLite::db prepare failed: no such table: kmers at /shares/jcarrington_share/www/psams/bin/psams.pl line 308.
+  Transcript GUS is 1735 nt long
+Grouping sites... done
+Sorting and outputing results... 
+Analyzing 1712 total sites... 
+DBD::SQLite::db prepare failed: no such table: annotation at /shares/jcarrington_share/www/psams/bin/psams.pl line 698.
+Use of uninitialized value $mRNAdb in concatenation (.) or string at /shares/jcarrington_share/www/psams/bin/psams.pl line 699.
+DBD::SQLite::db prepare failed: no such table: annotation at /shares/jcarrington_share/www/psams/bin/psams.pl line 698.
+Use of uninitialized value $mRNAdb in concatenation (.) or string at /shares/jcarrington_share/www/psams/bin/psams.pl line 699.
+DBD::SQLite::db prepare failed: no such table: annotation at /shares/jcarrington_share/www/psams/bin/psams.pl line 698.
+Use of uninitialized value $mRNAdb in concatenation (.) or string at /shares/jcarrington_share/www/psams/bin/psams.pl line 699.
+Use of uninitialized value $species in hash element at /shares/jcarrington_share/www/psams/bin/psams.pl line 25.
+Use of uninitialized value $species in hash element at /shares/jcarrington_share/www/psams/bin/psams.pl line 26.
+Use of uninitialized value $db in concatenation (.) or string at /shares/jcarrington_share/www/psams/bin/psams.pl line 31.
+Building foreground index... 1 sequences loaded...done
+Finding sites in foreground transcripts... 
+DBD::SQLite::db prepare failed: no such table: kmers at /shares/jcarrington_share/www/psams/bin/psams.pl line 308.
+  Transcript GUS is 1735 nt long
+Grouping sites... done
+Sorting and outputing results... 
+Analyzing 1712 total sites... 
+DBD::SQLite::db prepare failed: no such table: annotation at /shares/jcarrington_share/www/psams/bin/psams.pl line 698.
+Use of uninitialized value $mRNAdb in concatenation (.) or string at /shares/jcarrington_share/www/psams/bin/psams.pl line 699.
+DBD::SQLite::db prepare failed: no such table: annotation at /shares/jcarrington_share/www/psams/bin/psams.pl line 698.
+Use of uninitialized value $mRNAdb in concatenation (.) or string at /shares/jcarrington_share/www/psams/bin/psams.pl line 699.
+DBD::SQLite::db prepare failed: no such table: annotation at /shares/jcarrington_share/www/psams/bin/psams.pl line 698.
+Use of uninitialized value $mRNAdb in concatenation (.) or string at /shares/jcarrington_share/www/psams/bin/psams.pl line 699.
+Building foreground index... done
+Finding sites in foreground transcripts... 
+  Transcript AT4G18480.1 is 1608 nt long
+Grouping sites... done
+Sorting and outputing results... 
+Analyzing 1282 total sites... 

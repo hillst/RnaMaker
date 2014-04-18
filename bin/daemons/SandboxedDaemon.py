@@ -72,21 +72,31 @@ class Manager(SocketServer.BaseRequestHandler):
         
         #give each handle their own queue which will contain the result, add a job to the queue and also to the mas
         print "recieved connection"
-        self.data = self.request.recv(1024) # recieve request, blocks and attempts to read up to n-bytes
+        self.request.setblocking(0)
+        chunk = self.request.recv(1024)
+        self.data = ""
+        while chunk != "":
+            try:
+                self.data += chunk
+                chunk = self.request.recv(1024)
+            except:
+                break
         print self.client_address[0], " wrote: "
         print self.data
-        runner = SingleSettingRunner(self.data)
+        error = "errors/errorlog"
+        runner = SingleSettingRunner(self.data, error)
         #push result up the stack, handle it here
 
         #make sure nothing malicious is going on; match non-alphanumeric characters, if exist exit.
         pattern ='[^0-9a-zA-Z_/\\-\\.]'
         if len(re.findall(pattern, runner.getPath())) > 0:
+            print "match in path"
             return
-        runner.setPath("runnable/"+runner.getPath())
-        runner.setError("errors/errorlog")
+        basepath = "/shares/jcarrington_share/www/psams/bin/"
+        runner.setPath(basepath+runner.getPath())
         runner.setDefaultOutput() 
         #push output to another layer
-        response_code =  runner.startProcess()
+        response_code = runner.startProcess()
         results = runner.getAllResults() #returns list
         self.request.sendall("\n".join(results))
         self.request.close()

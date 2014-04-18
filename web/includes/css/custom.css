@@ -1,3 +1,12 @@
+.amirna{
+    font-size: 14px;
+    overflow: auto;
+    background-color: #ddd;
+    padding-left: 10px;
+    padding-right: 10px;
+    margin-bottom: 30px;
+    font-family: courier;
+}
 #addseq{
     font-size:21px;
     padding: 10px 10px 10px 0px;
@@ -51,14 +60,14 @@ body {
 	padding-right: 0px;
 }
 .btn-amirna-primary{
-    background-color: #248F40;
+    background-color: #7CB02C;
 }
 .btn-secondary{
 	background-color: #7CB02C; 
 }
 
 .btn-tertiary{
-	background-color: #428bca; 
+	background-color: #348a9d; 
 
 }
 

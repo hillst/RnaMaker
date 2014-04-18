@@ -1,0 +1,1 @@
+{ "generate_amiRNA_list.pl":{ "path":"generate_amiRNA_list.pl","arguments": ["-d","TAIR10_cdna_20101214","-s","A_THALIANA","-f",">Spolyrhiza9509S001G0002-mRNA-1\nATGGCCATCTCAACGATTGGAAGCCGCCCCGCTACCGCCAGTGCAGTGCGCATGGGGCGGTCTCTTCTCC\n","-o"]}}

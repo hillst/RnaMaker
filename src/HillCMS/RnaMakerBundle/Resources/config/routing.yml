@@ -13,6 +13,12 @@ amirnadesigner_results:
 amirnadesigner_results_plain:
     pattern: /amirna/designerresults
     defaults: { _controller: HillCMSRnaMakerBundle:Default:amiRNADesignerResults }
+rnamaker_contact:
+    pattern: /contact
+    defaults: { _controller: HillCMSRnaMakerBundle:Default:contact}
+rnamaker_downloads:
+    pattern: /downloads
+    defaults: { _controller:  HillCMSRnaMakerBundle:Default:downloads}
 rnamaker_amirnadesigner:
     pattern: /amirna/designer
     defaults: { _controller: HillCMSRnaMakerBundle:Default:amirnaDesignerForm }

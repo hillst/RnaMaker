@@ -45,7 +45,7 @@ $().ready(function(){
             beforeSend: function(){
                 $('.result').removeClass('hidden alert alert-danger alert-success');
                 $('.result').addClass('alert alert-warning');
-                $('.result').html('<img src="'+ $("#gifloader").val() + '"/>' );
+                $('.result').html('This may take a while, please wait. <img src="'+ $("#gifloader").val() + '"/>' );
             }
         });
     }
