@@ -105,7 +105,7 @@ class DefaultController extends CMSController
     	if ($transcriptId != "") {
     		if ($species !== 'S_ITALICA') {
     			if (!preg_match("/\.\d+$/",$transcriptId)) {
-    				$transcriptId = $transcriptId.".1";
+    				$transcriptId = $transcriptId;
     			}
     		}
     	} else {
@@ -166,8 +166,12 @@ class DefaultController extends CMSController
         if ($request->getMethod() === 'POST') {
             $seq = $request->get('seq');
             $name = $request->get('name');
-            //$fb = $request->get('fb');
-            $fb = "eudicot";
+            $eudicot = $request->get('eudicot');
+            if ($eudicot){
+                $fb = "eudicot";
+            } else{
+                $fb = "monocot";
+            }
             $fasta = $request->get('fasta');
             if(($seq == "" || $name == "") && ($fasta == "")){
                 return new Response("Not enough inputs.", 403);
@@ -226,7 +230,7 @@ class DefaultController extends CMSController
         foreach($json_results as $json_result){
             $tokenized_results = json_decode($json_result);
             $plain_result = $tokenized_results->{"results"}->{"name"}.": ". $tokenized_results->{"results"}->{"amiRNA"} . "\n";
-            $plain_result .= $tokenized_results->{"results"}->{"name"}.": " . $tokenized_results->{"results"}->{"miRNA*"} . "\n";
+            $plain_result .= $tokenized_results->{"results"}->{"name"}."*: " . $tokenized_results->{"results"}->{"miRNA*"} . "\n";
             $plain_result .= "Forward Oligo: 5' " . $tokenized_results->{"results"}->{"Forward Oligo"} . " 3'\n";
             $plain_result .= "Reverse Oligo: 5' " . $tokenized_results->{"results"}->{"Reverse Oligo"} . " 3'\n\n";
             //Write a plain text and json version, json for the view to render
@@ -324,51 +328,54 @@ class DefaultController extends CMSController
         $token = uniqid("amirnaDesigner_");
         $plainfile = $this->server_results . "/" . $token;
         $fd = fopen($plainfile, "w");
-        $plain_result = "Optimal Results\n";
+        $plain_result = "Optimal Results\n\n";
         $json_assoc = json_decode($json_result, True);
-        if (sizeof($json_assoc['optimal'] == 0)){
+        if (sizeof($json_assoc['optimal']) == 0){
             $plain_result .= "No optimal results.\n";
         }
         foreach($json_assoc['optimal'] as $key => $value){
             foreach($value as $keyinfo => $info){
                 if ($keyinfo == "TargetFinder"){
+                    $plain_result .="\n";
                     $plain_result .= "TargetFinder\n";
                     foreach($value[$keyinfo] as $tfkey => $tfvalue){
                         $plain_result .= "Hit: $tfkey\n";
                         foreach($tfvalue["hits"] as $hit){
                             foreach($hit as $hitk => $hitv){
-                                $plain_result .= "$hitk\t$hitv\n";
+                                $plain_result .= "$hitk:\t$hitv\n";
                             }
                         }        
                     }
                     $plain_result .= "\n";
                 } else{
-                    $plain_result .= "$keyinfo\t$info\n";
+                    $plain_result .= "$keyinfo:\t$info\n";
                 }
             }
         }
-        $plain_result .= "Sub-optimal Results\n";
-        if (sizeof($json_assoc['suboptimal'] == 0)){
+        $plain_result .= "\n\nSub-optimal Results\n\n";
+        if (sizeof($json_assoc['suboptimal']) == 0){
             $plain_result .= "No sub-optimal results.\n";
         } 
         foreach($json_assoc['suboptimal'] as $key => $value){
             foreach($value as $keyinfo => $info){
                 if ($keyinfo == "TargetFinder"){
+                    $plain_result .= "\n";
                     $plain_result .= "TargetFinder\n";
                     foreach($value[$keyinfo] as $tfkey => $tfvalue){
                         $plain_result .= "Hit: $tfkey\n";
                         foreach($tfvalue["hits"] as $hit){
                             foreach($hit as $hitk => $hitv){
-                                $plain_result .= "$hitk\t$hitv\n";
+                                $plain_result .= "$hitk:\t$hitv\n";
                             }
                         }
                     }
                     $plain_result .= "\n";
                 } else{
-                    $plain_result .= "$keyinfo\t$info\n";
+                    $plain_result .= "$keyinfo:\t$info\n";
                 }
             }
         }
+        $plain_result = str_replace("&nbsp"," ", $plain_result);
         fwrite($fd, $plain_result);
         fclose($fd);
         $fd = fopen($this->server_encoded . "/" . $token, "w");
@@ -395,11 +402,29 @@ class DefaultController extends CMSController
     }
     
     public function downloadsAction(){
-        return $this->render("HillCMSRnaMakerBundle:Default:downloads.html.twig", array());
+        $pid = 8;
+        $em = $this->getDoctrine()->getManager();
+        $repo = $em->getRepository("HillCMSManageBundle:CmsPageThings");
+        $pagethings = $repo->findBy(array("pageid" => $pid));
+        if (sizeof($pagethings) === 0){
+            //empty page
+            return new Response("Error", 404);
+        }
+        $homegroups = $this->buildPageGroups($pagethings);
+        return $this->render('HillCMSRnaMakerBundle:Default:downloads.html.twig', array("groups"=> $homegroups["FAQ"]));
     }
 
     public function contactAction(){
-        return $this->render("HillCMSRnaMakerBundle:Default:contacts.html.twig", array());
+        $pid = 7;
+        $em = $this->getDoctrine()->getManager();
+        $repo = $em->getRepository("HillCMSManageBundle:CmsPageThings");
+        $pagethings = $repo->findBy(array("pageid" => $pid));
+        if (sizeof($pagethings) === 0){
+            //empty page
+            return new Response("Error", 404);
+        }
+        $homegroups = $this->buildPageGroups($pagethings);
+        return $this->render('HillCMSRnaMakerBundle:Default:contacts.html.twig', array("groups"=> $homegroups["About"]));
     }
     
  

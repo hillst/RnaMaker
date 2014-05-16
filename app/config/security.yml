@@ -25,7 +25,7 @@ security:
               path: ^/logout
               target: /
         unfinished_apps:
-            pattern:    ^/syntasi|^/amirna
+            pattern:    ^/syntasi
             http_basic: ~
             logout:
                 path: ^/logout

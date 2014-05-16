@@ -42,6 +42,7 @@ function Wizard(previousState){
     this.transcript = "";
     this.transcriptId = "";
     this.filtered = undefined;
+    this.eudicot = true;
     //update function
     this.updateFields = function(){
         this.yesButton = $("#yes").outerHTML();
@@ -76,6 +77,7 @@ function Wizard(previousState){
         this.transcript = previousState.transcript;
         this.transcriptId = previousState.transcriptId;
         this.filtered = previousState.filtered;
+        this.eudicot = previousState.eudicot;
         return this;
     }
     //reverts a passed wizard to it's former state. This is a callback that should be used on these statements,

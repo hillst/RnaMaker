@@ -13,6 +13,9 @@ amirnadesigner_results:
 amirnadesigner_results_plain:
     pattern: /amirna/designerresults
     defaults: { _controller: HillCMSRnaMakerBundle:Default:amiRNADesignerResults }
+rnamaker_about:
+    pattern: /about
+    defaults: { _controller: HillCMSRnaMakerBundle:Default:about }
 rnamaker_contact:
     pattern: /contact
     defaults: { _controller: HillCMSRnaMakerBundle:Default:contact}

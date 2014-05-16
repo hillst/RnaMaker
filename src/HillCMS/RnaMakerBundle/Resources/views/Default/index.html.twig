@@ -4,11 +4,7 @@
 <div class="container">
 	<div class="jumbotron" style="float:none">
             <h1>{{ main["Header"] }}</h1>
-            <p style="font: red;
-                      color: red;
-                      font-weight: bold;
-                      font-size: 36px;">- UNDER CONSTRUCTION - </p>
-            <p> {{ main["Content"] }}</p>
+            <p> {{ main["Content"]|raw }}</p>
 		<div class="col-lg-12 btn-nopad">
 			<a href="{{ path("rnamaker_amirnadesigner") }}" class="btn btn-default btn-block btn-tile btn-secondary">
 				<div class="col-lg-4">
@@ -22,7 +18,7 @@
 		</div>
         <div class="col-lg-12 btn-nopad">
             <div class="btn-description">
-                {{ amirna["Description"] }}
+                {{ amirna["Description"]|raw }}
             </div>
         </div>
 		<div class="col-lg-12 btn-nopad">
@@ -32,12 +28,13 @@
 				</div>
 				<div class="col-lg-8 tile-text pull-right">
 				    {{ syntasirna["Button"]}}
+                    <div style="color:rgb(105, 9, 9); font-weight:bold">-UNDER CONSTRUCTION-</div>
                 </div>
 			</a>
 		</div>
         <div class="col-lg-12 btn-nopad">
             <div class="btn-description">
-                {{ syntasirna["Description"] }}
+                {{ syntasirna["Description"]|raw}}
             </div>
         </div>
 	</div>	

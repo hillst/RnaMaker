@@ -6,13 +6,13 @@ $().ready(function(){
         //add a help pane and place it there
         wiz.notePane.append($(".x-wrapper").outerHTML());
         wiz.setXClose();
-        wiz.notePane.append(" Click ‘Design an amiRNA’ if you want to identify optimal amiRNA guide sequences that target your gene(s) of interest. Click ‘Generate oligos’ if you already have an amiRNA guide sequence and you just want to generate oligos compatible with cloning in a BsaI-ccdB vector containing the Arabidopsis MIR390a foldback.");
+        wiz.notePane.append(" Click ‘Design an amiRNA’ if you want to identify optimal amiRNA guide sequences that target your gene(s) of interest. Click ‘Generate oligos’ if you already have an amiRNA guide sequence and you just want to generate oligos compatible with cloning in a BsaI-ccdB vector.");
         //if it has children you probably want to append.
         wiz.textPane.append("Do you need to design an amiRNA or do you already have a guide sequence and need to generate oligos for cloning?");
         wiz.setYesText("Design an amiRNA");
         wiz.setNoText("Generate Oligos");
         wiz.setYes(cb_designAmiRNA1);
-        wiz.setNo(cb_generateOligos1);
+        wiz.setNo(cb_MEcotGenerateOligos);
         wiz.setBack(function(){ $(".close").click();  });
     }
     function cb_designAmiRNA1(){
@@ -29,6 +29,7 @@ $().ready(function(){
         $(wiz.yesButton).text("Yes");
         $(wiz.noButton).text("No");
         wiz.setBack(function(){
+            $("#close-clear").addClass("hidden");
             cb_revertState(wiz);
         });
         
@@ -50,7 +51,6 @@ $().ready(function(){
         wiz.setYes(cb_designAmiRNA3_annotated);
         wiz.setNo(cb_designAmiRNA3_unannotated);
         wiz.setBack(function(){ 
-            $("#close-clear").addClass("hidden");
             cb_revertState(wiz); 
         });
     }
@@ -67,7 +67,18 @@ $().ready(function(){
         wiz.textPane.append( $("#transcript-lookup").outerHTML() );
         wiz.textPane.find( $("#transcript-lookup").addClass("transcript-lookup") );
         wiz.addPlusButton( ".transcript-lookup" );
-        wiz.setNext(cb_designAmiRNA4_a);
+        wiz.textPane.after($(".result").outerHTML());
+        $("#wizard-pane").find(".result").removeClass("result").addClass("my-result");
+        wiz.setNext(function(){
+            var check = wiz.textPane.find(".gene").first().val();
+            wiz.wizardPane.find(".my-result").removeClass("alert alert-danger").addClass("hidden").text("");
+            if (check == ""){
+                wiz.wizardPane.find(".my-result").removeClass("hidden").addClass("alert alert-danger").text("Please enter a Gene ID.");
+
+            } else{    
+                cb_designAmiRNA4_a();
+            }
+        });
         wiz.setBack(function(){ cb_revertState(wiz); });
     }
     //functionally same as designAmiRNA3_unannotated but avoids specificty route
@@ -213,14 +224,14 @@ $().ready(function(){
         wiz.restoreFormFields();
         wiz.addAllNB();
         wiz.notePane.append($(".x-wrapper").outerHTML());
-        wiz.notePane.append("Press submit to submit your P-SAMS job to the server. This may take some time.");
+        wiz.notePane.append("Click the 'Submit' button to submit your P-SAMS job to the server. Jobs generally take a few minutes to finish.");
         wiz.setXClose();
         wiz.textPane.append("<h5>Species: " +wiz.species+ "</h5>");
         //foreach
         if(wiz.transcriptId !== ""){
             var csv = wiz.transcriptId.split(",");
             for(var i = 0; i < csv.length; i++){
-                wiz.textPane.append("<h5>Transcript ID: " +csv[i]+ "</h5>");
+                wiz.textPane.append("<h5>Gene ID: " +csv[i]+ "</h5>");
             }
         } else{
             wiz.textPane.append("<h5>Transcript: " + wiz.transcript);
@@ -236,7 +247,7 @@ $().ready(function(){
     function cb_submit(){
         $('.my-result').removeClass('hidden alert alert-danger alert-success');
         $('.my-result').addClass('alert alert-warning');
-        $('.my-result').html('This may take a while, please wait. <img src="'+ $("#gifloader").val() + '"/>' );
+        $('.my-result').html('Jobs generally take a few minutes to finish. Please wait. <img src="'+ $("#gifloader").val() + '"/>' );
 
         $.post( $("#rnamaker_amirnarequest").val(), { transcript: wiz.transcript, transcriptId: wiz.transcriptId, species: wiz.speciesId, filtered: wiz.filtered } )
             .success(function(data){
@@ -263,7 +274,29 @@ $().ready(function(){
                 } 
             })
     }
-    
+    function cb_MEcotGenerateOligos(){
+        $("#close-clear").removeClass("hidden");
+        wiz = new Wizard(wiz);
+        wiz.addAllYN();
+        wiz.notePane.append($(".x-wrapper").outerHTML());
+        wiz.notePane.append("Click 'Monocot' or 'Eudicot' if you want to use your amiRNA(s) in a monocot or in a eudicot species, respectively.");
+        wiz.setXClose();
+        wiz.textPane.append("Will you use your amiRNA in a monocot or in a eudicot species?");
+        wiz.setYesText("Monocot");
+        wiz.setNoText("Eudicot");
+        wiz.setYes(function(){
+            wiz.eudicot = false;
+            cb_generateOligos1();
+        });
+        wiz.setNo(function(){
+            wiz.eudicot = true;
+            cb_generateOligos1();
+        });
+        wiz.setBack(function(){ 
+            $("#close-clear").addClass("hidden");
+            cb_revertState(wiz);
+        });
+    } 
     function cb_generateOligos1(){
         $("#close-clear").removeClass("hidden"); 
         wiz = new Wizard(wiz);
@@ -316,7 +349,8 @@ $().ready(function(){
         wiz.setBack( function() { 
             $("#close-clear").addClass("hidden");
             $(".modal").unbind("click"); 
-            cb_revertState(wiz) 
+            cb_revertState(wiz);
+            wiz.eudicot = true;
         });
     }
     function cb_oligoSubmit(){
@@ -340,7 +374,7 @@ $().ready(function(){
         $('.my-result').addClass('alert alert-warning');
         $('.my-result').html('<img src="'+ $("#gifloader").val() + '"/>' );
 
-        $.post( $("#oligodesigner").val(), { seq: seq, name: name, fasta: fasta } )
+        $.post( $("#oligodesigner").val(), { seq: seq, name: name, fasta: fasta, eudicot: wiz.eudicot } )
             .success(function(data){
                 $('.my-result').removeClass('hidden alert alert-danger alert-warning');
                 $('.my-result').addClass("alert alert-success");
