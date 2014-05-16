@@ -34,6 +34,20 @@ class TargetfinderDbs
     private $species;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="placeholder_text", type="string", length=45, nullable=false)
+     */
+    private $placeholderText;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="class", type="string", length=45, nullable=false)
+     */
+    private $class;
+
+    /**
      * @var integer
      *
      * @ORM\Column(name="db_id", type="integer")
@@ -111,6 +125,52 @@ class TargetfinderDbs
     public function getSpecies()
     {
         return $this->species;
+    }
+
+    /**
+     * Set placeholderText
+     *
+     * @param string $placeholderText
+     * @return TargetfinderDbs
+     */
+    public function setPlaceholderText($placeholderText)
+    {
+        $this->placeholderText = $placeholderText;
+    
+        return $this;
+    }
+
+    /**
+     * Get placeholderText
+     *
+     * @return string 
+     */
+    public function getPlaceholderText()
+    {
+        return $this->placeholderText;
+    }
+
+    /**
+     * Set class
+     *
+     * @param string $class
+     * @return TargetfinderDbs
+     */
+    public function setClass($class)
+    {
+        $this->class = $class;
+    
+        return $this;
+    }
+
+    /**
+     * Get class
+     *
+     * @return string 
+     */
+    public function getClass()
+    {
+        return $this->class;
     }
 
     /**

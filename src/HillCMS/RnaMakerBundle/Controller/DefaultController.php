@@ -64,7 +64,8 @@ class DefaultController extends CMSController
     	$homegroups = $this->buildPageGroups($pagethings);
     	$repo = $em->getRepository("HillCMSRnaMakerBundle:TargetfinderDbs");
     	$dbs = $repo->findAll();
-    	$root = $this->get('kernel')->getRootDir() ."/../amirna_dbs";
+        $test = $dbs[0]->getClass();
+        $root = $this->get('kernel')->getRootDir() ."/../amirna_dbs";
     	return $this->render('HillCMSRnaMakerBundle:Default:amirna.html.twig', array("groups"=> $homegroups["Amirna"], "dbs" => $dbs, "root"=>$root));
     }
     

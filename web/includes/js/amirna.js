@@ -59,14 +59,14 @@ $().ready(function(){
         wiz.restoreFormFields(); 
         wiz.addAllNB();
         $("#sequence").val(""); //clear form?
-        $("#gene").val("");
+        $("#gene-"+wiz.speciesId).val("");
         wiz.notePane.append($(".x-wrapper").outerHTML());
         wiz.notePane.append("Click the ‘+’ button for entering additional target gene IDs to target multiple genes. Click the ‘-‘ button to delete target gene IDs.");
         wiz.setXClose();
         wiz.textPane.append("Enter a target Gene ID.<br/><br/>");
-        wiz.textPane.append( $("#transcript-lookup").outerHTML() );
-        wiz.textPane.find( $("#transcript-lookup").addClass("transcript-lookup") );
-        wiz.addPlusButton( ".transcript-lookup" );
+        wiz.textPane.append( $("#transcript-lookup-" +wiz.speciesId ).outerHTML() );
+        wiz.textPane.find( $("#transcript-lookup-" +wiz.speciesId ).addClass("transcript-lookup-" +wiz.speciesId ) );
+        wiz.addPlusButton( ".transcript-lookup-" +wiz.speciesId );
         wiz.textPane.after($(".result").outerHTML());
         $("#wizard-pane").find(".result").removeClass("result").addClass("my-result");
         wiz.setNext(function(){
@@ -169,7 +169,7 @@ $().ready(function(){
             cb_revertState(wiz); 
             wiz.filtered = undefined;
             wiz.textPane = $("#wizard-text"); //kind of a hack
-            wiz.addPlusButton( ".transcript-lookup" );
+            wiz.addPlusButton( ".transcript-lookup-" +wiz.speciesId );
             wiz.transcriptId = "";
         });
     }
