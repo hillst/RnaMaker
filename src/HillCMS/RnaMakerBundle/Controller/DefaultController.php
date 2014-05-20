@@ -168,11 +168,12 @@ class DefaultController extends CMSController
             $seq = $request->get('seq');
             $name = $request->get('name');
             $eudicot = $request->get('eudicot');
+            
             if ($eudicot){
                 $fb = "eudicot";
             } else{
                 $fb = "monocot";
-            }
+            } 
             $fasta = $request->get('fasta');
             if(($seq == "" || $name == "") && ($fasta == "")){
                 return new Response("Not enough inputs.", 403);
@@ -333,46 +334,48 @@ class DefaultController extends CMSController
         $json_assoc = json_decode($json_result, True);
         if (sizeof($json_assoc['optimal']) == 0){
             $plain_result .= "No optimal results.\n";
-        }
-        foreach($json_assoc['optimal'] as $key => $value){
-            foreach($value as $keyinfo => $info){
-                if ($keyinfo == "TargetFinder"){
-                    $plain_result .="\n";
-                    $plain_result .= "TargetFinder\n";
-                    foreach($value[$keyinfo] as $tfkey => $tfvalue){
-                        $plain_result .= "Hit: $tfkey\n";
-                        foreach($tfvalue["hits"] as $hit){
-                            foreach($hit as $hitk => $hitv){
-                                $plain_result .= "$hitk:\t$hitv\n";
-                            }
-                        }        
+        } else{
+            foreach($json_assoc['optimal'] as $key => $value){
+                foreach($value as $keyinfo => $info){
+                    if ($keyinfo == "TargetFinder"){
+                        $plain_result .="\n";
+                        $plain_result .= "TargetFinder\n";
+                        foreach($value[$keyinfo] as $tfkey => $tfvalue){
+                            $plain_result .= "Hit: $tfkey\n";
+                            foreach($tfvalue["hits"] as $hit){
+                                foreach($hit as $hitk => $hitv){
+                                    $plain_result .= "$hitk:\t$hitv\n";
+                                }
+                            }        
+                        }
+                        $plain_result .= "\n";
+                    } else{
+                        $plain_result .= "$keyinfo:\t$info\n";
                     }
-                    $plain_result .= "\n";
-                } else{
-                    $plain_result .= "$keyinfo:\t$info\n";
                 }
             }
         }
         $plain_result .= "\n\nSub-optimal Results\n\n";
         if (sizeof($json_assoc['suboptimal']) == 0){
             $plain_result .= "No sub-optimal results.\n";
-        } 
-        foreach($json_assoc['suboptimal'] as $key => $value){
-            foreach($value as $keyinfo => $info){
-                if ($keyinfo == "TargetFinder"){
-                    $plain_result .= "\n";
-                    $plain_result .= "TargetFinder\n";
-                    foreach($value[$keyinfo] as $tfkey => $tfvalue){
-                        $plain_result .= "Hit: $tfkey\n";
-                        foreach($tfvalue["hits"] as $hit){
-                            foreach($hit as $hitk => $hitv){
-                                $plain_result .= "$hitk:\t$hitv\n";
+        } else{ 
+            foreach($json_assoc['suboptimal'] as $key => $value){
+                foreach($value as $keyinfo => $info){
+                    if ($keyinfo == "TargetFinder"){
+                        $plain_result .= "\n";
+                        $plain_result .= "TargetFinder\n";
+                        foreach($value[$keyinfo] as $tfkey => $tfvalue){
+                            $plain_result .= "Hit: $tfkey\n";
+                            foreach($tfvalue["hits"] as $hit){
+                                foreach($hit as $hitk => $hitv){
+                                    $plain_result .= "$hitk:\t$hitv\n";
+                                }
                             }
                         }
+                        $plain_result .= "\n";
+                    } else{
+                        $plain_result .= "$keyinfo:\t$info\n";
                     }
-                    $plain_result .= "\n";
-                } else{
-                    $plain_result .= "$keyinfo:\t$info\n";
                 }
             }
         }
