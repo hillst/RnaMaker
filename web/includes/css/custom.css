@@ -112,9 +112,16 @@ body {
 }
 .jumbotron{
 	min-height: 768px;
+	font-size: 16px;
 }
 .jumbotron-modal{
     min-height: 0px;
+}
+.jumbotron h1{
+	font-size: 40px;
+}
+.h3{
+	font-size: 20px;
 }
 .modal{
     overflow: auto;
