@@ -29,3 +29,6 @@
     background-color: #482A83;
 }
 
+.panel-heading{
+    cursor: pointer;
+}

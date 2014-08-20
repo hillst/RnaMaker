@@ -1,0 +1,32 @@
+<h4>
+Details
+</h4>
+<accordion close-others="false">
+    <accordion-group heading="{{block.name}}" ng-repeat= "block in syntasi.syntasis.blocks"
+                     is-open="$first">
+        <accordion close-others="false">
+            <accordion-group heading="{{name}}" ng-repeat="(name,optimal) in block.optimal">
+                <accordion close-others="false">
+                    <accordion-group heading="Syn-tasiRNA sequence">
+                        {{optimal["syn-tasiRNA"]}}
+                    </accordion-group>
+                    <accordion-group heading="Target: {{ hit['Target accession'] }}" 
+                                     ng-repeat="hit in optimal.TargetFinder.hits">
+                        {{ hit['Target description'] }}
+                    </accordion-group>
+                </accordion>
+            </accordion-group>
+            <accordion-group heading="{{name}}" ng-repeat="(name,suboptimal) in block.suboptimal">
+                <accordion close-others="false">
+                    <accordion-group heading="Syn-tasiRNA sequence">
+                        {{suboptimal["syn-tasiRNA"]}}
+                    </accordion-group>
+                    <accordion-group heading="Target: {{ hit['Target accession'] }}"
+                                     ng-repeat="hit in suboptimal.TargetFinder.hits">
+                        {{ hit['Target description'] }}
+                    </accordion-group>
+                </accordion>
+            </accordion-group>
+        </accordion>
+    </accordion-group>
+</accordion> 

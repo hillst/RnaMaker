@@ -1,0 +1,19 @@
+<section class="tab">
+    <ul class="nav nav-tabs">
+      <li class="tab" ng-class=" { active: tab.isSet(1) }">
+         <a href ng-click="tab.setTab(1)">Detailed Results</a></li>
+      <li class="tab" ng-class="{ active: tab.isSet(2)} ">
+        <a href ng-click="tab.setTab(2)">Build Construct</a></li>
+      <li class="tab" ng-class="{ active: tab.isSet(3)} ">
+        <a href ng-click="tab.setTab(3)">Help</a></li>
+    </ul>
+    <div ng-show="tab.isSet(1)">
+        <details-tab></details-tab>
+    </div>
+    <div ng-show="tab.isSet(2)">
+        <construct-tab></construct-tab>
+    </div>
+    <div ng-show="tab.isSet(3)">
+        <help-tab></help-tab>
+    </div>
+</section>

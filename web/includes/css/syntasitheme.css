@@ -29,3 +29,14 @@
     color: #00039e;
     float: left;
 }
+
+.results{
+    font-size: 14px;
+    overflow: auto;
+    background-color: #ddd;
+    padding-left: 10px;
+    padding-right: 10px;
+    margin-bottom: 30px;
+    font-family: courier;
+}
+

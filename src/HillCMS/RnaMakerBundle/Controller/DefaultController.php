@@ -320,7 +320,15 @@ class DefaultController extends CMSController
         fclose($fd);
         return $this->render("HillCMSRnaMakerBundle:Default:syntasiResults.html.twig", array("results" => $results, "dl_token" => $token));
     }
-    
+    public function syntasiDataTestAction($token){
+        $fd = fopen($this->server_results ."/" . $token, "r");
+        $results = "";
+        while( ! feof($fd) ){
+            $results .= fread($fd, 8092);
+        }
+        fclose($fd);
+        return new Response($results, 200);
+    } 
     /**
      * Function responsible for parsing the amiRNADesigner results and saving them to disk.
      */

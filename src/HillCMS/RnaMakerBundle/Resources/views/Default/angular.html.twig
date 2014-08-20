@@ -1,0 +1,62 @@
+{%  extends "HillCMSRnaMakerBundle:Default:bootstrap-template.html.twig" %}
+
+{% block body %}
+<script type="text/javascript">
+        //fix for drag and drop
+        jQuery.event.props.push('dataTransfer');
+</script>
+<script type="text/javascript"
+            src="{{ asset("includes/js/angular/angular.min.js")}}"></script>
+<script type="text/javascript"
+            src="{{ asset("includes/js/angular/app.js")}}"></script>    
+<script type="text/javascript"
+            src="{{ asset("includes/js/angular/directives.js")}}"></script>    
+<script type="text/javascript"
+            src="{{ asset("includes/js/angular/services.js")}}"></script>    
+<script src="{{ asset("includes/js/angular/modules/lvlDragDrop/lvl-uuid.js") }} "></script>
+<script src="{{ asset("includes/js/angular/modules/lvlDragDrop/lvl-drag-drop.js") }} "></script>
+<script src="{{ asset("includes/js/angular/modules/ui-bootstrap.min.js") }} "></script>
+<style>
+            .lvl-over {
+                /* applied to a drop target when a draggable object is over it */
+                border: 2px dashed black !important;
+            }
+
+            .lvl-target {
+                /* 
+                applied to all drop targets when a drag operation begins 
+                removed when the drag operation ends
+                used to indicate drop targets on a page 
+                */
+                background-color: #ddd;
+                opacity: .5;
+            }
+
+            [draggable] {
+                /* not applied by the directive, but useful to indicate a draggable element */
+                -moz-user-select: none;
+                -khtml-user-select: none;
+                -webkit-user-select: none;
+                user-select: none;
+                cursor: move;
+                border:1px solid black;
+            }
+</style>
+<div ng-app="SyntasiBuilder">
+    <div class="container">
+    <div class="jumbotron">
+    <div class="error-tracker">
+    </div>
+    {% verbatim %}
+        <div ng-controller="SyntasiController as syntasi">
+            <syntasi-tabs></syntasi-tabs>
+        </div>
+    {% endverbatim %}
+    </div>
+    </div>
+</div>
+{% endblock %}
+{% block script %}
+<script type="text/javascript">
+</script>
+{% endblock %}

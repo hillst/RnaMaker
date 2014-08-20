@@ -58,6 +58,9 @@ syntasirnadesigner_results_plain:
 syntasirnadesigner_results:
     pattern: /syntasi/designerresults/{token}
     defaults: { _controller: HillCMSRnaMakerBundle:Default:syntasiRNADesignerResults }
+syntasidummy_data:
+    pattern: /syntasi/dumbdata/{token}
+    defaults: { _controller: HillCMSRnaMakerBundle:Default:syntasiDataTest }
 rnamaker_syntasi_oligodesigner:
     pattern: /syntasiRNA_suite/oligodesigner
     defaults: { _controller: HillCMSRnaMakerBundle:syntasiRNASuite:syntasiOligoDesignerForm }
@@ -70,4 +73,6 @@ rnamaker_syntasi_results:
 rnamaker_syntasi_results_plain:
     pattern: /syntasiRNA_suite/results
     defaults: { _controller: HillCMSRnaMakerBundle:syntasiRNASuite:syntasiResults}
-
+rnamaker_angular_test:
+    pattern: /angular
+    defaults: { _controller: HillCMSRnaMakerBundle:Angular:index }
