@@ -301,6 +301,7 @@ $().ready(function(){
         $("#close-clear").removeClass("hidden"); 
         wiz = new Wizard(wiz);
         wiz.addAllNB();
+        wiz.restoreFormFields();
         wiz.notePane.append($(".x-wrapper").outerHTML());
         wiz.notePane.append("Click the ‘+’ button for entering additional amiRNA sequences. Click the ‘-‘ button the delete amiRNA sequences.");
         wiz.setXClose();

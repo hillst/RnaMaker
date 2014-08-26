@@ -9,7 +9,7 @@
 			good practice to do it with singular groups as well. #}
 			<h1>{{ main["Header"] }}</h1>
             <p>
-			{{ main["Content"] }}</p>
+			{{ main["Content"]|raw }}</p>
 		{% endfor %}
 				
 			<a data-toggle="modal" href="#start" class="btn btn-default btn-block btn-tile btn-amirna-primary">
@@ -62,7 +62,7 @@ ATGATGATGATGATGATGATG" ></textarea>
                 {% endif %}
             {% endfor %}	      
             </optgroup>
-            <optgroup label ="Monocots (coming soon)">
+            <optgroup label ="Monocots">
             <!--future for loop here-->
             {% for db in dbs %}
                 {% if db.class == "monocot" %}

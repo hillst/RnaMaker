@@ -7,10 +7,9 @@
         {% for about in groups %}
             <h3>{{ about["Header"] }}</h3>
             <p>
-            {{ about["Block"] }}</p>
+            {{ about["Block"]|raw }}</p>
         {% endfor %}
         
-        Email us at <a href="mailto:administrator@carringtonlab.org?Subject=P-SAMS" target="_top">administrator@carringtonlab.org</a>
         </div>
 	</div>	
 </div>

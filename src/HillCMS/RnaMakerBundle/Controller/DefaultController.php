@@ -168,12 +168,11 @@ class DefaultController extends CMSController
             $seq = $request->get('seq');
             $name = $request->get('name');
             $eudicot = $request->get('eudicot');
-            
-            if ($eudicot){
+            if ($eudicot == "true"){
                 $fb = "eudicot";
             } else{
                 $fb = "monocot";
-            } 
+            }
             $fasta = $request->get('fasta');
             if(($seq == "" || $name == "") && ($fasta == "")){
                 return new Response("Not enough inputs.", 403);
@@ -320,7 +319,6 @@ class DefaultController extends CMSController
         fclose($fd);
         return $this->render("HillCMSRnaMakerBundle:Default:syntasiResults.html.twig", array("results" => $results, "dl_token" => $token));
     }
-    
     /**
      * Function responsible for parsing the amiRNADesigner results and saving them to disk.
      */
@@ -336,6 +334,7 @@ class DefaultController extends CMSController
             $plain_result .= "No optimal results.\n";
         } else{
             foreach($json_assoc['optimal'] as $key => $value){
+                $plain_result .= "$key\n\n";
                 foreach($value as $keyinfo => $info){
                     if ($keyinfo == "TargetFinder"){
                         $plain_result .="\n";
@@ -344,13 +343,18 @@ class DefaultController extends CMSController
                             $plain_result .= "Hit: $tfkey\n";
                             foreach($tfvalue["hits"] as $hit){
                                 foreach($hit as $hitk => $hitv){
-                                    $plain_result .= "$hitk:\t$hitv\n";
+                                    if ($hitk == "Base pairing"){
+                                        $plain_result .= "$hitk:\t$hitv\n";
+                                    } else{
+                                        $plain_result .= "$hitk: $hitv\n";
+                                    }
                                 }
                             }        
                         }
                         $plain_result .= "\n";
                     } else{
-                        $plain_result .= "$keyinfo:\t$info\n";
+                        $plain_result .= "$keyinfo: ";
+                        $plain_result .= "5' $info 3'\n";
                     }
                 }
             }
@@ -360,6 +364,7 @@ class DefaultController extends CMSController
             $plain_result .= "No sub-optimal results.\n";
         } else{ 
             foreach($json_assoc['suboptimal'] as $key => $value){
+                $plain_result .= "$key\n\n";
                 foreach($value as $keyinfo => $info){
                     if ($keyinfo == "TargetFinder"){
                         $plain_result .= "\n";
@@ -368,13 +373,18 @@ class DefaultController extends CMSController
                             $plain_result .= "Hit: $tfkey\n";
                             foreach($tfvalue["hits"] as $hit){
                                 foreach($hit as $hitk => $hitv){
-                                    $plain_result .= "$hitk:\t$hitv\n";
+                                   if ($hitk == "Base pairing"){
+                                        $plain_result .= "$hitk:\t$hitv\n";
+                                    } else{
+                                        $plain_result .= "$hitk: $hitv\n";
+                                    } 
                                 }
                             }
                         }
                         $plain_result .= "\n";
                     } else{
-                        $plain_result .= "$keyinfo:\t$info\n";
+                        $plain_result .= "$keyinfo: ";
+                        $plain_result .= "5' $info 3'\n";
                     }
                 }
             }
@@ -405,7 +415,7 @@ class DefaultController extends CMSController
         ));
     }
     
-    public function downloadsAction(){
+    public function faqAction(){
         $pid = 8;
         $em = $this->getDoctrine()->getManager();
         $repo = $em->getRepository("HillCMSManageBundle:CmsPageThings");
@@ -415,10 +425,10 @@ class DefaultController extends CMSController
             return new Response("Error", 404);
         }
         $homegroups = $this->buildPageGroups($pagethings);
-        return $this->render('HillCMSRnaMakerBundle:Default:downloads.html.twig', array("groups"=> $homegroups["FAQ"]));
+        return $this->render('HillCMSRnaMakerBundle:Default:faq.html.twig', array("groups"=> $homegroups["FAQ"]));
     }
 
-    public function contactAction(){
+    public function aboutAction(){
         $pid = 7;
         $em = $this->getDoctrine()->getManager();
         $repo = $em->getRepository("HillCMSManageBundle:CmsPageThings");
@@ -428,8 +438,7 @@ class DefaultController extends CMSController
             return new Response("Error", 404);
         }
         $homegroups = $this->buildPageGroups($pagethings);
-        return $this->render('HillCMSRnaMakerBundle:Default:contacts.html.twig', array("groups"=> $homegroups["About"]));
+        return $this->render('HillCMSRnaMakerBundle:Default:about.html.twig', array("groups"=> $homegroups["About"]));
     }
-    
  
 }

@@ -1,0 +1,26 @@
+{%  extends "HillCMSRnaMakerBundle:Default:bootstrap-template.html.twig" %}
+
+{% block body %}
+<div class="container">
+	<div class="jumbotron" style="float:none">
+       <h1>Frequently Asked Questions</h1>
+        <h3>Questions</h3>
+        {% for FAQ in groups %}
+            <a href ="#{{loop.index}}">{{ FAQ["Question"] }}</a>
+            <p>
+        {% endfor %}
+        <h3>Answers</h3>
+        {% for FAQ in groups %}
+            <p id = "{{loop.index}}">
+            Q: {{ FAQ["Question"]}}
+            </p>
+            <p>
+            A: {{ FAQ["Answer"]|raw }}
+            </p>
+        {% endfor %} 
+        </div>
+	</div>	
+</div>
+
+
+{% endblock %}

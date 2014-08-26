@@ -16,12 +16,9 @@ amirnadesigner_results_plain:
 rnamaker_about:
     pattern: /about
     defaults: { _controller: HillCMSRnaMakerBundle:Default:about }
-rnamaker_contact:
-    pattern: /contact
-    defaults: { _controller: HillCMSRnaMakerBundle:Default:contact}
-rnamaker_downloads:
-    pattern: /downloads
-    defaults: { _controller:  HillCMSRnaMakerBundle:Default:downloads}
+rnamaker_faq:
+    pattern: /faq
+    defaults: { _controller:  HillCMSRnaMakerBundle:Default:faq}
 rnamaker_amirnadesigner:
     pattern: /amirna/designer
     defaults: { _controller: HillCMSRnaMakerBundle:Default:amirnaDesignerForm }
