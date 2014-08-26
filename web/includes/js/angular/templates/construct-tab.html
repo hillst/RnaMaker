@@ -1,7 +1,9 @@
 <div ng-controller="ddController">
     <!-- do all optimal, then all suboptimal, optimal/subopt in columns for each gene set -->
+    <div>
     <div ng-repeat="block in syntasi.syntasis.blocks">
         <div class="element-title {{ syntasi.colClass }}">{{block.name}}</div>
+    </div>
     </div>
     <div ng-repeat="(key, row) in syntasi.formattedSyntasis">
         <div ng-repeat="(cKey, col) in row">
@@ -12,7 +14,7 @@
                 <span class="glyphicon glyphicon-move"></span> {{ cKey }}
             </div>
         </div>
-    </div> 
+    </div>
     <div class="col-xs-12"></div>
     <div class="remove col-xs-12" x-lvl-drop-target="true" x-on-drop="remove(dragEl, dropEl)"><span class="glyphicon glyphicon-trash"></span> Remove</div>
     <!-- create a drop target and specify a callback function --!>

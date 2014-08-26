@@ -96,7 +96,7 @@
             }
         }
     });
-    app.controller("SyntasiController", function(resultsService, constructDataService, $scope, $http){
+    app.controller("SyntasiController", function(resultsService, constructDataService, $scope){
         this.syntasis;
         var curObj = this;
         resultsService.getSyntasis().then(function(data){

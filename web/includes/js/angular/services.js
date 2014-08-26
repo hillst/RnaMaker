@@ -8,7 +8,7 @@
     app.factory("resultsService", function($http) {
         var syntasis = "";
         var syntasisSynced; // for things that know all the data has already loaded
-        var url = "/syntasi/dumbdata/syntasirnaDesigner_testjson";
+        var url = "/syntasi/dumbdata/fourSets.json";
         var resultsService = {
            getSyntasis : function(){
                 //fetch the data
