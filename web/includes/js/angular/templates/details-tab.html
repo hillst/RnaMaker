@@ -1,0 +1,49 @@
+<div class="amirna">
+<h4>
+Details
+</h4>
+<accordion close-others="false">
+    <accordion-group heading="{{block.name}}" ng-repeat= "block in syntasi.syntasis.blocks"
+                     is-open="$first">
+        <accordion close-others="false">
+            <accordion-group heading="Optimal">
+                <accordion-group heading="{{name}}" ng-repeat="(name,optimal) in block.optimal" 
+                                 is-open="optimal.open" ng-init="optimal.open = true">
+                    <accordion close-others="false">
+                        <accordion-group heading="Syn-tasiRNA sequence: {{optimal['syn-tasiRNA']}}" 
+                                         is-disabled="true" >
+                        </accordion-group>
+                        <accordion-group heading="Target: {{ hit['Target accession'] }}" 
+                                         ng-repeat="hit in optimal.TargetFinder.hits">
+                            <div>Score: {{ hit["Score"] }}</div>
+                            <div>Coordinates: {{ hit["Coordinates"] }}</div>
+                            <div>Target sequence: {{ hit["Target sequence"] }}</div>
+                            <div>Base pairing: {{ hit["Base pairing"] }}</div>
+                            <div>syn-tasiRNA sequence: {{ hit["syn-tasiRNA sequence"] }}</div>
+                            <div>Target description: {{ hit["Target description"] }}</div>
+                        </accordion-group>
+                    </accordion>
+                </accordion-group>
+            </accordion-group>
+            <accordion-group heading="Suboptimal">
+                <accordion-group heading="{{name}}" ng-repeat="(name,suboptimal) in block.suboptimal">
+                    <accordion close-others="false">
+                        <accordion-group heading="Syn-tasiRNA sequence: {{suboptimal['syn-tasiRNA']}}"                                              is-disabled="true" >
+                            </accordion-group>
+                            <accordion-group heading="Target: {{ hit['Target accession'] }}"
+                                             ng-repeat="hit in suboptimal.TargetFinder.hits">
+                                <div>Score: {{ hit["Score"] }}</div>
+                                <div>Coordinates: {{ hit["Coordinates"] }}</div>
+                                <div>Target sequence: {{ hit["Target sequence"] }}</div>
+                                <div>Base pairing: {{ hit["Base pairing"] }}</div>
+                                <div>syn-tasiRNA sequence: {{ hit["syn-tasiRNA sequence"] }}</div>
+                                <div>Target description: {{ hit["Target description"] }}</div>
+                            </accordion-group>
+                        </accordion-group>
+                    </accordion>
+                </accordion-group>
+            </accordion-group>
+        </accordion>
+    </accordion-group>
+</accordion> 
+</div>

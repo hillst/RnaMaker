@@ -1,0 +1,57 @@
+<div ng-controller="ddController">
+    <!-- do all optimal, then all suboptimal, optimal/subopt in columns for each gene set -->
+    <div>
+    <div ng-repeat="block in syntasi.syntasis.blocks">
+        <div class="element-title {{ syntasi.colClass }}">{{block.name}}</div>
+    </div>
+    </div>
+    <div ng-repeat="(key, row) in syntasi.formattedSyntasis">
+        <div ng-repeat="(cKey, col) in row">
+            <div class="element {{ syntasi.colClass }}" ng-class='hoverclass'
+                ng-mouseover="syntasi.preview = col; hoverclass='highlight'" 
+                ng-mouseleave="hoverclass=''" ng-init="hoverclass=''"
+                style="background-color: {{ syntasi.getColor(key) }}" x-lvl-draggable="true">
+                <span class="glyphicon glyphicon-move"></span> {{ cKey }}
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12"></div>
+    <div class="remove col-xs-12" x-lvl-drop-target="true" x-on-drop="remove(dragEl, dropEl)"><span class="glyphicon glyphicon-trash"></span> Remove</div>
+    <!-- create a drop target and specify a callback function --!>
+    <div ng-controller="ConstructController as constructCtrl">
+         <div ng-repeat="(key, value) in constructCtrl.construct.front">   
+            <div class="col-xs-2 drop-disabled">
+                {{ key }}
+            </div>
+        </div>
+        <div ng-repeat="(key, value) in constructCtrl.construct.middle">
+            <div  class="col-xs-2 drop-enabled" x-on-drop="dropped(dragEl, dropEl)" x-lvl-drop-target="true" x-lvl-draggable="true" prev-text="{{ key }}">
+                {{ key }}
+            </div>
+        </div>
+        <div ng-repeat="(key,value) in constructCtrl.construct.end">
+            <div class="col-xs-2 drop-disabled">
+                {{ key }}
+            </div>
+        </div>
+    </div>
+</div>
+<div class="results">
+    <div class = "oligos" ng-controller="oligoController as oligos">
+        <div><strong>Oligo Designer</strong></div>
+        <div ng-show="oligos.isSet('D3')">syn-tasiRNA 1:  5' {{data.D3}} 3'</div>
+        <div ng-show="oligos.isSet('D4')">syn-tasiRNA 2:  5' {{ data.D4 }} 3'</div>
+        <div ng-show="oligos.isSet('D5')">syn-tasiRNA 3:  5' {{ data.D5 }} 3'</div>
+        <div ng-show="oligos.isSet('D6')">syn-tasiRNA 4:  5' {{ data.D6 }} 3'</div>
+        <div>Forward Oligo: 5' {{ data.forwardOligo }} 3'</div>
+        <div>Reverse Oligo: 5' {{ data.reverseOligo }} 3'</div>
+    </div>
+    <div>
+        <div><strong>Preview</strong></div>
+        <div>syn-tasiRNA: 5' {{ syntasi.preview["syn-tasiRNA"] }} 3'</div>
+        <div ng-repeat="hit in syntasi.preview.TargetFinder.hits">
+            <div>Target: {{ hit["Target accession"] }} </div>
+            <div>Description: {{ hit["Target description"] }} </div>
+        </div>
+    </div>
+</div>

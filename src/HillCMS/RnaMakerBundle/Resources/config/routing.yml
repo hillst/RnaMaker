@@ -67,4 +67,9 @@ rnamaker_syntasi_results:
 rnamaker_syntasi_results_plain:
     pattern: /syntasiRNA_suite/results
     defaults: { _controller: HillCMSRnaMakerBundle:syntasiRNASuite:syntasiResults}
-
+syntasidummy_data:
+    pattern: /syntasi/dumbdata/{token}
+    defaults: { _controller: HillCMSRnaMakerBundle:Default:syntasiDataTest }
+rnamaker_angular_test:
+    pattern: /angular
+    defaults: { _controller: HillCMSRnaMakerBundle:Angular:index }

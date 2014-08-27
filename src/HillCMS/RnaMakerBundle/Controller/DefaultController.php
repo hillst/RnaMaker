@@ -440,5 +440,13 @@ class DefaultController extends CMSController
         $homegroups = $this->buildPageGroups($pagethings);
         return $this->render('HillCMSRnaMakerBundle:Default:about.html.twig', array("groups"=> $homegroups["About"]));
     }
- 
+    public function syntasiDataTestAction($token){
+        $fd = fopen($this->server_results ."/" . $token, "r");
+        $results = "";
+        while( ! feof($fd) ){
+            $results .= fread($fd, 8092);
+        }
+        fclose($fd);
+        return new Response($results, 200);
+    } 
 }
