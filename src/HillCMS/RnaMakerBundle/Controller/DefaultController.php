@@ -34,23 +34,6 @@ class DefaultController extends CMSController
         return $this->render('HillCMSRnaMakerBundle:Default:index.html.twig', array("main" => $homegroups['Main'][0], "amirna" => $homegroups['Main'][5], "syntasirna" => $homegroups["Main"][6]));
 
     }
-    /*
-     * Page which only contains amiRNA Designer and syntasiRNA Designer. Just a clone of index
-     */
-    public function rnaDesignerAction(){
-        //doesnt actually have a pid, just a clone of index.
-        $pid = 1;
-        $em = $this->getDoctrine()->getManager();
-        $repo = $em->getRepository("HillCMSManageBundle:CmsPageThings");
-        $pagethings = $repo->findBy(array("pageid" => $pid));
-        if (sizeof($pagethings) === 0){
-            //empty page
-            return new Response("Error", 404);
-        }
-        $homegroups = $this->buildPageGroups($pagethings);
-        return $this->render('HillCMSRnaMakerBundle:Default:rnadesigner.html.twig', array("amirna" => $homegroups['Main'][5], "syntasirna" => $homegroups["Main"][6]));
-
-    }
     
     public function amirnaDesignerFormAction(){
     	$pid = 4;
@@ -149,6 +132,79 @@ class DefaultController extends CMSController
         $token = $this->amiRNADesignerJsonDecoder($json_result);
         return new Response($token, 200);
     }
+    
+    public function syntasirnaDesignerRequestAction(){
+        $request = $this->getRequest();
+        if ($request->getMethod() === 'POST') {
+            $speciesId = $request->get('species'); //going to be dbId
+            $transcriptId = $request->get('transcriptId');
+            $filtered = $request->get("filtered");
+            $transcript = $request->get('transcript');
+            if( ($transcript == "" && $transcriptId == "") || $filtered == ""){
+                return new Response("Error: Missing one of the required fields.", 400);
+            }
+        } else{
+            return new Response("Error: Invalid request type.", 400);
+        }
+        $em = $this->getDoctrine()->getManager();
+        $repo = $em->getRepository("HillCMSRnaMakerBundle:TargetfinderDbs");
+        if ($speciesId !== ""){
+            $dbs = $repo->findBy(array("dbId" => $speciesId));
+            if (sizeof($dbs) < 1){
+                return new Response("Invalid species.", 400);
+            }
+            $root = $this->get('kernel')->getRootDir() ."/../amirna_dbs";
+            $database =  $dbs[0]->getDbPath();
+            $species =  $dbs[0]->getSpecies();
+        } else{
+            $species = "";
+        }
+        $escaped_transcript = "";
+        if ($transcriptId != "") {
+            if ($species !== 'S_ITALICA') {
+                if (!preg_match("/\.\d+$/",$transcriptId)) {
+                    $transcriptId = $transcriptId;
+                }
+            }
+        } else {
+            //must reconstruct with escpaced newline characters
+            $fasta = explode("\n", $transcript);
+            if (substr($fasta[0],0,1) != ">"){
+                //legacy i think
+                return new Response("Error 2, malformed fasta." . substr($fasta[0], 0,1), 400);
+            }
+            for($i = 0; $i < sizeof($fasta); $i++){
+                $escaped_transcript .= $fasta[$i] . "\\n";
+            }
+        }
+        $daemonSocket = new DaemonHunter();
+        $arguments = array();
+        if ($species !== ""){
+            $arguments[2] = "-s";
+            $arguments[3] = $species;
+        }
+        $arguments[4] = "-c";
+        $arguments[5] = "syntasiRNA";
+        if ($transcript !== "") {
+            $arguments[10] = "-f";
+            $arguments[11] = $escaped_transcript;
+        } else {
+            $arguments[10] = "-a";
+            $arguments[11] = $transcriptId;
+        }
+        if ($filtered != "false"){
+            $arguments[12] = "-o";
+        }
+        $json = $daemonSocket->jsonBuilder("psams.pl", "psams.pl", $arguments);
+        $json_result = $daemonSocket->socketSend($json);
+        if(strlen($json_result) < 1){
+            return new Response("Error, unexpected response. " . print_r($json, TRUE), 500);
+        }
+
+        $token = $this->syntasirnaJsonWriter($json_result);
+        return new Response($token, 200);
+    }
+
     /**
      * Request handler for Oligo Designer.  Expects a post and the arguments to be passed to the command line function. 
      * The following function may take a fasta or some comma seperated list of oligos to accept. It will then run
@@ -277,24 +333,7 @@ class DefaultController extends CMSController
         return $this->render('HillCMSRnaMakerBundle:Default:syntasi.html.twig', array("groups"=> $homegroups["Syntasi"], "dbs" => $dbs, "root"=>$root));
     }
     
-    public function oligoDesignerFormAction(){
-    	$pid = 3;
-    	$em = $this->getDoctrine()->getManager();
-    	$repo = $em->getRepository("HillCMSManageBundle:CmsPageThings");
-    	$pagethings = $repo->findBy(array("pageid" => $pid)); 
-    	if (sizeof($pagethings) === 0){
-    		//empty page
-    		return new Response("Error", 404);
-    	}
-    	$homegroups = $this->buildPageGroups($pagethings);
-    	return $this->render('HillCMSRnaMakerBundle:Default:oligodesigner.html.twig', array("groups"=> $homegroups["Oligo"]));
-    }
-
     /**
-     * Universal results action. If a custom results page is a needed a new action should be written. This function finds the file with the 
-     * class field server_result. private $server_encoded = "server_encoded";It expects the token to be the filename.
-     * 
-     * @param $token results token returned by the job daemon
      */
     public function resultsAction($token){
     	$fd = fopen($this->server_results . "/" . $token, "r"); //do work son lol
@@ -307,17 +346,12 @@ class DefaultController extends CMSController
     	return $this->render("HillCMSRnaMakerBundle:Default:results.html.twig", array("results" => $result, "dl_token"=> $token));
     }
     
-    /**
-     * Identical to the other resultsAction, except uses the syntasiRNA header.
-     */
-    public function syntasiResultsAction($token){
-        $fd = fopen($this->server_results ."/" . $token, "r");
-        $results = "";
-        while( ! feof($fd) ){
-            $results .= fread($fd, 8092);
-        }
+    public function syntasirnaJsonWriter($json_result){
+        $token = uniqid("syntasirnaDesigner_");
+        $fd = fopen($this->server_encoded . "/" . $token, "w");
+        fwrite($fd, $json_result);
         fclose($fd);
-        return $this->render("HillCMSRnaMakerBundle:Default:syntasiResults.html.twig", array("results" => $results, "dl_token" => $token));
+        return $token;
     }
     /**
      * Function responsible for parsing the amiRNADesigner results and saving them to disk.
@@ -440,13 +474,4 @@ class DefaultController extends CMSController
         $homegroups = $this->buildPageGroups($pagethings);
         return $this->render('HillCMSRnaMakerBundle:Default:about.html.twig', array("groups"=> $homegroups["About"]));
     }
-    public function syntasiDataTestAction($token){
-        $fd = fopen($this->server_results ."/" . $token, "r");
-        $results = "";
-        while( ! feof($fd) ){
-            $results .= fread($fd, 8092);
-        }
-        fclose($fd);
-        return new Response($results, 200);
-    } 
 }

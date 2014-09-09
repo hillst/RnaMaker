@@ -1,12 +1,6 @@
 rnamaker_home:
     pattern:  /
     defaults: { _controller: HillCMSRnaMakerBundle:Default:index }
-rnadesigner_home:
-    pattern:  /rnadesigner
-    defaults: { _controller: HillCMSRnaMakerBundle:Default:rnaDesigner}
-dummy_route:
-    pattern: /dummy
-    defaults: { _controller: HillCMSRnaMakerBundle:Default:dummy}
 amirnadesigner_results:
     pattern: /amirna/designerresults/{token}
     defaults: { _controller: HillCMSRnaMakerBundle:Default:amiRNADesignerResults }
@@ -48,28 +42,13 @@ rnamaker_syntasidesigner:
     defaults: { _controller: HillCMSRnaMakerBundle:Default:syntasiDesignerForm }
 rnamaker_syntasirequest:
     pattern: /syntasi/request
-    defaults: { _controller: HillCMSRnaMakerBundle:Default:syntasiDesignerRequest }
+    defaults: { _controller: HillCMSRnaMakerBundle:Default:syntasirnaDesignerRequest }
 syntasirnadesigner_results_plain:
     pattern: /syntasi/designerresults
-    defaults: { _controller: HillCMSRnaMakerBundle:Default:syntasiRNADesignerResults }
+    defaults: { _controller: HillCMSRnaMakerBundle:Angular:syntasiRNADesignerResults }
 syntasirnadesigner_results:
     pattern: /syntasi/designerresults/{token}
-    defaults: { _controller: HillCMSRnaMakerBundle:Default:syntasiRNADesignerResults }
-rnamaker_syntasi_oligodesigner:
-    pattern: /syntasiRNA_suite/oligodesigner
-    defaults: { _controller: HillCMSRnaMakerBundle:syntasiRNASuite:syntasiOligoDesignerForm }
-rnamaker_syntasi_oligorequest:
-    pattern: /syntasiRNA_suite/oligorequest
-    defaults: { _controller: HillCMSRnaMakerBundle:syntasiRNASuite:syntasiOligoRequest }
-rnamaker_syntasi_results:
-    pattern: /syntasiRNA_suite/results/{token}
-    defaults: { _controller: HillCMSRnaMakerBundle:syntasiRNASuite:syntasiResults}
-rnamaker_syntasi_results_plain:
-    pattern: /syntasiRNA_suite/results
-    defaults: { _controller: HillCMSRnaMakerBundle:syntasiRNASuite:syntasiResults}
-syntasidummy_data:
-    pattern: /syntasi/dumbdata/{token}
-    defaults: { _controller: HillCMSRnaMakerBundle:Default:syntasiDataTest }
-rnamaker_angular_test:
-    pattern: /angular
-    defaults: { _controller: HillCMSRnaMakerBundle:Angular:index }
+    defaults: { _controller: HillCMSRnaMakerBundle:Angular:syntasiRNADesignerResults }
+syntasiresults_data:
+    pattern: /syntasi/angular/{token}
+    defaults: { _controller: HillCMSRnaMakerBundle:Angular:syntasiResultsData }

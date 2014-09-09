@@ -17,13 +17,15 @@
 <script src="{{ asset("includes/js/angular/modules/lvlDragDrop/lvl-drag-drop.js") }} "></script>
 <script src="{{ asset("includes/js/angular/modules/ui-bootstrap.min.js") }} "></script>
 <link rel="stylesheet" type="text/css"  href="{{ asset("includes/css/angular.css") }}" ></link>
+
 <div ng-app="SyntasiBuilder">
     <div class="container">
     <div class="jumbotron">
     <div class="error-tracker">
     </div>
-    {% verbatim %}
         <div ng-controller="SyntasiController as syntasi">
+        <div class="hidden" id="token" >{{ path("syntasiresults_data", {"token" : token}) }}</div>
+    {% verbatim %}
             <syntasi-tabs></syntasi-tabs>
         </div>
     {% endverbatim %}

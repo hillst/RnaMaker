@@ -99,7 +99,9 @@
     app.controller("SyntasiController", function(resultsService, constructDataService, $scope){
         this.syntasis;
         var curObj = this;
-        resultsService.getSyntasis().then(function(data){
+        //no idea why this works
+        var url = angular.element(token).text();
+        resultsService.getSyntasis(url).then(function(data){
             curObj.syntasis = data;
             curObj.initSyntasi();
             curObj.construct = constructDataService.getConstruct();
