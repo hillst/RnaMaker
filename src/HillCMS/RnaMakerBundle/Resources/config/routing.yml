@@ -49,6 +49,9 @@ syntasirnadesigner_results_plain:
 syntasirnadesigner_results:
     pattern: /syntasi/designerresults/{token}
     defaults: { _controller: HillCMSRnaMakerBundle:Angular:syntasiRNADesignerResults }
+psams_databases_data:
+    pattern: /psams/databases
+    defaults: { _controller: HillCMSRnaMakerBundle:Default:psamsDatabases }
 syntasiresults_data:
     pattern: /syntasi/angular/{token}
     defaults: { _controller: HillCMSRnaMakerBundle:Angular:syntasiResultsData }

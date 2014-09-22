@@ -1,23 +1,9 @@
 $().ready(function(){
     function baseState(){
-        $("#close-clear").addClass("hidden");
-        wiz = new Wizard();
-        wiz.addAllYN();
-        //add a help pane and place it there
-        wiz.notePane.append($(".x-wrapper").outerHTML());
-        wiz.notePane.append("Click ‘Design syntasiRNAs’ if you want to identify optimal syntasiRNA guide sequences that target your gene(s) of interest. Choose ‘Generate oligos’ if you already have syntasiRNA guide sequences and you just want to generate oligos to clone the syntasiRNAs in a BsaI-ccdB vector containing the Arabidopsis TAS1c precursor.");
-        wiz.setXClose();
-        //if it has children you probably want to append.
-        wiz.textPane.append("Do you need to design syntasiRNAs or do you already have syntasiRNA sequence(s) and only need to generate oligos for cloning?");
-        wiz.setYesText("Design syntasiRNAs");
-        wiz.setNoText("Generate Oligos");
-        wiz.setYes(cb_designSyntasiRNA1);
-        wiz.setNo(cb_generateOligos1);
-        wiz.setBack(function(){ $(".close").click();  });
     }
-    function cb_designSyntasiRNA1(){
+    function baseState(){
         $("#close-clear").removeClass("hidden");
-        wiz = new Wizard(wiz);
+        wiz = new Wizard();
         wiz.addAllYN();
         wiz.notePane.append($(".x-wrapper").outerHTML());
         wiz.notePane.append("Select a species and click ‘Yes’ if you are going to express your syntasiRNAs in any of the species listed. Note that only Arabidopsis thaliana produces miR173 required for triggering syntasiRNA biogenesis, therefore if you select another species you should co-express miR173 to produce syntasiRNAs. Click ‘No’ if you are going to express your syntasiRNA(s) in another species. If you want us to add a new specie contact us at site@carringtonlab.org.");
@@ -28,10 +14,7 @@ $().ready(function(){
         wiz.setNo(cb_generateOligos2); 
         $(wiz.yesButton).text("Yes");
         $(wiz.noButton).text("No");
-        wiz.setBack(function(){
-            $("#close-clear").addClass("hidden");
-            cb_revertState(wiz);
-        });
+        wiz.setBack(function(){ $(".close").click();  });
         
     }
     function cb_designSyntasiRNA2(){
@@ -61,11 +44,13 @@ $().ready(function(){
         wiz.setXClose();
         $("#sequence").val(""); //clear form?
         $("#gene").val("");
-        wiz.textPane.append("Enter a target gene ID.<br/><br/>"); 
+        wiz.textPane.append("Enter one or more sets of Gene IDs.<br/><br/>"); 
         wiz.textPane.append( $("#transcript-lookup").outerHTML() );
         wiz.textPane.find( $("#transcript-lookup").addClass("transcript-lookup") );
         wiz.addPlusButton( ".transcript-lookup" );
-        wiz.setNext(cb_designSyntasiRNA4_a);
+        wiz.setNext(cb_designSyntasiRNA4_a, function(){
+            //if there is more than 4 do not continue.
+        });
         wiz.setBack(function(){ cb_revertState(wiz); });
     }
     function cb_designSyntasiRNA3_unannotated(){

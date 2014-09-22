@@ -7,6 +7,9 @@
     padding-bottom: 30px;
     font-family: courier;
 }
+.accordion-toggle{
+    cursor: pointer;
+}
 #addseq{
     font-size:21px;
     padding: 10px 10px 10px 0px;
@@ -131,6 +134,9 @@ body {
 .modal-body{
     overflow: auto;
 }
+.my-result{
+    text-align: center;
+}
 
 .name{
     cursor: pointer;
@@ -208,6 +214,20 @@ body {
 #wizard-text{
     line-height: normal;
     word-break: break-word;
+}
+.wizard-text{
+    line-height: normal;
+    word-break: break-word;
+}
+.wizard-note{
+    box-shadow: 10px 10px 5px #888888;
+    margin-bottom: 20px;
+    font-size: 16px;
+    padding: 10px;
+    padding-top: 0px;
+    border-radius: 5px;
+    border: orange 4px solid;
+    background-color: #FFF;
 }
 #wizard-note{
     box-shadow: 10px 10px 5px #888888;

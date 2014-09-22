@@ -109,7 +109,9 @@
         this.formattedSyntasis = [];
         this.preview;
         this.colClass = "";
-
+        $scope.isEmpty = function(obj){
+            return (Object.keys(obj).length < 1);
+        };
         // Wrapper function for the work that depends on getSyntasi   
         this.initSyntasi = function(){
             this.preview = this.syntasis.blocks[0].optimal["optimal 1.1"];

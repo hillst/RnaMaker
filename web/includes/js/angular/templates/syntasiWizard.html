@@ -1,0 +1,189 @@
+<wiz-init>
+    <div ng-controller="dataCtrl">
+    <div class="modal-header">
+        <button type="button" class="close" ng-click="cancel()" aria-hidden="true">×</button>
+        <button wiz-reset wiz-reset-title="Start Over" type="button" class="close" id="close-clear">Start Over</button>
+        <h4 class="modal-title">syn-tasiRNA Designer Wizard</h4>
+    </div>
+    <div class="modal-body">
+        <siz-step siwz-step-title="Start" wiz-starting="true">
+            <div class="wizard-pane">
+                <help-button></help-button>
+                <div class="wizard-text jumbotron jumbotron-modal">
+                    <help-pane ng-show="showHelp" class="help-show-hide">
+                    Click ‘Design syntasiRNAs’ if you want to identify optimal syntasiRNA guide sequences that target your gene(s) of interest. Choose ‘Generate oligos’ if you already have syntasiRNA guide sequences and you just want to generate oligos to clone the syntasiRNAs in a BsaI-ccdB vector containing the Arabidopsis TAS1c precursor.
+                    </help-pane>
+                    Do you need to design syntasiRNAs or do you already have syntasiRNA sequence(s) and only need to generate oligos for cloning?
+                    <br/>
+                    <br>
+            </div>
+            <wiz-cont class="col-lg-12 btn btn-default btn-tertiary"
+                      wiz-cont-title="Design syntasiRNAs"
+                      wiz-cont-next="Design syntasi"></wiz-cont>
+            <wiz-cont class="col-lg-12 btn btn-default btn-tertiary"
+                      wiz-cont-title="Generate Oligos"
+                      wiz-cont-next="Design Oligos">
+            </wiz-cont> 
+        </wiz-step>
+        <wiz-step wiz-step-title="Design syntasi">
+            <div class="wizard-pane">
+                <help-button></help-button>
+                <div class="wizard-text jumbotron jumbotron-modal">
+                    <help-pane ng-show="showHelp" class="help-show-hide">
+                    Select a species and click ‘Yes’ if you are going to express your syntasiRNAs in any of the species listed. Note that only Arabidopsis thaliana produces miR173 required for triggering syntasiRNA biogenesis, therefore if you select another species you should co-express miR173 to produce syntasiRNAs. Click ‘No’ if you are going to express your syntasiRNA(s) in another species. If you want us to add a new specie contact us at <a href="mailto:administrator@carringtonlab.org?Subject=P-SAMS" target="_top">administrator@carringtonlab.org</a>
+                    </help-pane>
+                    Will you use your syntasiRNA(s) in one of the following species? 
+                    <br/>
+                    <br/>
+                    <label for="database" ng-init="getCurrentData().database=databases[0]">Species Transcript Database:</label>    
+                    <select class="form-control" 
+                            name="database"
+                            ng-init="getCurrentData().database=databases[0]"
+                            ng-model="getCurrentData().database"
+                            ng-options="database.label group by database.class for database in databases track by database.id">
+                    </select>
+                </div>
+                <wiz-cont class="col-lg-12 btn btn-default btn-tertiary"
+                          wiz-cont-title="Next"
+                          wiz-next-step="Annotated or Unannotated"></wiz-cont>
+                <wiz-back class="col-lg-12 btn btn-default btn-tertiary"
+                          wiz-back-title="Back"></wiz-back>
+            </div>
+        </wiz-step>
+        <wiz-step wiz-step-title="Annotated or Unannotated">
+            <div class="wizard-pane">
+                <help-button></help-button>
+                <div class="wizard-text jumbotron jumbotron-modal">
+                    <help-pane ng-show="showHelp"> Click ‘Annotated transcript(s)’ if you have gene ID(s). Click ‘Unannotated/exogenous transcript(s)’ if you want to target transcripts that do not have an assigned gene ID or are not found in the selected reference transcriptome. 
+                    </help-pane>
+                    Do you want to target annotated transcript(s) (Option 1) or unannotated/exogenous transcript(s)? (Option 2)
+                </div>
+                <wiz-cont class="col-lg-6 btn btn-default btn-tertiary"
+                          wiz-cont-title="Option 1"
+                          wiz-next-step="Annotated"></wiz-cont>
+                <wiz-cont class="col-lg-6 btn btn-default btn-tertiary"
+                          wiz-cont-title="Option 2"
+                          wiz-next-step="Unannotated"></wiz-cont>
+                <wiz-back class="col-lg-12 btn btn-default btn-tertiary"
+                          wiz-back-title="Back"></wiz-back>
+            </div>
+        </wiz-step>
+        <wiz-step wiz-step-title="Annotated">
+            <div class="wizard-pane">
+                <help-button></help-button>
+                    <div class="wizard-text jumbotron jumbotron-modal">
+                        <help-pane ng-show="showHelp">Help needed.</help-pane>
+                        Enter one or more sets of gene ID(s)
+                        <br/>
+                        <br/>
+                        <field-duplicator dup-max-visible="4" dup-start-visible="2" 
+                                          ng-init="getCurrentData().transcriptIds=[]"> 
+                            <div ng-repeat="i in range">
+                                <div ng-show="isVisible(i)">
+                                    <label for="gene">Gene set {{ i+1 }}:</label>
+                                    <input type="text" class="form-control gene" 
+                                           placeholder="AT1G09700,AT3G17185"
+                                           is-disabled="isVisible(i)"
+                                           name="gene" ng-model="getCurrentData().transcriptIds[i]">
+                                </div>
+                            </div>
+                            <a class="glyphicon glyphicon-plus add" ng-click="incrementVisible()" 
+                               ng-show="showPlus()"></a>
+                            <a class="glyphicon glyphicon-minus minus" ng-click="decrementVisible()"
+                               ng-show="showMinus()"></a>
+                        </field-duplicator>
+                    </div>
+                <wiz-cont class="col-lg-12 btn btn-default btn-tertiary"
+                          wiz-cont-title="Next"
+                          wiz-next-step="Filtering"></wiz-cont>
+                <wiz-back class="col-lg-12 btn btn-default btn-tertiary"
+                          wiz-back-title="Back"></wiz-back>
+            </div>
+        </wiz-step>
+        <wiz-step wiz-step-title="Unannotated">
+            <div ng-controller="FastaCtrl" class="wizard-pane">
+                <help-button></help-button>
+                <div class="wizard-text jumbotron jumbotron-modal">
+                    <help-pane ng-show="showHelp">more help</help-pane>
+                    Enter or paste FASTA sequence(s) of target transcript(s) for target Gene Set(s).
+                    <field-duplicator dup-max-visible="4" dup-start-visible="2"
+                                      ng-init="getCurrentData().fastaTranscriptSeqs=[]">
+                        <div ng-repeat="i in range">
+                            <div ng-show="isVisible(i)">
+                                <label for="transcripts">Gene set {{ i+1 }}:</label>
+                                <textarea class="form-control sequence" 
+                                          name="transcripts"
+                                          ng-model="getCurrentData().fastaTranscriptSeqs[i]"
+                                          rows="2" placeholder=">Assession-1
+    ATGATGATGATGATGATGATG">
+                                </textarea>
+                            </div>
+                        </div>
+                        <a class="glyphicon glyphicon-plus add" ng-click="incrementVisible()"
+                           ng-show="showPlus()"></a>
+                        <a class="glyphicon glyphicon-minus minus" ng-click="decrementVisible()"
+                           ng-show="showMinus()"></a>
+                    </field-duplicator>
+                    <div class="my-result alert alert-danger" ng-show="false">
+                        {{ errorMessage }}
+                    </div>
+                </div>
+                <wiz-cont class="col-lg-12 btn btn-default btn-tertiary"
+                          wiz-cont-title="Next"
+                          wiz-next-step="Filtering"></wiz-cont>
+                <wiz-back class="col-lg-12 btn btn-default btn-tertiary"
+                          wiz-back-title="Back"></wiz-back>
+            </div>
+        </wiz-step>
+        <wiz-step wiz-step-title="Filtering">
+            <div class="wizard-pane">
+                <help-button></help-button>
+                <div class="wizard-text jumbotron jumbotron-modal">
+                    <help-pane ng-show="showHelp">
+                    Clicking ‘Yes’ will activate a target prediction module. Results that have predicted undesired targets will be discarded. Click ‘No’ to deactivate the target prediction module.
+                    </help-pane>
+                    Do you want the results to be automatically filtered based on target specificity?
+                </div>
+                <wiz-cont class="col-lg-6 btn btn-default btn-tertiary"
+                          wiz-cont-title="Yes"
+                          wiz-next-step="Submit"
+                          wiz-bool="filtering"
+                          wiz-bool-value="true">
+                </wiz-cont>
+                <wiz-cont class="col-lg-6 btn btn-default btn-tertiary"
+                          wiz-cont-title="No"
+                          wiz-next-step="Submit"
+                          wiz-bool="filtering"
+                          wiz-bool-value="false"></wiz-cont>
+                <wiz-back class="col-lg-12 btn btn-default btn-tertiary"
+                          wiz-back-title="Back"></wiz-back>
+            </div>
+        </wiz-step>
+        <wiz-step wiz-step-title="Submit">
+            <div class="wizard-pane">
+                <help-button></help-button>
+                <div class="wizard-text jumbotron jumbotron-modal">
+                    <help-pane ng-show="showHelp">Click the 'Submit' button to submit your P-SAMS job to the server. Jobs generally take a few minutes to finish.
+                    </help-pane>
+                    <h5>Database: {{ getCurrentData().database.label }}</h5>
+                    <div ng-repeat="name in formatGeneSets() track by $index">
+    
+                        <h5>Gene set {{ $index + 1}}: {{ name }}</h5>
+                    </div>
+                    <h5>Filtered: {{getCurrentData().filtering }} </h5>
+                </div>
+                <div ng-class="loader">
+                    {{ loaderText }}
+                    <img src="/includes/images/ajax-loader.gif" ng-hide="hideSpinner">
+                </div>
+                <wiz-cont submit-button class="col-lg-12 btn btn-default btn-tertiary"
+                          wiz-cont-title="Submit"
+                          wiz-next-step=""
+                          ng-click="submitForm()"></wiz-cont>
+                <wiz-back class="col-lg-12 btn btn-default btn-tertiary"
+                          wiz-back-title="Back"></wiz-back>
+            </div>
+        </wiz-step>
+    </div>
+    </div>
+</wiz-init>

@@ -86,27 +86,17 @@ class DefaultController extends CMSController
             $species = "";
         }
         $escaped_transcript = "";
-    	if ($transcriptId != "") {
-    		if ($species !== 'S_ITALICA') {
-    			if (!preg_match("/\.\d+$/",$transcriptId)) {
-    				$transcriptId = $transcriptId;
-    			}
-    		}
-    	} else {
+    	if ($transcriptId == "") {
             //must reconstruct with escpaced newline characters
             $fasta = explode("\n", $transcript);
             if (substr($fasta[0],0,1) != ">"){
                 //legacy i think
-                return new Response("Error 2, malformed fasta." . substr($fasta[0], 0,1), 400);
+                return new Response("Error: malformed fasta." . substr($fasta[0], 0,1), 400);
             } 
             for($i = 0; $i < sizeof($fasta); $i++){
                 $escaped_transcript .= $fasta[$i] . "\\n";
             }
         }
-        //uncomment to test success message
-        //return new Response("plain response", 200);
-        //already updated arguments
-
         $daemonSocket = new DaemonHunter();
     	$arguments = array();
         if ($species !== ""){
@@ -136,10 +126,11 @@ class DefaultController extends CMSController
     public function syntasirnaDesignerRequestAction(){
         $request = $this->getRequest();
         if ($request->getMethod() === 'POST') {
-            $speciesId = $request->get('species'); //going to be dbId
-            $transcriptId = $request->get('transcriptId');
-            $filtered = $request->get("filtered");
-            $transcript = $request->get('transcript');
+            $recieved = json_decode($request->getContent());
+            $speciesId = $recieved->database->id; //going to be dbId
+            $transcriptId = join(";",$recieved->transcriptIds);
+            $filtered = $recieved->filtering;
+            $transcript = join(";", $recieved->fastaTranscriptSeqs);
             if( ($transcript == "" && $transcriptId == "") || $filtered == ""){
                 return new Response("Error: Missing one of the required fields.", 400);
             }
@@ -160,18 +151,12 @@ class DefaultController extends CMSController
             $species = "";
         }
         $escaped_transcript = "";
-        if ($transcriptId != "") {
-            if ($species !== 'S_ITALICA') {
-                if (!preg_match("/\.\d+$/",$transcriptId)) {
-                    $transcriptId = $transcriptId;
-                }
-            }
-        } else {
+        if($transcriptId == "") {
+            //fasta validation?
             //must reconstruct with escpaced newline characters
             $fasta = explode("\n", $transcript);
             if (substr($fasta[0],0,1) != ">"){
-                //legacy i think
-                return new Response("Error 2, malformed fasta." . substr($fasta[0], 0,1), 400);
+                return new Response("Error: malformed fasta." . substr($fasta[0], 0,1), 400);
             }
             for($i = 0; $i < sizeof($fasta); $i++){
                 $escaped_transcript .= $fasta[$i] . "\\n";
@@ -192,7 +177,7 @@ class DefaultController extends CMSController
             $arguments[10] = "-a";
             $arguments[11] = $transcriptId;
         }
-        if ($filtered != "false"){
+        if ($filtered == "true"){
             $arguments[12] = "-o";
         }
         $json = $daemonSocket->jsonBuilder("psams.pl", "psams.pl", $arguments);
@@ -200,7 +185,10 @@ class DefaultController extends CMSController
         if(strlen($json_result) < 1){
             return new Response("Error, unexpected response. " . print_r($json, TRUE), 500);
         }
+        if (strpos($json_result, "not found") !== false){
+            return new Response("Error: " . print_r($json_result, TRUE), 400);
 
+        }
         $token = $this->syntasirnaJsonWriter($json_result);
         return new Response($token, 200);
     }
@@ -330,9 +318,35 @@ class DefaultController extends CMSController
         $repo = $em->getRepository("HillCMSRnaMakerBundle:TargetfinderDbs");
         $dbs = $repo->findAll();
         $root = $this->get('kernel')->getRootDir() ."/../amirna_dbs";
-        return $this->render('HillCMSRnaMakerBundle:Default:syntasi.html.twig', array("groups"=> $homegroups["Syntasi"], "dbs" => $dbs, "root"=>$root));
+        return $this->render('HillCMSRnaMakerBundle:Default:syntasi.html.twig', array("groups"=> $homegroups["Syntasi"], "root"=>$root));
     }
-    
+    //lolphp doesn't support objects in json_encode
+    public function json_encode_objs($item){
+        if(!is_array($item) && !is_object($item)){
+            return json_encode($item);
+        }else{
+            $pieces = array();
+            foreach($item as $k=>$v){
+                $pieces[] = "\"$k\":". $this->json_encode_objs($v);
+            }
+            return '{'.implode(',',$pieces).'}';
+        }
+    }
+    public function psamsDatabasesAction(){
+        $em = $this->getDoctrine()->getManager();
+        $repo = $em->getRepository("HillCMSRnaMakerBundle:TargetfinderDbs");
+        $json = "[";
+        $dbs = $repo->findAll();
+        
+        foreach ($dbs as $db){
+            $json .= '{"label":"' . $db->getDbLabel() .'", ';
+            $json .= '"class":"' . $db->getClass() .'", ';
+            $json .= '"id":"' . $db->getDbId() . '"},';
+        }
+        $json = substr($json, 0, -1);
+        $json .= "]";
+        return new Response($json, 200);
+    }
     /**
      */
     public function resultsAction($token){

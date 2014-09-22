@@ -6,7 +6,7 @@ Details
     <accordion-group heading="{{block.name}}" ng-repeat= "block in syntasi.syntasis.blocks"
                      is-open="$first">
         <accordion close-others="false">
-            <accordion-group heading="Optimal">
+            <accordion-group heading="Optimal" is-disabled="isDisabled(block.optimal)">
                 <accordion-group heading="{{name}}" ng-repeat="(name,optimal) in block.optimal" 
                                  is-open="optimal.open" ng-init="optimal.open = true">
                     <accordion close-others="false">
@@ -25,7 +25,7 @@ Details
                     </accordion>
                 </accordion-group>
             </accordion-group>
-            <accordion-group heading="Suboptimal">
+            <accordion-group heading="Suboptimal" is-disabled="isEmpty(block.suboptimal)">
                 <accordion-group heading="{{name}}" ng-repeat="(name,suboptimal) in block.suboptimal">
                     <accordion close-others="false">
                         <accordion-group heading="Syn-tasiRNA sequence: {{suboptimal['syn-tasiRNA']}}"                                              is-disabled="true" >

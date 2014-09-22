@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <script type="text/javascript" src="angular.min.js"></script>
+    <script type="text/javascript" src="sanitize.js"></script>
+    <script type="text/javascript" src="wizard.js"></script>
+    <link rel="stylesheet" href="bootstrap.min.css">
+    <link rel="stylesheet" href="wizard.css">
+    <title>Sample Page</title>
+</head>
+<body ng-app="Wizard">
+    <div ng-controller="WizCtrl">
+        <br/>
+        <wiz-step wiz-step-title="Home" wiz-starting="true" class="wiz-step" >
+            <input type="text" ng-model="getCurrentData().username" name="username" placeholder="username">
+            <wiz-cont wiz-next-step="Test" wiz-cont-title="advance to next">
+            </wiz-cont>
+            <wiz-cont wiz-next-step="finn" wiz-cont-title="gotofinn">
+            </wiz-cont>
+            <wiz-cont wiz-next-step="Home" wiz-cont-title="return home">
+            </wiz-cont>
+            <wiz-back wiz-back-title="Back"></wiz-back>
+            <wiz-reset  wiz-reset-title="Reset"></wiz-reset>
+        </wiz-step>
+        <br/>
+        <wiz-step wiz-step-title="Test" class = "wiz-step">
+            Yet another test for our overwhelming app/
+            {{ getCurrentData() }}
+            <wiz-cont wiz-next-step="finn" wiz-cont-title="gotofinn">
+            </wiz-cont>
+            <wiz-cont wiz-next-step="Home" value="goto start" wiz-cont-title="return home">
+            </wiz-cont>
+            <wiz-back wiz-back-title="Back"></wiz-back>
+            <wiz-reset wiz-reset-title="Start Over"></wiz-reset>
+
+        </wiz-step>
+        <br/>
+        <wiz-step wiz-step-title="finn" class = "wiz-step">
+            A third step for testing EVEN MORE of our wizard framework :)
+            <input type="text" ng-model="getCurrentData().species" name="species" placeholder="species">
+
+            <wiz-cont wiz-next-step="Home" value="goto start" wiz-cont-title="return home">
+            </wiz-cont>
+            <wiz-back wiz-back-title="Back"></wiz-back>
+            <wiz-reset wiz-reset-title="Start Over"></wiz-reset>
+
+        </wiz-step>
+    </div>
+</body>
+</html>
