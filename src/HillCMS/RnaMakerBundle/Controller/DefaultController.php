@@ -208,9 +208,19 @@ class DefaultController extends CMSController
         *   perl ./sites/amirna/bin/amiR_final.pl -s $seq -n $name -t $fb"
         */
         $request = $this->getRequest();
+        $recieved = json_decode($request->getContent());
+        if ($recieved != NULL){
+            $seq = join(",",$recieved->oligos);
+            $name = join(",",$recieved->names);
+        }
         if ($request->getMethod() === 'POST') {
-            $seq = $request->get('seq');
-            $name = $request->get('name');
+            if ($recieved != NULL){
+                $seq = join(",",$recieved->oligos);
+                $name = join(",",$recieved->names);
+            } else{
+                $seq = $request->get('seq');
+                $name = $request->get('name');
+            }
             $eudicot = $request->get('eudicot');
             if ($eudicot == "true"){
                 $fb = "eudicot";

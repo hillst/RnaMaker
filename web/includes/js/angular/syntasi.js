@@ -157,6 +157,103 @@
             }
         };
     });
+    app.directive("editName", function(){
+        return {
+            restrict: "A",
+            controller: function($scope, $element, $attrs){
+                $scope.showLabel = true;
+                $scope.names = [];
+                $scope.setLabel = function(vis){
+                    console.log($scope.showLabel);
+                    $scope.showLabel = vis;
+                } 
+                $scope.initName = function(i){
+                    $scope.getCurrentData().names[i] = "syn-tasiRNA_" + (i + 1);
+                }
+            }   
+        }
+    });
+    app.directive("oligoSubmit", function(){
+        return {
+            restrict: "A",
+            controller: function($scope, $element, $http){
+                $scope.previousSubmit = [];
+                $scope.showResult = false;
+                $scope.validateOligos = function(){ 
+                    $scope.hideSpinner = true;
+                    var names = $scope.getCurrentData().names;
+                    var seqs = $scope.getCurrentData().oligos;
+                    $scope.errorMessages = []; 
+                    $scope.warningMessages = []; 
+                    if ($scope.resultsPath){
+                        window.location = $scope.resultsPath;
+                    } else{
+                        seqs.forEach(function(seq,index,array){
+                            var color = "none";
+                            if(seq.length != 21){
+                                $scope.errorMessages.push("Error: Your input sequence is not 21 NT in length.");
+                                color = "red";
+                            }
+                            if(seq.match("^[ATCGUatcgu]+$") != seq){
+                                $scope.errorMessages.push("Error: Your sequence contains characters that are not A,T,C,G, or U.");
+                                color = "red";
+                            }
+                            if (seq.substr(0,1).toUpperCase() !== "T" && seq.substr(0,1).toUpperCase() !== "U"){
+                                $scope.warningMessages.push("Warning: We recommend a T or U on the 5' end.");
+                                color == "none" ? color = "yellow" : "";
+                            }
+                            if (seq.substr(18,1).toUpperCase() !== "C"){
+                                $scope.warningMessages.push("Warning: We recommend a C at amiRNA position 19, in order to have a 5' G on the miR*.");
+                                color == "none" ? color = "yellow" : "";
+                            }
+                            if (color == "red"){
+                                $scope.getCurrentData().oligoClasses[index] = "alert alert-danger input-danger";
+                            } else if (color == "yellow"){
+                                $scope.getCurrentData().oligoClasses[index] = "alert alert-warning input-warning";
+                            } 
+                        });
+                        if ($scope.errorMessages.length > 0 ){
+                            $scope.showResult = true;
+                            $scope.resultBoxClass = "alert alert-danger";
+                        } else if ($scope.warningMessages.length > 0  && 
+                                   $scope.previousSubmit.toString() != seqs.toString()){
+                            $scope.showResult = true;
+                            $scope.resultBoxClass = "alert alert-warning";
+                        } else{
+                            $scope.showResult = false;
+                            $scope.resultBoxClass = "alert alert-success";
+                            $scope.getCurrentData().oligoClasses = [];
+                            $scope.submitOligos();
+                        }
+                        $scope.previousSubmit = seqs.slice(0);
+                    }
+                }
+                $scope.submitOligos = function(){
+                    $scope.hasSubmitted = true;
+                    $scope.hideSpinner = true;
+                    $scope.showResult = true;
+                    var submitUrl = angular.element(oligosubmit).text();
+                    console.log($scope.resultsPath);
+                    //check for resultspath
+                    $scope.resultBoxClass = "my-result alert alert-warning";
+                    $http.post(submitUrl, $scope.getCurrentData()).success(function(response){
+                        $scope.resultBoxClass = "my-result alert alert-success";
+                        $scope.resultText = "Success!";
+                        $scope.hideSpinner = true;
+                        console.log(response);
+                        angular.element($element).text("Click to see Results");
+                        $scope.resultsPath = angular.element(oligoresults).text().trim() +"/"+ response;
+                    })
+                    .error(function(data, status, headers, config) {
+                        $scope.resultBoxClass = "my-result alert alert-danger";
+                        $scope.resultText = data;
+                        $scope.hideSpinner = true;
+                        $scope.hasSubmitted = false;
+                    });
+                }
+            }
+        };
+    });
     var ModalInstanceCtrl = function ($scope, $modalInstance, dataService) {
         $scope.ok = function () {
             $modalInstance.close();

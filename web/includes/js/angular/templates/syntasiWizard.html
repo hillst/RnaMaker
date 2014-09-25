@@ -6,7 +6,7 @@
         <h4 class="modal-title">syn-tasiRNA Designer Wizard</h4>
     </div>
     <div class="modal-body">
-        <siz-step siwz-step-title="Start" wiz-starting="true">
+        <wiz-step wiz-step-title="Start" wiz-starting="true">
             <div class="wizard-pane">
                 <help-button></help-button>
                 <div class="wizard-text jumbotron jumbotron-modal">
@@ -15,15 +15,75 @@
                     </help-pane>
                     Do you need to design syntasiRNAs or do you already have syntasiRNA sequence(s) and only need to generate oligos for cloning?
                     <br/>
-                    <br>
+                    <br/>
+                </div>
             </div>
-            <wiz-cont class="col-lg-12 btn btn-default btn-tertiary"
+            <wiz-cont class="col-lg-6 btn btn-default btn-tertiary"
                       wiz-cont-title="Design syntasiRNAs"
-                      wiz-cont-next="Design syntasi"></wiz-cont>
-            <wiz-cont class="col-lg-12 btn btn-default btn-tertiary"
+                      wiz-next-step="Design syntasi"></wiz-cont>
+            <wiz-cont class="col-lg-6 btn btn-default btn-tertiary"
                       wiz-cont-title="Generate Oligos"
-                      wiz-cont-next="Design Oligos">
-            </wiz-cont> 
+                      wiz-next-step="Generate Oligos">
+            </wiz-cont>
+            <wiz-back class="col-lg-12 btn btn-default btn-tertiary"
+                      wiz-back-title="Back">
+            </wiz-back>
+        </wiz-step>
+        <wiz-step wiz-step-title="Generate Oligos"
+                  ng-init="getCurrentData().oligos=[]; 
+                           getCurrentData().oligoClasses=[]; 
+                           getCurrentData().names=[]">
+            <div class="wizard-pane">
+                <help-button></help-button>
+                <div class="wizard-text jumbotron jumbotron-modal">
+                    <help-pane ng-show="showHelp">
+                        Click the ‘+’ button for entering additional syn-tasiRNA sequences. Click the ‘-‘ button the delete syn-tasiRNA sequences.
+                    </help-pane>
+                    Enter or paste a syn-tasiRNA sequence. Click 'syn-tasiRNA' to edit the name of the syn-tasiRNA
+                    <field-duplicator dup-max-visible="4" dup-start-visible="1">
+                        <div ng-repeat="i in range">
+                            <div ng-show="isVisible(i)" edit-name ng-init="initName(i)">
+                                <div ng-hide="showLabel">
+                                    <button type="button" class="close" 
+                                        ng-click="setLabel(true)" aria-hidden="true">×</button>
+                                    <input type=text" class="form-control gene" 
+                                       ng-model="getCurrentData().names[i]">
+                                </div>
+                                <label for="seq" class="name editable" 
+                                       ng-click="setLabel(false)"
+                                       ng-show="showLabel">{{ getCurrentData().names[i] }}</label>
+                                <input type="text" class="form-control gene"
+                                       ng-class="getCurrentData().oligoClasses[i]"
+                                       placeholder="TCAAAAATCAAAAATCAACAA"
+                                       is-disabled="isVisible(i)"
+                                       name="seq" ng-model="getCurrentData().oligos[i]">
+                            </div>
+                        </div>
+                        <a class="glyphicon glyphicon-plus add" ng-click="incrementVisible()"
+                           ng-show="showPlus()"></a>
+                        <a class="glyphicon glyphicon-minus minus" ng-click="decrementVisible()"
+                           ng-show="showMinus()"></a>
+                    </field-duplicator>
+                    <div class="my-result" ng-class="resultBoxClass" ng-show="showResult">
+                        <div ng-repeat="error in errorMessages track by $index">
+                            {{ error }}
+                        </div>
+                        <div ng-repeat="warning in warningMessages track by $index">
+                            {{ warning }}
+                        </div>
+                        <div>
+                            {{ resultText }}
+                            <img src="/includes/images/ajax-loader.gif" ng-hide="hideSpinner">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <wiz-cont oligo-submit class="col-lg-12 btn btn-default btn-tertiary"
+                          wiz-cont-title="Submit"
+                          wiz-next-step=""
+                          ng-click="validateOligos()"></wiz-cont>
+            <wiz-back class="col-lg-12 btn btn-default btn-tertiary"
+                          wiz-back-title="Back"></wiz-back>
         </wiz-step>
         <wiz-step wiz-step-title="Design syntasi">
             <div class="wizard-pane">
