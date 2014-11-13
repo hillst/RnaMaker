@@ -72,8 +72,8 @@ class Manager(SocketServer.BaseRequestHandler):
         
         #give each handle their own queue which will contain the result, add a job to the queue and also to the mas
         print "recieved connection"
-        self.request.setblocking(0)
         chunk = self.request.recv(1024)
+        self.request.setblocking(0)
         self.data = ""
         while chunk != "":
             try:

@@ -1,3 +1,3 @@
 #!/bin/bash
-./SandboxedDaemon.py -p 49152
+/var/www/RnaMaker/bin/daemons/SandboxedDaemon.py -p 49152
 
