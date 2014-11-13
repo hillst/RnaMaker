@@ -19,6 +19,9 @@
 <link rel="stylesheet" type="text/css"  href="{{ asset("includes/css/angular.css") }}" ></link>
 
 <div ng-app="SyntasiBuilder">
+    <div class="hidden" id="help" >
+        {{ helpText["Construct"]["31"]["Help"]|raw }}
+    </div>
     <div class="container">
     <div class="jumbotron">
     <div class="error-tracker">

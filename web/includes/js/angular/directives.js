@@ -19,7 +19,10 @@
     app.directive("helpTab", function(){
         return {
             restrict: "E",
-            templateUrl: "/includes/js/angular/templates/help-tab.html"
+            templateUrl: "/includes/js/angular/templates/help-tab.html",
+            controller: function($scope){
+                angular.element(helpText).html(angular.element(help).html());
+            }
         }
     });
     app.directive('detailsTab', function(){

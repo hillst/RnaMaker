@@ -192,6 +192,42 @@ class DefaultController extends CMSController
         $token = $this->syntasirnaJsonWriter($json_result);
         return new Response($token, 200);
     }
+    /**
+     * ./amiR_final.pl -s TTTGATTTGTGATTTTTGCCAcks,dicksGTGATTTTTGCCA  -t syntasi -n dic
+     */
+    public function syntasiOligoRequestAction(){
+        $request = $this->getRequest();
+        if ($request->getMethod() !== 'POST'){
+            return new Response("Must be POST.", 403);
+        }
+        $recieved = json_decode($request->getContent());
+        if($recieved == 'NULL'){
+            return new Response("Bad content.", 400);
+        }
+        $seq = join(",", $recieved->oligos);
+        //fix size
+        $names = array_slice($recieved->names, 0, sizeof($recieved->oligos));
+        $name = join(",", $names);
+        if(($seq == "" || $name == "") && ($fasta == "")){
+            return new Response("Not enough inputs.", 403);
+        }
+        $daemonSocket = new DaemonHunter();
+        $arguments = array();
+        $arguments[0] = "-s";
+        $arguments[1] = $seq;
+        $arguments[2] = "-n";
+        $arguments[3] = $name;
+        $json = $daemonSocket->jsonBuilder("syntasiRNA_oligoDesigner.pl", "syntasiRNA_oligoDesigner.pl", $arguments);
+        $json_result = $daemonSocket->socketSend($json);
+        if(strlen($json_result) < 1){
+            return new Response("Error, unexpected response. " . print_r($arguments, TRUE), 500);
+        }
+        $token = uniqid("syntasiOligoDesigner_");
+        $fd = fopen($this->server_encoded . "/" . $token, "w"); 
+        fwrite($fd, $json_result);
+        fclose($fd);
+        return new Response($token, 200);
+    }
 
     /**
      * Request handler for Oligo Designer.  Expects a post and the arguments to be passed to the command line function. 
@@ -261,7 +297,7 @@ class DefaultController extends CMSController
             $arguments[3] = $names[$i];
             $arguments[4] = "-t";
             $arguments[5] = $fb;
-            $json = $daemonSocket->jsonBuilder("amiR_final.pl", "amiR_final.pl", $arguments);
+            $json = $daemonSocket->jsonBuilder("amiRNA_oligoDesigner.pl", "amiRNA_oligoDesigner.pl", $arguments);
             $json_result = $daemonSocket->socketSend($json);
             if(strlen($json_result) < 1){
                 return new Response("Error, unexpected response. " . print_r($arguments, TRUE), 500);

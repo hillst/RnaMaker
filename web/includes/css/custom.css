@@ -99,6 +99,11 @@ body {
 .container{
 	height: 769%;
 }
+.empty{
+    background-color: darkgrey;
+    color: grey;
+}
+
 .help{
     text-align: right;
     padding-bottom: 20px;

@@ -22,6 +22,9 @@ rnamaker_amirnarequest:
 rnamaker_oligodesigner:
     pattern: /amirna/oligodesigner
     defaults: { _controller: HillCMSRnaMakerBundle:Default:oligoRequest }
+rnamaker_syntasioligodesigner:
+    pattern: /syntasi/oligodesigner
+    defaults: { _controller: HillCMSRnaMakerBundle:Default:syntasiOligoRequest }
 rnamaker_targetfinder:
     pattern: /targetfinder/finder
     defaults: { _controller: HillCMSRnaMakerBundle:Default:targetFinderForm }
@@ -37,6 +40,12 @@ oligo_result_token:
 oligo_result_token_plain:
     pattern: /amirna/oligoresults
     defaults: { _controller: HillCMSRnaMakerBundle:Default:results }
+syntasi_oligo_result_token:
+    pattern: /syntasi/oligoresults/{token}
+    defaults: { _controller: HillCMSRnaMakerBundle:Angular:syntasiOligoResults }
+syntasi_oligo_results_token_plain:
+    pattern: /syntasi/oligoresults
+    defaults: { _controller: HillCMSRnaMakerBundle:Angular:syntasiOligoResults }
 rnamaker_syntasidesigner:
     pattern: /syntasi/designer
     defaults: { _controller: HillCMSRnaMakerBundle:Default:syntasiDesignerForm }

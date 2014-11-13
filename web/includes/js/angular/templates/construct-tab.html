@@ -5,16 +5,27 @@
         <div class="element-title {{ syntasi.colClass }}">{{block.name}}</div>
     </div>
     </div>
-    <div ng-repeat="(key, row) in syntasi.formattedSyntasis">
-        <div ng-repeat="(cKey, col) in row">
+        <div ng-repeat="sets in syntasi.optimal track by $index">
+          <div ng-repeat="ele in sets track by $index">
             <div class="element {{ syntasi.colClass }}" ng-class='hoverclass'
-                ng-mouseover="syntasi.preview = col; hoverclass='highlight'" 
+                ng-mouseover="syntasi.preview = ele; hoverclass='highlight'" 
                 ng-mouseleave="hoverclass=''" ng-init="hoverclass=''"
-                style="background-color: {{ syntasi.getColor(key) }}" x-lvl-draggable="true">
-                <span class="glyphicon glyphicon-move"></span> {{ cKey }}
+                style="background-color: {{ syntasi.getColor(0, $parent.$index, ele.name) }}" x-lvl-draggable="true">
+                <span class="glyphicon glyphicon-move" ng-show="ele.name != 'empty'"></span> {{ ele.name }}
             </div>
+          </div>
         </div>
-    </div>
+        <div ng-repeat="sets in syntasi.suboptimal track by $index">
+          <div ng-repeat="ele in sets track by $index">
+            <div class="element {{ syntasi.colClass }}" ng-class='hoverclass'
+                ng-mouseover="syntasi.preview = ele; hoverclass='highlight'"
+                ng-mouseleave="hoverclass=''" ng-init="hoverclass=''"
+                style="background-color: {{ syntasi.getColor(1, $parent.$index, ele.name) }}"
+                x-lvl-draggable="true">
+                <span class="glyphicon glyphicon-move" ng-show="ele.name != 'empty'"></span> {{ ele.name }}
+            </div>
+          </div>
+        </div>
     <div class="col-xs-12"></div>
     <div class="remove col-xs-12" x-lvl-drop-target="true" x-on-drop="remove(dragEl, dropEl)"><span class="glyphicon glyphicon-trash"></span> Remove</div>
     <!-- create a drop target and specify a callback function --!>

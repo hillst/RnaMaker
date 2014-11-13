@@ -11,15 +11,15 @@
                 <help-button></help-button>
                 <div class="wizard-text jumbotron jumbotron-modal">
                     <help-pane ng-show="showHelp" class="help-show-hide">
-                    Click ‘Design syntasiRNAs’ if you want to identify optimal syntasiRNA guide sequences that target your gene(s) of interest. Choose ‘Generate oligos’ if you already have syntasiRNA guide sequences and you just want to generate oligos to clone the syntasiRNAs in a BsaI-ccdB vector containing the Arabidopsis TAS1c precursor.
+                    Click ‘Design syn-tasiRNAs’ if you want to identify optimal syn-tasiRNA guide sequences that target your gene(s) of interest. Choose ‘Generate oligos’ if you already have syn-tasiRNA guide sequences and you just want to generate oligos to clone the syn-tasiRNAs in a BsaI-ccdB vector containing the Arabidopsis TAS1c precursor.
                     </help-pane>
-                    Do you need to design syntasiRNAs or do you already have syntasiRNA sequence(s) and only need to generate oligos for cloning?
+                    Do you need to design syn-tasiRNAs or do you already have syn-tasiRNA sequence(s) and only need to generate oligos for cloning?
                     <br/>
                     <br/>
                 </div>
             </div>
             <wiz-cont class="col-lg-6 btn btn-default btn-tertiary"
-                      wiz-cont-title="Design syntasiRNAs"
+                      wiz-cont-title="Design syn-tasiRNAs"
                       wiz-next-step="Design syntasi"></wiz-cont>
             <wiz-cont class="col-lg-6 btn btn-default btn-tertiary"
                       wiz-cont-title="Generate Oligos"
@@ -64,17 +64,17 @@
                         <a class="glyphicon glyphicon-minus minus" ng-click="decrementVisible()"
                            ng-show="showMinus()"></a>
                     </field-duplicator>
-                    <div class="my-result" ng-class="resultBoxClass" ng-show="showResult">
-                        <div ng-repeat="error in errorMessages track by $index">
-                            {{ error }}
-                        </div>
-                        <div ng-repeat="warning in warningMessages track by $index">
-                            {{ warning }}
-                        </div>
-                        <div>
-                            {{ resultText }}
-                            <img src="/includes/images/ajax-loader.gif" ng-hide="hideSpinner">
-                        </div>
+                </div>
+                <div class="my-result" ng-class="resultBoxClass" ng-show="showResult">
+                    <div ng-repeat="error in errorMessages track by $index">
+                        {{ error }}
+                    </div>
+                    <div ng-repeat="warning in warningMessages track by $index">
+                        {{ warning }}
+                    </div>
+                    <div>
+                        {{ resultText }}
+                        <img src="/includes/images/ajax-loader.gif" ng-hide="hideSpinner">
                     </div>
                 </div>
             </div>
@@ -90,9 +90,9 @@
                 <help-button></help-button>
                 <div class="wizard-text jumbotron jumbotron-modal">
                     <help-pane ng-show="showHelp" class="help-show-hide">
-                    Select a species and click ‘Yes’ if you are going to express your syntasiRNAs in any of the species listed. Note that only Arabidopsis thaliana produces miR173 required for triggering syntasiRNA biogenesis, therefore if you select another species you should co-express miR173 to produce syntasiRNAs. Click ‘No’ if you are going to express your syntasiRNA(s) in another species. If you want us to add a new specie contact us at <a href="mailto:administrator@carringtonlab.org?Subject=P-SAMS" target="_top">administrator@carringtonlab.org</a>
+                    Select a species and click ‘Yes’ if you are going to express your syn-tasiRNAs in any of the species listed. Note that only Arabidopsis thaliana and Camelina satvia produces miR173 required for triggering syn-tasiRNA biogenesis, therefore if you select another species you should co-express miR173 to produce syn-tasiRNAs. Click ‘No’ if you are going to express your syn-tasiRNA(s) in another species. If you want us to add a new specie contact us at <a href="mailto:administrator@carringtonlab.org?Subject=P-SAMS" target="_top">administrator@carringtonlab.org</a>
                     </help-pane>
-                    Will you use your syntasiRNA(s) in one of the following species? 
+                    Will you use your syn-tasiRNA(s) in one of the following species? 
                     <br/>
                     <br/>
                     <label for="database" ng-init="getCurrentData().database=databases[0]">Species Transcript Database:</label>    
@@ -103,9 +103,14 @@
                             ng-options="database.label group by database.class for database in databases track by database.id">
                     </select>
                 </div>
+                <div class="my-result alert alert-warning" ng-show="warning"> 
+                    The selected species does not produce miR173 required for triggering TAS1c-based syn-tasiRNA biogenesis. Please, be sure that you co-express miR173.
+                </div>
+                <!-- Using our own next step function and the title custom next step. See controller -->
                 <wiz-cont class="col-lg-12 btn btn-default btn-tertiary"
                           wiz-cont-title="Next"
-                          wiz-next-step="Annotated or Unannotated"></wiz-cont>
+                          species-selection
+                          custom-next-step="Annotated or Unannotated"></wiz-cont>
                 <wiz-back class="col-lg-12 btn btn-default btn-tertiary"
                           wiz-back-title="Back"></wiz-back>
             </div>

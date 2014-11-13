@@ -119,8 +119,14 @@
             this.formatGeneSets(this.formattedSyntasis);
         }
 
-        this.getColor = function(index){
-            return 'hsl(' + (Number(index) + 1) * 210/this.formattedSyntasis.length + ',100%,50%)';
+        this.getColor = function(index, parentIndex, name){
+            var totalLength = this.optimal.length + this.suboptimal.length;
+            var localIndex = (index) * totalLength + (parentIndex);
+            if (name == 'empty'){
+                return "darkgrey";
+            } else{
+                return 'hsl(' + (Number(localIndex) + 1) * 210/totalLength + ',80%,70%)';
+            }
         };
 
         //expectations:
@@ -130,9 +136,12 @@
         // for all gene sets:
         // [set1, set2],
         // [set1.1, set2.1] 
+        //
         this.formatGeneSets = function(result){
             var maxOpt = 0;
             var maxSub = 0;
+            var optimal = []
+            var suboptimal = []
             for (var key in this.syntasis.blocks){
                 //optimal
                 var set = this.syntasis.blocks[key];
@@ -148,28 +157,35 @@
             for (var i = 0; i < maxOpt; i++){
                 for (var j = 0; j < this.syntasis.blocks.length; j++){
                     var keys = Object.keys(this.syntasis.blocks[j].optimal);
-                    if (result[i] == undefined){
-                        result[i] = {};
+                    if (optimal[i] == undefined){
+                        optimal[i] = [];
                     }   
                     if (i < keys.length){
                         var key = keys[i];
-                        result[i][key] = this.syntasis.blocks[j].optimal[keys[i]];
-                    }
+                        optimal[i][j] = this.syntasis.blocks[j].optimal[keys[i]];
+                        optimal[i][j].name = keys[i];
+                    } else{
+                        optimal[i][j] = {"name": "empty"};
+                    } 
                 }
             }
             var offset = i; //set offset to previous last value
             for (var i = 0; i < maxSub; i++){
                 for (var j = 0; j < this.syntasis.blocks.length; j++){
                     var keys = Object.keys(this.syntasis.blocks[j].suboptimal);
-                    if (result[i+offset] == undefined){
-                        result[i+offset] = {};
+                    if (suboptimal[i] == undefined){
+                        suboptimal[i] = [];
                     }
                     if (i < keys.length){
-                        result[i+offset][keys[i]] = this.syntasis.blocks[j].suboptimal[keys[i]];
+                        suboptimal[i][j] = this.syntasis.blocks[j].suboptimal[keys[i]];
+                        suboptimal[i][j].name = keys[i];
+                    } else{
+                        suboptimal[i][j] = {"name": "empty"};
                     }
                 }
             }
-            this.formattedSyntasis = result;
+            this.optimal = optimal;
+            this.suboptimal = suboptimal;
         }
     });
 })();

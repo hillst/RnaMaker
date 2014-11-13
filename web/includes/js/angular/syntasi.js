@@ -78,6 +78,33 @@
             templateUrl: "/includes/js/angular/templates/helpButton.html"
         }
     });
+    app.directive("speciesSelection", function(){
+        return {
+            restrict: "A",
+            controller: function($scope, $element){
+                $scope.wizNextStep = angular.element($element).attr("custom-next-step");
+                $scope.$parent.warning = false;
+                $scope.warning = $scope.$parent.warning;
+                //init warning inside this pane
+                $element.bind("click", function(){
+                    // 1 and 11 trigger biogenisis
+                    if ($scope.warning == false){    
+                        var selectedId = $scope.getCurrentData().database.id
+                        if (selectedId != 1 && selectedId != 11){
+                            //set alert
+                            $scope.warning = true;
+                            return
+                        } 
+                    }
+                    $scope.warning = false;
+                    $scope.advanceStep($scope.wizNextStep);
+                    if( $scope.wizBool != undefined){
+                        $scope.$parent.getCurrentData()[$scope.wizBool] = $scope.wizBoolValue || "true";
+                    }
+                });
+            }
+        }
+    });
     app.directive("submitButton", function(){
         return {
             restrict: "A",
@@ -203,7 +230,7 @@
                                 color == "none" ? color = "yellow" : "";
                             }
                             if (seq.substr(18,1).toUpperCase() !== "C"){
-                                $scope.warningMessages.push("Warning: We recommend a C at amiRNA position 19, in order to have a 5' G on the miR*.");
+                                $scope.warningMessages.push("Warning: We recommend a C at syn-tasiRNA position 19, in order to have a 5' G on the syntasi-R*.");
                                 color == "none" ? color = "yellow" : "";
                             }
                             if (color == "red"){
@@ -223,24 +250,24 @@
                             $scope.showResult = false;
                             $scope.resultBoxClass = "alert alert-success";
                             $scope.getCurrentData().oligoClasses = [];
-                            $scope.submitOligos();
+                            $scope.submitOligos($scope);
                         }
                         $scope.previousSubmit = seqs.slice(0);
                     }
                 }
-                $scope.submitOligos = function(){
+                $scope.submitOligos = function(parentScope){
                     $scope.hasSubmitted = true;
-                    $scope.hideSpinner = true;
+                    $scope.hideSpinner = false;
                     $scope.showResult = true;
                     var submitUrl = angular.element(oligosubmit).text();
-                    console.log($scope.resultsPath);
                     //check for resultspath
                     $scope.resultBoxClass = "my-result alert alert-warning";
                     $http.post(submitUrl, $scope.getCurrentData()).success(function(response){
                         $scope.resultBoxClass = "my-result alert alert-success";
+                        parentScope.warningMessages = [];
+                        parentScope.errorMessages = [];
                         $scope.resultText = "Success!";
                         $scope.hideSpinner = true;
-                        console.log(response);
                         angular.element($element).text("Click to see Results");
                         $scope.resultsPath = angular.element(oligoresults).text().trim() +"/"+ response;
                     })
